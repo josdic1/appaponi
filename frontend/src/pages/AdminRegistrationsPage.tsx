@@ -16,9 +16,17 @@ import type {
   EventRegistration,
 } from "@appoponi/shared/schemas/registration";
 
+import type {
+  Cabin,
+} from "@appoponi/shared/schemas/cabins";
+
+import AdminCabinsPanel from "./AdminCabinsPanel";
+
 import {
+  assignRegistrationCabin,
   createRegistration,
   loadAccounts,
+  loadCabins,
   loadRegistrations,
   updateRegistrationSpots,
 } from "../api/admin";
@@ -39,6 +47,9 @@ export default function AdminRegistrationsPage() {
     setRegistrations,
   ] = useState<EventRegistration[]>([]);
 
+  const [cabins, setCabins] =
+    useState<Cabin[]>([]);
+
   const [accountId, setAccountId] =
     useState("");
 
@@ -56,10 +67,12 @@ export default function AdminRegistrationsPage() {
       nextAccounts,
       nextEvents,
       nextRegistrations,
+      nextCabins,
     ] = await Promise.all([
       loadAccounts(),
       loadEvents(),
       loadRegistrations(),
+      loadCabins(),
     ]);
 
     setAccounts(
@@ -74,6 +87,7 @@ export default function AdminRegistrationsPage() {
     setRegistrations(
       nextRegistrations,
     );
+    setCabins(nextCabins);
   }
 
   useEffect(() => {
@@ -251,6 +265,12 @@ export default function AdminRegistrationsPage() {
           </form>
         </section>
 
+        <AdminCabinsPanel
+          onChanged={() => {
+            void refresh();
+          }}
+        />
+
         <section className="admin-card">
           <div className="admin-card-head">
             <div>
@@ -316,6 +336,55 @@ export default function AdminRegistrationsPage() {
                           }
                         }}
                       />
+                    </label>
+
+                    <label>
+                      <small>
+                        Cabin
+                      </small>
+
+                      <select
+                        value={
+                          item.cabin_id ??
+                          ""
+                        }
+                        onChange={(e) =>
+                          void run(() =>
+                            assignRegistrationCabin(
+                              item.id,
+                              e.target
+                                .value
+                                ? Number(
+                                    e
+                                      .target
+                                      .value,
+                                  )
+                                : null,
+                            ),
+                          )
+                        }
+                      >
+                        <option value="">
+                          Unassigned
+                        </option>
+
+                        {cabins.map(
+                          (cabin) => (
+                            <option
+                              key={
+                                cabin.id
+                              }
+                              value={
+                                cabin.id
+                              }
+                            >
+                              {
+                                cabin.name
+                              }
+                            </option>
+                          ),
+                        )}
+                      </select>
                     </label>
 
                     <b>

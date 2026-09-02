@@ -67,6 +67,10 @@
     "./schemas/notifications": {
       "types": "./dist/schemas/notifications.d.ts",
       "import": "./dist/schemas/notifications.js"
+    },
+    "./schemas/cabins": {
+      "types": "./dist/schemas/cabins.d.ts",
+      "import": "./dist/schemas/cabins.js"
     }
   },
   "scripts": {

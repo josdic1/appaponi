@@ -217,3 +217,130 @@ export async function updateRegistrationSpots(
 
   return json(response);
 }
+
+import type {
+  Cabin,
+} from "@appoponi/shared/schemas/cabins";
+
+import type {
+  Area,
+} from "@appoponi/shared/schemas/areas";
+
+export async function loadCabins() {
+  const response = await fetch(
+    `${API_URL}/api/cabins`,
+    { credentials: "include" },
+  );
+
+  return (
+    await json<{
+      cabins: Cabin[];
+    }>(response)
+  ).cabins;
+}
+
+export async function loadCabinAreas() {
+  const response = await fetch(
+    `${API_URL}/api/areas`,
+    { credentials: "include" },
+  );
+
+  return (
+    await json<{
+      areas: Area[];
+    }>(response)
+  ).areas;
+}
+
+export async function createCabin(
+  input: {
+    name: string;
+    area_id?: number | null;
+    map_x?: number | null;
+    map_y?: number | null;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/cabins`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{
+      cabin: Cabin;
+    }>(response)
+  ).cabin;
+}
+
+export async function updateCabin(
+  id: string,
+  input: {
+    name?: string;
+    area_id?: number | null;
+    map_x?: number | null;
+    map_y?: number | null;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/cabins/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{
+      cabin: Cabin;
+    }>(response)
+  ).cabin;
+}
+
+export async function deleteCabin(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/cabins/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+export async function assignRegistrationCabin(
+  registrationId: string,
+  cabinId: number | null,
+) {
+  const response = await fetch(
+    `${API_URL}/api/registrations/${registrationId}/cabin`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        cabin_id: cabinId,
+      }),
+    },
+  );
+
+  return json(response);
+}

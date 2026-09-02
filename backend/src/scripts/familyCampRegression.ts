@@ -656,6 +656,73 @@ async function main() {
 
   pass("event registration");
 
+  /* CABIN */
+
+  const cabinResult =
+    await admin.request(
+      "POST",
+      "/api/cabins",
+      {
+        name:
+          `Regression Cabin ${stamp}`,
+        area_id:
+          Number(areaId),
+        map_x: 0.35,
+        map_y: 0.45,
+      },
+    );
+
+  const cabinId =
+    idFrom(
+      cabinResult.body,
+      "cabin",
+    );
+
+  const renamedCabin =
+    `Regression Cabin ${stamp} Updated`;
+
+  await admin.request(
+    "PATCH",
+    `/api/cabins/${cabinId}`,
+    {
+      name: renamedCabin,
+    },
+  );
+
+  const cabins =
+    arrayFrom(
+      (
+        await admin.request(
+          "GET",
+          "/api/cabins",
+        )
+      ).body,
+      "cabins",
+    );
+
+  assert.ok(
+    cabins.some(
+      (item) =>
+        String(item.id) ===
+          cabinId &&
+        item.name ===
+          renamedCabin,
+    ),
+  );
+
+  await admin.request(
+    "PATCH",
+    `/api/registrations/${registrationId}/cabin`,
+    {
+      cabin_id:
+        Number(cabinId),
+    },
+  );
+
+  pass(
+    "cabin create + update + assignment",
+  );
+
   /* MEALS */
 
   const menuResult =
@@ -837,16 +904,31 @@ async function main() {
       "registrations",
     );
 
-  assert.ok(
-    memberRegistrations.some(
+  const memberRegistration =
+    memberRegistrations.find(
       (item) =>
         String(item.id) ===
         registrationId,
+    );
+
+  assert.ok(
+    memberRegistration,
+  );
+
+  assert.equal(
+    String(
+      memberRegistration.cabin_id,
     ),
+    cabinId,
+  );
+
+  assert.equal(
+    memberRegistration.cabin_name,
+    renamedCabin,
   );
 
   pass(
-    "member sees registration",
+    "member sees registration + cabin",
   );
 
   /* ATTENDEES */

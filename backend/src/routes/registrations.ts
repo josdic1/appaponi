@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import {
+  assignRegistrationCabinSchema,
   createEventRegistrationSchema,
   registrationIdParamsSchema,
   updateEventRegistrationSchema,
@@ -45,12 +46,15 @@ registrationsRouter.get(
                   AND ma.event_id = er.event_id
               ) AS selected_attendees,
               er.cabin_id,
+              c.name AS cabin_name,
               er.share_cabin_publicly
             FROM event_registrations er
             JOIN accounts a
               ON a.id = er.account_id
             JOIN events e
               ON e.id = er.event_id
+            LEFT JOIN cabins c
+              ON c.id = er.cabin_id
             WHERE (
               $1::boolean = TRUE
               OR er.account_id = $2
@@ -118,12 +122,15 @@ registrationsRouter.post(
               i.spots_paid_for,
               0::int AS selected_attendees,
               i.cabin_id,
+              c.name AS cabin_name,
               i.share_cabin_publicly
             FROM inserted i
             JOIN accounts a
               ON a.id = i.account_id
             JOIN events e
               ON e.id = i.event_id
+            LEFT JOIN cabins c
+              ON c.id = i.cabin_id
           `,
           [
             parsed.data.account_id,
@@ -236,6 +243,73 @@ registrationsRouter.patch(
       res.status(500).json({
         error:
           "Could not update registration",
+      });
+    }
+  },
+);
+
+
+registrationsRouter.patch(
+  "/:id/cabin",
+  requireAuth,
+  requirePasswordChanged,
+  requireAccountType("admin"),
+  async (req, res) => {
+    const params =
+      registrationIdParamsSchema.safeParse(
+        req.params,
+      );
+
+    const body =
+      assignRegistrationCabinSchema.safeParse(
+        req.body,
+      );
+
+    if (!params.success || !body.success) {
+      res.status(400).json({
+        error: "Invalid cabin assignment",
+      });
+      return;
+    }
+
+    try {
+      const result = await query<{
+        id: string;
+      }>(
+        `
+          UPDATE event_registrations
+          SET cabin_id = $2
+          WHERE id = $1
+          RETURNING id
+        `,
+        [
+          params.data.id,
+          body.data.cabin_id,
+        ],
+      );
+
+      if (!result.rows[0]) {
+        res.status(404).json({
+          error:
+            "Registration does not exist",
+        });
+        return;
+      }
+
+      res.json({ ok: true });
+    } catch (error: any) {
+      if (error?.code === "23503") {
+        res.status(409).json({
+          error: "Cabin does not exist",
+        });
+        return;
+      }
+
+      console.error(error);
+
+      res.status(500).json({
+        error:
+          "Could not assign cabin",
       });
     }
   },

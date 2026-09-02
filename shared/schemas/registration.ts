@@ -14,6 +14,14 @@ export const registrationIdParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
 
+export const assignRegistrationCabinSchema = z.object({
+  cabin_id: z.coerce
+    .number()
+    .int()
+    .positive()
+    .nullable(),
+});
+
 export const createMemberAttendeeSchema = z.object({
   member_id: z.coerce.number().int().positive(),
   event_id: z.coerce.number().int().positive(),
@@ -41,6 +49,7 @@ export type EventRegistration = {
   spots_paid_for: number;
   selected_attendees: number;
   cabin_id: string | null;
+  cabin_name: string | null;
   share_cabin_publicly: boolean;
 };
 

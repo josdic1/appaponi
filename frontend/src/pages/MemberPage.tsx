@@ -229,6 +229,21 @@ export default function MemberPage() {
               <div className="member-card-head">
                 <div>
                   <strong>
+                    Your cabin
+                  </strong>
+
+                  <span>
+                    {registration.cabin_name ??
+                      "Not assigned yet"}
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            <section className="member-card">
+              <div className="member-card-head">
+                <div>
+                  <strong>
                     Who's attending?
                   </strong>
 
