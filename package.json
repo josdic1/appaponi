@@ -1,0 +1,25 @@
+{
+  "name": "appoponi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -n backend,frontend \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "typecheck": "npm --prefix shared run typecheck && npm --prefix backend run typecheck && npm --prefix frontend run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josdic1/appaponi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/josdic1/appaponi/issues"
+  },
+  "homepage": "https://github.com/josdic1/appaponi#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  },
+  "private": true
+}
