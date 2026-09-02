@@ -3,6 +3,7 @@ import {
 } from "./components/feedback/MataponiLoader";
 
 import AuthProvider from "./providers/AuthProvider";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
 import LoginPage from "./pages/LoginPage";
 import { useAuth } from "./hooks/useAuth";
 
@@ -19,6 +20,10 @@ function AppContent() {
 
   if (!account) {
     return <LoginPage />;
+  }
+
+  if (account.must_change_password) {
+    return <ChangePasswordPage />;
   }
 
   return (
