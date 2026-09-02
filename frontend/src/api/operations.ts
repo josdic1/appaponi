@@ -61,6 +61,45 @@ export async function createArea(
   ).area;
 }
 
+export async function updateArea(
+  id: string,
+  input: {
+    name?: string;
+    map_x?: number | null;
+    map_y?: number | null;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/areas/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{ area: Area }>(response)
+  ).area;
+}
+
+export async function deleteArea(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/areas/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
 export async function loadActivities() {
   const response = await fetch(
     `${API_URL}/api/activities`,
@@ -98,6 +137,47 @@ export async function createActivity(
       response,
     )
   ).activity;
+}
+
+export async function updateActivity(
+  id: string,
+  input: {
+    name?: string;
+    area_id?: number;
+    setting?: ActivitySetting;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/activities/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{ activity: Activity }>(
+      response,
+    )
+  ).activity;
+}
+
+export async function deleteActivity(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/activities/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
 }
 
 export async function loadEventTypes() {
@@ -153,4 +233,48 @@ export async function createEvent(
       response,
     )
   ).event;
+}
+
+export async function updateEvent(
+  id: string,
+  input: {
+    name?: string;
+    event_type_id?: number;
+    starts_at?: string;
+    ends_at?: string;
+    other_value?: string;
+    other_reason?: string;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/events/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{ event: EventRecord }>(
+      response,
+    )
+  ).event;
+}
+
+export async function deleteEvent(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/events/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
 }

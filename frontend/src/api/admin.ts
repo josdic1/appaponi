@@ -156,6 +156,49 @@ export async function createStaffMember(
   ).staff_member;
 }
 
+export async function updateStaffMember(
+  id: string,
+  input: {
+    full_name?: string;
+    email?: string | null;
+    phone?: string | null;
+    role?: StaffRole;
+    babysitting_eligible?: boolean;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/staff-members/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{
+      staff_member: StaffMember;
+    }>(response)
+  ).staff_member;
+}
+
+export async function deleteStaffMember(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/staff-members/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
 import type {
   EventRegistration,
 } from "@appoponi/shared/schemas/registration";

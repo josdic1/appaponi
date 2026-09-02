@@ -23,10 +23,16 @@ import {
   createActivity,
   createArea,
   createEvent,
+  deleteActivity,
+  deleteArea,
+  deleteEvent,
   loadActivities,
   loadAreas,
   loadEvents,
   loadEventTypes,
+  updateActivity,
+  updateArea,
+  updateEvent,
 } from "../api/operations";
 
 import HumanDateTimeInput from "../components/HumanDateTimeInput";
@@ -43,6 +49,27 @@ function localDateTime(
   value: string,
 ): string {
   return new Date(value).toLocaleString();
+}
+
+function editableDateTime(
+  value: string,
+): string {
+  const date = new Date(value);
+  let hour = date.getHours();
+  const meridiem =
+    hour >= 12 ? "PM" : "AM";
+
+  hour %= 12;
+
+  if (hour === 0) {
+    hour = 12;
+  }
+
+  return `${
+    date.getMonth() + 1
+  }/${date.getDate()}/${date.getFullYear()} ${hour}:${String(
+    date.getMinutes(),
+  ).padStart(2, "0")} ${meridiem}`;
 }
 
 export default function AdminOperationsPage() {
@@ -94,6 +121,63 @@ export default function AdminOperationsPage() {
   const [otherReason, setOtherReason] =
     useState("");
 
+  const [editingAreaId, setEditingAreaId] =
+    useState<string | null>(null);
+
+  const [editingAreaName, setEditingAreaName] =
+    useState("");
+
+  const [
+    editingActivityId,
+    setEditingActivityId,
+  ] = useState<string | null>(null);
+
+  const [
+    editingActivityName,
+    setEditingActivityName,
+  ] = useState("");
+
+  const [
+    editingActivityAreaId,
+    setEditingActivityAreaId,
+  ] = useState("");
+
+  const [
+    editingActivitySetting,
+    setEditingActivitySetting,
+  ] = useState<ActivitySetting>("outside");
+
+  const [editingEventId, setEditingEventId] =
+    useState<string | null>(null);
+
+  const [editingEventName, setEditingEventName] =
+    useState("");
+
+  const [
+    editingEventTypeId,
+    setEditingEventTypeId,
+  ] = useState("");
+
+  const [
+    editingStartsAt,
+    setEditingStartsAt,
+  ] = useState("");
+
+  const [
+    editingEndsAt,
+    setEditingEndsAt,
+  ] = useState("");
+
+  const [
+    editingOtherValue,
+    setEditingOtherValue,
+  ] = useState("");
+
+  const [
+    editingOtherReason,
+    setEditingOtherReason,
+  ] = useState("");
+
   async function refresh() {
     const [
       nextAreas,
@@ -131,6 +215,20 @@ export default function AdminOperationsPage() {
             item.id === eventTypeId,
         ) ?? null,
       [eventTypes, eventTypeId],
+    );
+
+  const selectedEditingEventType =
+    useMemo(
+      () =>
+        eventTypes.find(
+          (item) =>
+            item.id ===
+            editingEventTypeId,
+        ) ?? null,
+      [
+        eventTypes,
+        editingEventTypeId,
+      ],
     );
 
   async function submitArea(
@@ -237,6 +335,269 @@ export default function AdminOperationsPage() {
         err instanceof Error
           ? err.message
           : "Could not create event",
+      );
+    }
+  }
+
+  function beginAreaEdit(
+    area: Area,
+  ) {
+    setEditingAreaId(area.id);
+    setEditingAreaName(area.name);
+    setError(null);
+  }
+
+  async function saveAreaEdit(
+    event: FormEvent,
+    id: string,
+  ) {
+    event.preventDefault();
+    setError(null);
+
+    try {
+      await updateArea(id, {
+        name: editingAreaName,
+      });
+
+      setEditingAreaId(null);
+      await refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not update area",
+      );
+    }
+  }
+
+  async function removeArea(
+    area: Area,
+  ) {
+    if (
+      !window.confirm(
+        `Delete area "${area.name}"?`,
+      )
+    ) {
+      return;
+    }
+
+    setError(null);
+
+    try {
+      await deleteArea(area.id);
+
+      if (editingAreaId === area.id) {
+        setEditingAreaId(null);
+      }
+
+      await refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not delete area",
+      );
+    }
+  }
+
+  function beginActivityEdit(
+    activity: Activity,
+  ) {
+    setEditingActivityId(activity.id);
+    setEditingActivityName(
+      activity.name,
+    );
+    setEditingActivityAreaId(
+      activity.area_id,
+    );
+    setEditingActivitySetting(
+      activity.setting,
+    );
+    setError(null);
+  }
+
+  async function saveActivityEdit(
+    event: FormEvent,
+    id: string,
+  ) {
+    event.preventDefault();
+    setError(null);
+
+    if (!editingActivityAreaId) {
+      setError("Choose an area.");
+      return;
+    }
+
+    try {
+      await updateActivity(id, {
+        name: editingActivityName,
+        area_id:
+          Number(
+            editingActivityAreaId,
+          ),
+        setting:
+          editingActivitySetting,
+      });
+
+      setEditingActivityId(null);
+      await refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not update activity",
+      );
+    }
+  }
+
+  async function removeActivity(
+    activity: Activity,
+  ) {
+    if (
+      !window.confirm(
+        `Delete activity "${activity.name}"?`,
+      )
+    ) {
+      return;
+    }
+
+    setError(null);
+
+    try {
+      await deleteActivity(
+        activity.id,
+      );
+
+      if (
+        editingActivityId ===
+        activity.id
+      ) {
+        setEditingActivityId(null);
+      }
+
+      await refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not delete activity",
+      );
+    }
+  }
+
+  function beginEventEdit(
+    item: EventRecord,
+  ) {
+    setEditingEventId(item.id);
+    setEditingEventName(item.name);
+    setEditingEventTypeId(
+      item.event_type_id,
+    );
+    setEditingStartsAt(
+      editableDateTime(
+        item.starts_at,
+      ),
+    );
+    setEditingEndsAt(
+      editableDateTime(
+        item.ends_at,
+      ),
+    );
+    setEditingOtherValue(
+      item.other_value ?? "",
+    );
+    setEditingOtherReason(
+      item.other_reason ?? "",
+    );
+    setError(null);
+  }
+
+  async function saveEventEdit(
+    event: FormEvent,
+    id: string,
+  ) {
+    event.preventDefault();
+    setError(null);
+
+    if (!editingEventTypeId) {
+      setError("Choose an event type.");
+      return;
+    }
+
+    if (
+      !editingStartsAt ||
+      !editingEndsAt
+    ) {
+      setError(
+        "Start and end are required.",
+      );
+      return;
+    }
+
+    try {
+      await updateEvent(id, {
+        name: editingEventName,
+        event_type_id:
+          Number(
+            editingEventTypeId,
+          ),
+        starts_at:
+          humanDateTimeToIso(
+            editingStartsAt,
+          ),
+        ends_at:
+          humanDateTimeToIso(
+            editingEndsAt,
+            editingStartsAt,
+          ),
+        ...(selectedEditingEventType
+          ?.name === "Other"
+          ? {
+              other_value:
+                editingOtherValue,
+              other_reason:
+                editingOtherReason,
+            }
+          : {}),
+      });
+
+      setEditingEventId(null);
+      await refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not update event",
+      );
+    }
+  }
+
+  async function removeEvent(
+    item: EventRecord,
+  ) {
+    if (
+      !window.confirm(
+        `Delete event "${item.name}"?`,
+      )
+    ) {
+      return;
+    }
+
+    setError(null);
+
+    try {
+      await deleteEvent(item.id);
+
+      if (editingEventId === item.id) {
+        setEditingEventId(null);
+      }
+
+      await refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not delete event",
       );
     }
   }
@@ -361,18 +722,91 @@ export default function AdminOperationsPage() {
 
             <div className="admin-list">
               {areas.length ? (
-                areas.map((area) => (
-                  <div
-                    className="admin-list-row"
-                    key={area.id}
-                  >
-                    <span>
-                      <strong>
-                        {area.name}
-                      </strong>
-                    </span>
-                  </div>
-                ))
+                areas.map((area) =>
+                  editingAreaId ===
+                  area.id ? (
+                    <form
+                      className="admin-inline-edit"
+                      key={area.id}
+                      onSubmit={(event) =>
+                        void saveAreaEdit(
+                          event,
+                          area.id,
+                        )
+                      }
+                    >
+                      <input
+                        aria-label="Area name"
+                        value={
+                          editingAreaName
+                        }
+                        onChange={(event) =>
+                          setEditingAreaName(
+                            event.target.value,
+                          )
+                        }
+                      />
+
+                      <div className="admin-row-actions">
+                        <button
+                          className="admin-secondary-button"
+                          type="submit"
+                        >
+                          Save
+                        </button>
+
+                        <button
+                          className="admin-edit-button"
+                          type="button"
+                          onClick={() =>
+                            setEditingAreaId(
+                              null,
+                            )
+                          }
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div
+                      className="admin-list-row admin-manage-row"
+                      key={area.id}
+                    >
+                      <span>
+                        <strong>
+                          {area.name}
+                        </strong>
+                      </span>
+
+                      <div className="admin-row-actions">
+                        <button
+                          className="admin-edit-button"
+                          type="button"
+                          onClick={() =>
+                            beginAreaEdit(
+                              area,
+                            )
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="admin-delete-button"
+                          type="button"
+                          onClick={() =>
+                            void removeArea(
+                              area,
+                            )
+                          }
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ),
+                )
               ) : (
                 <div className="admin-empty">
                   No areas yet.
@@ -490,28 +924,160 @@ export default function AdminOperationsPage() {
             <div className="admin-list">
               {activities.length ? (
                 activities.map(
-                  (activity) => (
-                    <div
-                      className="admin-list-row"
-                      key={activity.id}
-                    >
-                      <span>
-                        <strong>
-                          {activity.name}
-                        </strong>
+                  (activity) =>
+                    editingActivityId ===
+                    activity.id ? (
+                      <form
+                        className="admin-list-row profile-edit-row"
+                        key={activity.id}
+                        onSubmit={(event) =>
+                          void saveActivityEdit(
+                            event,
+                            activity.id,
+                          )
+                        }
+                      >
+                        <div className="admin-edit-fields">
+                          <input
+                            aria-label="Activity name"
+                            value={
+                              editingActivityName
+                            }
+                            onChange={(event) =>
+                              setEditingActivityName(
+                                event.target
+                                  .value,
+                              )
+                            }
+                          />
 
-                        <small>
-                          {
-                            activity.area_name
-                          }{" "}
-                          ·{" "}
-                          {
-                            activity.setting
-                          }
-                        </small>
-                      </span>
-                    </div>
-                  ),
+                          <select
+                            aria-label="Activity area"
+                            value={
+                              editingActivityAreaId
+                            }
+                            onChange={(event) =>
+                              setEditingActivityAreaId(
+                                event.target
+                                  .value,
+                              )
+                            }
+                          >
+                            {areas.map(
+                              (area) => (
+                                <option
+                                  key={
+                                    area.id
+                                  }
+                                  value={
+                                    area.id
+                                  }
+                                >
+                                  {
+                                    area.name
+                                  }
+                                </option>
+                              ),
+                            )}
+                          </select>
+
+                          <select
+                            aria-label="Activity setting"
+                            value={
+                              editingActivitySetting
+                            }
+                            onChange={(event) =>
+                              setEditingActivitySetting(
+                                event.target
+                                  .value as ActivitySetting,
+                              )
+                            }
+                          >
+                            <option value="outside">
+                              Outside
+                            </option>
+
+                            <option value="inside">
+                              Inside
+                            </option>
+
+                            <option value="other">
+                              Other
+                            </option>
+                          </select>
+                        </div>
+
+                        <div className="admin-row-actions">
+                          <button
+                            className="admin-secondary-button"
+                            type="submit"
+                          >
+                            Save
+                          </button>
+
+                          <button
+                            className="admin-edit-button"
+                            type="button"
+                            onClick={() =>
+                              setEditingActivityId(
+                                null,
+                              )
+                            }
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div
+                        className="admin-list-row admin-manage-row"
+                        key={activity.id}
+                      >
+                        <span>
+                          <strong>
+                            {
+                              activity.name
+                            }
+                          </strong>
+
+                          <small>
+                            {
+                              activity.area_name
+                            }{" "}
+                            ·{" "}
+                            {
+                              activity.setting
+                            }
+                          </small>
+                        </span>
+
+                        <div className="admin-row-actions">
+                          <button
+                            className="admin-edit-button"
+                            type="button"
+                            onClick={() =>
+                              beginActivityEdit(
+                                activity,
+                              )
+                            }
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            className="admin-delete-button"
+                            type="button"
+                            onClick={() =>
+                              void removeActivity(
+                                activity,
+                              )
+                            }
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ),
                 )
               ) : (
                 <div className="admin-empty">
@@ -662,28 +1228,199 @@ export default function AdminOperationsPage() {
 
             <div className="admin-list">
               {events.length ? (
-                events.map((event) => (
-                  <div
-                    className="admin-list-row operation-event-row"
-                    key={event.id}
-                  >
-                    <span>
-                      <strong>
-                        {event.name}
-                      </strong>
+                events.map((event) =>
+                  editingEventId ===
+                  event.id ? (
+                    <form
+                      className="admin-list-row profile-edit-row operation-event-edit"
+                      key={event.id}
+                      onSubmit={(formEvent) =>
+                        void saveEventEdit(
+                          formEvent,
+                          event.id,
+                        )
+                      }
+                    >
+                      <div className="admin-edit-fields operation-event-edit-fields">
+                        <input
+                          aria-label="Event name"
+                          value={
+                            editingEventName
+                          }
+                          onChange={(
+                            inputEvent,
+                          ) =>
+                            setEditingEventName(
+                              inputEvent.target
+                                .value,
+                            )
+                          }
+                        />
 
-                      <small>
-                        {
-                          event.event_type_name
-                        }{" "}
-                        ·{" "}
-                        {localDateTime(
-                          event.starts_at,
+                        <select
+                          aria-label="Event type"
+                          value={
+                            editingEventTypeId
+                          }
+                          onChange={(
+                            inputEvent,
+                          ) =>
+                            setEditingEventTypeId(
+                              inputEvent.target
+                                .value,
+                            )
+                          }
+                        >
+                          {eventTypes.map(
+                            (eventType) => (
+                              <option
+                                key={
+                                  eventType.id
+                                }
+                                value={
+                                  eventType.id
+                                }
+                              >
+                                {
+                                  eventType.name
+                                }
+                              </option>
+                            ),
+                          )}
+                        </select>
+
+                        <HumanDateTimeInput
+                          value={
+                            editingStartsAt
+                          }
+                          onChange={
+                            setEditingStartsAt
+                          }
+                        />
+
+                        <HumanDateTimeInput
+                          value={
+                            editingEndsAt
+                          }
+                          onChange={
+                            setEditingEndsAt
+                          }
+                          defaultDate={
+                            editingStartsAt
+                          }
+                        />
+
+                        {selectedEditingEventType
+                          ?.name ===
+                          "Other" && (
+                          <>
+                            <input
+                              aria-label="Other event type"
+                              placeholder="Other type"
+                              value={
+                                editingOtherValue
+                              }
+                              onChange={(
+                                inputEvent,
+                              ) =>
+                                setEditingOtherValue(
+                                  inputEvent
+                                    .target
+                                    .value,
+                                )
+                              }
+                            />
+
+                            <input
+                              aria-label="Other event reason"
+                              placeholder="Why isn't an existing type right?"
+                              value={
+                                editingOtherReason
+                              }
+                              onChange={(
+                                inputEvent,
+                              ) =>
+                                setEditingOtherReason(
+                                  inputEvent
+                                    .target
+                                    .value,
+                                )
+                              }
+                            />
+                          </>
                         )}
-                      </small>
-                    </span>
-                  </div>
-                ))
+                      </div>
+
+                      <div className="admin-row-actions">
+                        <button
+                          className="admin-secondary-button"
+                          type="submit"
+                        >
+                          Save
+                        </button>
+
+                        <button
+                          className="admin-edit-button"
+                          type="button"
+                          onClick={() =>
+                            setEditingEventId(
+                              null,
+                            )
+                          }
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div
+                      className="admin-list-row operation-event-row admin-manage-row"
+                      key={event.id}
+                    >
+                      <span>
+                        <strong>
+                          {event.name}
+                        </strong>
+
+                        <small>
+                          {
+                            event.event_type_name
+                          }{" "}
+                          ·{" "}
+                          {localDateTime(
+                            event.starts_at,
+                          )}
+                        </small>
+                      </span>
+
+                      <div className="admin-row-actions">
+                        <button
+                          className="admin-edit-button"
+                          type="button"
+                          onClick={() =>
+                            beginEventEdit(
+                              event,
+                            )
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="admin-delete-button"
+                          type="button"
+                          onClick={() =>
+                            void removeEvent(
+                              event,
+                            )
+                          }
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ),
+                )
               ) : (
                 <div className="admin-empty">
                   No events yet.

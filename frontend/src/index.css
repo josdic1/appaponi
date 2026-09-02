@@ -4112,3 +4112,62 @@ body {
   }
 }
 /* ACCOUNTS HOUSEHOLDS CRUD END */
+
+/* ADMIN OPERATIONS STAFF CRUD START */
+.admin-edit-fields select,
+.operation-event-edit-fields .appoponi-datetime-input {
+  width: 100%;
+  min-width: 0;
+  height: var(--control-height);
+  min-height: var(--control-height);
+  padding: 0 10px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  outline: none;
+  background: var(--control-bg);
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.2;
+}
+
+.admin-edit-fields select {
+  cursor: pointer;
+}
+
+.admin-edit-fields select:focus,
+.operation-event-edit-fields .appoponi-datetime-input:focus {
+  border-color: var(--accent);
+  box-shadow: var(--control-focus-ring);
+}
+
+.admin-edit-fields .admin-check {
+  min-height: var(--control-height);
+  align-items: center;
+  margin: 0;
+}
+
+.admin-edit-fields .admin-check input {
+  width: 16px;
+  min-height: 16px;
+  height: 16px;
+}
+
+.operation-event-edit {
+  align-items: stretch;
+}
+
+.operation-event-edit-fields {
+  width: 100%;
+}
+
+.operation-event-edit-fields .appoponi-datetime {
+  display: block;
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .operation-event-edit-fields {
+    grid-template-columns: 1fr;
+  }
+}
+/* ADMIN OPERATIONS STAFF CRUD END */

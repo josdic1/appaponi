@@ -16,8 +16,10 @@ import type {
 
 import {
   createStaffMember,
+  deleteStaffMember,
   loadAccounts,
   loadStaffMembers,
+  updateStaffMember,
 } from "../api/admin";
 
 export default function AdminStaffPage() {
@@ -33,12 +35,38 @@ export default function AdminStaffPage() {
   const [fullName, setFullName] =
     useState("");
 
+  const [email, setEmail] =
+    useState("");
+
+  const [phone, setPhone] =
+    useState("");
+
   const [role, setRole] =
     useState<StaffRole>("staff");
 
   const [
     babysittingEligible,
     setBabysittingEligible,
+  ] = useState(false);
+
+  const [editingId, setEditingId] =
+    useState<string | null>(null);
+
+  const [editFullName, setEditFullName] =
+    useState("");
+
+  const [editEmail, setEditEmail] =
+    useState("");
+
+  const [editPhone, setEditPhone] =
+    useState("");
+
+  const [editRole, setEditRole] =
+    useState<StaffRole>("staff");
+
+  const [
+    editBabysittingEligible,
+    setEditBabysittingEligible,
   ] = useState(false);
 
   const [error, setError] =
@@ -94,6 +122,12 @@ export default function AdminStaffPage() {
       await createStaffMember({
         account_id: Number(accountId),
         full_name: fullName,
+        ...(email.trim()
+          ? { email: email.trim() }
+          : {}),
+        ...(phone.trim()
+          ? { phone: phone.trim() }
+          : {}),
         role,
         babysitting_eligible:
           babysittingEligible,
@@ -101,6 +135,8 @@ export default function AdminStaffPage() {
 
       setAccountId("");
       setFullName("");
+      setEmail("");
+      setPhone("");
       setRole("staff");
       setBabysittingEligible(false);
 
@@ -110,6 +146,85 @@ export default function AdminStaffPage() {
         err instanceof Error
           ? err.message
           : "Could not create staff profile",
+      );
+    }
+  }
+
+  function beginEdit(
+    item: StaffMember,
+  ) {
+    setEditingId(item.id);
+    setEditFullName(item.full_name);
+    setEditEmail(item.email ?? "");
+    setEditPhone(item.phone ?? "");
+    setEditRole(item.role);
+    setEditBabysittingEligible(
+      item.babysitting_eligible,
+    );
+    setError(null);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setError(null);
+  }
+
+  async function saveEdit(
+    event: FormEvent,
+    id: string,
+  ) {
+    event.preventDefault();
+    setError(null);
+
+    try {
+      await updateStaffMember(id, {
+        full_name: editFullName,
+        email:
+          editEmail.trim() || null,
+        phone:
+          editPhone.trim() || null,
+        role: editRole,
+        babysitting_eligible:
+          editBabysittingEligible,
+      });
+
+      setEditingId(null);
+      await refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not update staff profile",
+      );
+    }
+  }
+
+  async function remove(
+    item: StaffMember,
+  ) {
+    if (
+      !window.confirm(
+        `Delete staff profile "${item.full_name}"?`,
+      )
+    ) {
+      return;
+    }
+
+    setError(null);
+
+    try {
+      await deleteStaffMember(item.id);
+
+      if (editingId === item.id) {
+        setEditingId(null);
+      }
+
+      await refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not delete staff profile",
       );
     }
   }
@@ -188,6 +303,29 @@ export default function AdminStaffPage() {
             </label>
 
             <label>
+              <span>Email</span>
+
+              <input
+                type="email"
+                value={email}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
+              />
+            </label>
+
+            <label>
+              <span>Phone</span>
+
+              <input
+                value={phone}
+                onChange={(event) =>
+                  setPhone(event.target.value)
+                }
+              />
+            </label>
+
+            <label>
               <span>Role</span>
 
               <select
@@ -243,28 +381,158 @@ export default function AdminStaffPage() {
 
           <div className="admin-list">
             {staff.length ? (
-              staff.map((item) => (
-                <div
-                  className="admin-list-row"
-                  key={item.id}
-                >
-                  <span>
-                    <strong>
-                      {item.full_name}
-                    </strong>
+              staff.map((item) =>
+                editingId === item.id ? (
+                  <form
+                    className="admin-list-row profile-edit-row"
+                    key={item.id}
+                    onSubmit={(event) =>
+                      void saveEdit(
+                        event,
+                        item.id,
+                      )
+                    }
+                  >
+                    <div className="admin-edit-fields">
+                      <input
+                        aria-label="Staff name"
+                        value={editFullName}
+                        onChange={(event) =>
+                          setEditFullName(
+                            event.target.value,
+                          )
+                        }
+                      />
 
-                    <small>
-                      {item.username ??
-                        "No login account"}
-                      {item.babysitting_eligible
-                        ? " · Babysitting"
-                        : ""}
-                    </small>
-                  </span>
+                      <input
+                        aria-label="Staff email"
+                        type="email"
+                        placeholder="Email"
+                        value={editEmail}
+                        onChange={(event) =>
+                          setEditEmail(
+                            event.target.value,
+                          )
+                        }
+                      />
 
-                  <b>{item.role}</b>
-                </div>
-              ))
+                      <input
+                        aria-label="Staff phone"
+                        placeholder="Phone"
+                        value={editPhone}
+                        onChange={(event) =>
+                          setEditPhone(
+                            event.target.value,
+                          )
+                        }
+                      />
+
+                      <select
+                        aria-label="Staff role"
+                        value={editRole}
+                        onChange={(event) =>
+                          setEditRole(
+                            event.target
+                              .value as StaffRole,
+                          )
+                        }
+                      >
+                        <option value="staff">
+                          Staff
+                        </option>
+
+                        <option value="manager">
+                          Manager
+                        </option>
+                      </select>
+
+                      <label className="admin-check">
+                        <input
+                          type="checkbox"
+                          checked={
+                            editBabysittingEligible
+                          }
+                          onChange={(event) =>
+                            setEditBabysittingEligible(
+                              event.target.checked,
+                            )
+                          }
+                        />
+
+                        <span>
+                          Babysitting
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="admin-row-actions">
+                      <button
+                        className="admin-secondary-button"
+                        type="submit"
+                      >
+                        Save
+                      </button>
+
+                      <button
+                        className="admin-edit-button"
+                        type="button"
+                        onClick={cancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div
+                    className="admin-list-row profile-manage-row"
+                    key={item.id}
+                  >
+                    <div>
+                      <strong>
+                        {item.full_name}
+                      </strong>
+
+                      <small>
+                        {item.username ??
+                          "No login account"}
+                        {item.email
+                          ? ` · ${item.email}`
+                          : ""}
+                        {item.phone
+                          ? ` · ${item.phone}`
+                          : ""}
+                        {item.babysitting_eligible
+                          ? " · Babysitting"
+                          : ""}
+                      </small>
+                    </div>
+
+                    <div className="admin-row-actions">
+                      <b>{item.role}</b>
+
+                      <button
+                        className="admin-edit-button"
+                        type="button"
+                        onClick={() =>
+                          beginEdit(item)
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="admin-delete-button"
+                        type="button"
+                        onClick={() =>
+                          void remove(item)
+                        }
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ),
+              )
             ) : (
               <div className="admin-empty">
                 No staff profiles yet.
