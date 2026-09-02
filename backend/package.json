@@ -8,6 +8,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/scripts/migrate.ts",
+    "check:family-camp": "tsx src/scripts/runFamilyCampCheck.ts",
     "account:create": "tsx src/scripts/createAccount.ts"
   },
   "dependencies": {

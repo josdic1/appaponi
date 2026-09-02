@@ -411,7 +411,7 @@ async function main() {
             memberAccountId,
           ),
         full_name:
-          "Regression Parent",
+          "Test Parent",
         member_role:
           "primary",
       },
@@ -433,7 +433,7 @@ async function main() {
             memberAccountId,
           ),
         full_name:
-          "Regression Child One",
+          "Test Child One",
         member_role:
           "child",
       },
@@ -455,7 +455,7 @@ async function main() {
             memberAccountId,
           ),
         full_name:
-          "Regression Child Two",
+          "Test Child Two",
         member_role:
           "child",
       },
@@ -483,7 +483,7 @@ async function main() {
             staffAccountId,
           ),
         full_name:
-          "Regression Staff",
+          "Test Staff",
         role: "staff",
         babysitting_eligible:
           true,
@@ -506,7 +506,7 @@ async function main() {
       "/api/areas",
       {
         name:
-          `Regression Waterfront ${stamp}`,
+          `Test Waterfront ${stamp}`,
         map_x: 0.3,
         map_y: 0.4,
       },
@@ -526,7 +526,7 @@ async function main() {
       "/api/activities",
       {
         name:
-          `Regression Canoeing ${stamp}`,
+          `Test Canoeing ${stamp}`,
         area_id:
           Number(areaId),
         setting:
@@ -567,7 +567,7 @@ async function main() {
       "/api/events",
       {
         name:
-          `Regression Family Camp ${stamp}`,
+          `Test Family Camp ${stamp}`,
         event_type_id:
           Number(
             familyCampTypeId,
@@ -664,7 +664,7 @@ async function main() {
       "/api/cabins",
       {
         name:
-          `Regression Cabin ${stamp}`,
+          `Test Cabin ${stamp}`,
         area_id:
           Number(areaId),
         map_x: 0.35,
@@ -679,7 +679,7 @@ async function main() {
     );
 
   const renamedCabin =
-    `Regression Cabin ${stamp} Updated`;
+    `Test Cabin ${stamp} Updated`;
 
   await admin.request(
     "PATCH",
@@ -731,9 +731,9 @@ async function main() {
       "/api/meals/menus",
       {
         name:
-          `Regression Camp Dinner ${stamp}`,
+          `Test Camp Dinner ${stamp}`,
         description:
-          "Regression dinner menu",
+          "Test dinner menu",
       },
     );
 
@@ -750,7 +750,7 @@ async function main() {
       menu_id:
         Number(menuId),
       name:
-        "Regression Grilled Chicken",
+        "Test Grilled Chicken",
       dietary_notes:
         "Gluten free",
       sort_order: 1,
@@ -791,7 +791,7 @@ async function main() {
         menu_id:
           Number(menuId),
         title:
-          "Regression Camp Dinner",
+          "Test Camp Dinner",
         starts_at:
           mealStart,
         ends_at:
@@ -815,9 +815,9 @@ async function main() {
       "/api/after-hours/items",
       {
         name:
-          `Regression Late Snack ${stamp}`,
+          `Test Late Snack ${stamp}`,
         description:
-          "Regression snack",
+          "Test snack",
       },
     );
 
@@ -844,9 +844,9 @@ async function main() {
           Number(eventId),
         kind: "general",
         title:
-          "Regression Camp Notice",
+          "Test Camp Notice",
         body:
-          "Regression notification",
+          "Test notification",
       },
     );
 
@@ -1166,7 +1166,7 @@ async function main() {
         ends_at:
           babysittingEnd,
         notes:
-          "Regression sitter request",
+          "Test sitter request",
         member_ids: [
           Number(childOneId),
         ],
@@ -1404,7 +1404,7 @@ async function main() {
     "======================================",
   );
   console.log(
-    "APPOPONI FAMILY CAMP REGRESSION: PASS",
+    "APPOPONI CHECK: PASS",
   );
   console.log(
     "======================================",
@@ -1419,7 +1419,7 @@ async function main() {
     `Staff account: ${staffUsername}`,
   );
   console.log(
-    "Regression records are intentionally retained so they can be inspected in Admin, Member, Staff, and Builder.",
+    "Test records exist only inside the disposable check database and are removed when the check finishes.",
   );
 }
 
@@ -1429,7 +1429,7 @@ main().catch((error) => {
     "======================================",
   );
   console.error(
-    "APPOPONI FAMILY CAMP REGRESSION: FAIL",
+    "APPOPONI CHECK: FAIL",
   );
   console.error(
     "======================================",
