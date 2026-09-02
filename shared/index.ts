@@ -7,3 +7,4 @@ export * from "./schemas/activities.js";
 export * from "./schemas/events.js";
 export * from "./schemas/qualifications.js";
 export * from "./schemas/scheduling.js";
+export * from "./schemas/registration.js";

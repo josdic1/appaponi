@@ -43,6 +43,10 @@
     "./schemas/scheduling": {
       "types": "./dist/schemas/scheduling.d.ts",
       "import": "./dist/schemas/scheduling.js"
+    },
+    "./schemas/registration": {
+      "types": "./dist/schemas/registration.d.ts",
+      "import": "./dist/schemas/registration.js"
     }
   },
   "scripts": {
