@@ -1,8 +1,9 @@
 import {
   useEffect,
   useState,
-  type ChangeEvent,
 } from "react";
+import DataView from "./DataView";
+import ImportView from "./ImportView";
 import SchemaView from "./SchemaView";
 
 type Tab =
@@ -11,13 +12,6 @@ type Tab =
   | "schema"
   | "data"
   | "api";
-
-type StagedFile = {
-  name: string;
-  size: number;
-  type: string;
-  preview: string | null;
-};
 
 const tabs: Array<{
   id: Tab;
@@ -38,12 +32,6 @@ export default function App() {
     useState<
       "checking" | "connected" | "offline"
     >("checking");
-
-  const [stagedFile, setStagedFile] =
-    useState<StagedFile | null>(null);
-
-  const [pasted, setPasted] =
-    useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -70,35 +58,6 @@ export default function App() {
       cancelled = true;
     };
   }, []);
-
-  async function stageFile(
-    event: ChangeEvent<HTMLInputElement>,
-  ) {
-    const file =
-      event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    const binary =
-      /\.(xlsx|xls)$/i.test(file.name);
-
-    const preview = binary
-      ? null
-      : (await file.text()).slice(
-          0,
-          6000,
-        );
-
-    setStagedFile({
-      name: file.name,
-      size: file.size,
-      type:
-        file.type || "unknown",
-      preview,
-    });
-  }
 
   const currentLabel =
     tabs.find(
@@ -267,170 +226,31 @@ export default function App() {
           </section>
         )}
 
-        {tab === "import" && (
-          <section>
-            <div className="page-head">
-              <div>
-                <div className="eyebrow">
-                  Raw intake
-                </div>
-
-                <h1>Import</h1>
-
-                <p className="subtitle">
-                  Stage source data first.
-                  Parsing and mapping happen
-                  before anything can reach
-                  Appoponi records.
-                </p>
-              </div>
-            </div>
-
-            <div className="import-grid">
-              <article className="card">
-                <div className="card-head">
-                  <div>
-                    <div className="card-title">
-                      File
-                    </div>
-
-                    <div className="card-kicker">
-                      JSON, CSV, TSV, text,
-                      Excel.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card-body">
-                  <label className="file-drop">
-                    <strong>
-                      Choose source file
-                    </strong>
-
-                    <span>
-                      No database write occurs.
-                    </span>
-
-                    <input
-                      type="file"
-                      accept=".json,.csv,.tsv,.txt,.xlsx,.xls,application/json,text/csv,text/plain"
-                      onChange={stageFile}
-                    />
-                  </label>
-                </div>
-              </article>
-
-              <article className="card">
-                <div className="card-head">
-                  <div>
-                    <div className="card-title">
-                      Paste
-                    </div>
-
-                    <div className="card-kicker">
-                      Tables, reports, JSON,
-                      CSV, or plain text.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card-body">
-                  <textarea
-                    value={pasted}
-                    onChange={(event) =>
-                      setPasted(
-                        event.target.value,
-                      )
-                    }
-                    placeholder="Paste source data here…"
-                  />
-                </div>
-              </article>
-            </div>
-
-            <article className="card staged-card">
-              <div className="card-head">
-                <div>
-                  <div className="card-title">
-                    Staging preview
-                  </div>
-
-                  <div className="card-kicker">
-                    Raw source only. No
-                    Appoponi meaning inferred
-                    yet.
-                  </div>
-                </div>
-              </div>
-
-              <div className="card-body">
-                {stagedFile ? (
-                  <>
-                    <div className="file-meta">
-                      <strong>
-                        {stagedFile.name}
-                      </strong>
-
-                      <span>
-                        {stagedFile.size.toLocaleString()}
-                        {" bytes · "}
-                        {stagedFile.type}
-                      </span>
-                    </div>
-
-                    <pre>
-                      {stagedFile.preview ??
-                        "Binary Excel file staged. Parser not connected yet."}
-                    </pre>
-                  </>
-                ) : pasted.trim() ? (
-                  <pre>
-                    {pasted.slice(
-                      0,
-                      6000,
-                    )}
-                  </pre>
-                ) : (
-                  <div className="empty">
-                    Choose a file or paste
-                    data to create a raw
-                    staging record.
-                  </div>
-                )}
-              </div>
-            </article>
-          </section>
-        )}
+        {tab === "import" && <ImportView />}
 
         {tab === "schema" && <SchemaView />}
 
-        {(tab === "data" ||
-          tab === "api") && (
+        {tab === "data" && <DataView />}
+
+        {tab === "api" && (
           <section>
             <div className="page-head">
               <div>
                 <div className="eyebrow">
-                  {tab}
+                  api
                 </div>
 
-                <h1>
-                  {currentLabel}
-                </h1>
+                <h1>{currentLabel}</h1>
 
                 <p className="subtitle">
-                  This screen will read
-                  Appoponi's real backend.
-                  No Matapon schema or fake
-                  records are being copied
-                  into it.
+                  API Tester is the next Builder pass.
                 </p>
               </div>
             </div>
 
             <article className="card">
               <div className="card-body empty">
-                Ready for the Appoponi
-                contracts.
+                Ready for Appoponi API routes.
               </div>
             </article>
           </section>
