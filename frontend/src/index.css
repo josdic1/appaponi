@@ -3154,3 +3154,105 @@ body {
   text-align: center;
   font-size: 12px;
 }
+
+.registration-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.registration-row {
+  min-height: 62px;
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    76px
+    90px;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.registration-row:last-child {
+  border-bottom: 0;
+}
+
+.registration-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.registration-row span,
+.registration-row small,
+.registration-row b {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.registration-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.registration-row input {
+  width: 68px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 0 8px;
+}
+
+.staff-participant-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-participant {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.staff-participant:last-child {
+  border-bottom: 0;
+}
+
+.staff-participant button {
+  min-height: 32px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  padding: 0 11px;
+  font-weight: 700;
+}
+
+.staff-participant button.selected {
+  border-color: var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.staff-participant > span {
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .registration-row {
+    grid-template-columns:
+      minmax(0, 1fr)
+      70px;
+  }
+
+  .registration-row > b {
+    grid-column: 1 / -1;
+  }
+}

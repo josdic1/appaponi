@@ -6,6 +6,7 @@ import AuthProvider from "./providers/AuthProvider";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import AdminPage from "./pages/AdminPage";
 import MemberPage from "./pages/MemberPage";
+import StaffPage from "./pages/StaffPage";
 import LoginPage from "./pages/LoginPage";
 import { useAuth } from "./hooks/useAuth";
 
@@ -34,6 +35,10 @@ function AppContent() {
 
   if (account.account_type === "member") {
     return <MemberPage />;
+  }
+
+  if (account.account_type === "staff") {
+    return <StaffPage />;
   }
 
   return (

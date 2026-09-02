@@ -8,3 +8,4 @@ export * from "./schemas/events.js";
 export * from "./schemas/qualifications.js";
 export * from "./schemas/scheduling.js";
 export * from "./schemas/registration.js";
+export * from "./schemas/staffDay.js";

@@ -155,3 +155,65 @@ export async function createStaffMember(
     }>(response)
   ).staff_member;
 }
+
+import type {
+  EventRegistration,
+} from "@appoponi/shared/schemas/registration";
+
+export async function loadRegistrations() {
+  const response = await fetch(
+    `${API_URL}/api/registrations`,
+    { credentials: "include" },
+  );
+
+  return (
+    await json<{
+      registrations: EventRegistration[];
+    }>(response)
+  ).registrations;
+}
+
+export async function createRegistration(
+  input: {
+    account_id: number;
+    event_id: number;
+    spots_paid_for: number;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/registrations`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return json(response);
+}
+
+export async function updateRegistrationSpots(
+  id: string,
+  spots_paid_for: number,
+) {
+  const response = await fetch(
+    `${API_URL}/api/registrations/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        spots_paid_for,
+      }),
+    },
+  );
+
+  return json(response);
+}

@@ -47,6 +47,10 @@
     "./schemas/registration": {
       "types": "./dist/schemas/registration.d.ts",
       "import": "./dist/schemas/registration.js"
+    },
+    "./schemas/staffDay": {
+      "types": "./dist/schemas/staffDay.d.ts",
+      "import": "./dist/schemas/staffDay.js"
     }
   },
   "scripts": {

@@ -15,6 +15,7 @@ import { qualificationsRouter } from "./routes/qualifications.js";
 import { schedulingRouter } from "./routes/scheduling.js";
 import { registrationsRouter } from "./routes/registrations.js";
 import { memberParticipationRouter } from "./routes/memberParticipation.js";
+import { staffDayRouter } from "./routes/staffDay.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
@@ -46,6 +47,7 @@ app.use("/api/qualifications", qualificationsRouter);
 app.use("/api/scheduling", schedulingRouter);
 app.use("/api/registrations", registrationsRouter);
 app.use("/api/member", memberParticipationRouter);
+app.use("/api/staff-day", staffDayRouter);
 
 app.listen(port, () => {
   console.log(`Appoponi backend running on http://localhost:${port}`);
