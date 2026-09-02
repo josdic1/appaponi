@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently -n backend,frontend \"npm --workspace backend run dev\" \"npm --workspace frontend run dev\"",
-    "typecheck": "npm --workspace @appoponi/shared run typecheck && npm --workspace @appoponi/backend run typecheck && npm --workspace frontend run build"
+    "dev": "concurrently -n backend,frontend,builder \"npm --workspace @appoponi/backend run dev\" \"npm --workspace frontend run dev\" \"npm --workspace @appoponi/builder run dev\"",
+    "typecheck": "npm --workspace @appoponi/shared run typecheck && npm --workspace @appoponi/backend run typecheck && npm --workspace frontend run build && npm --workspace @appoponi/builder run build"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
   "workspaces": [
     "backend",
     "shared",
-    "frontend"
+    "frontend",
+    "builder"
   ]
 }
