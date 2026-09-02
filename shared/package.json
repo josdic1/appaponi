@@ -35,6 +35,14 @@
     "./schemas/events": {
       "types": "./dist/schemas/events.d.ts",
       "import": "./dist/schemas/events.js"
+    },
+    "./schemas/qualifications": {
+      "types": "./dist/schemas/qualifications.d.ts",
+      "import": "./dist/schemas/qualifications.js"
+    },
+    "./schemas/scheduling": {
+      "types": "./dist/schemas/scheduling.d.ts",
+      "import": "./dist/schemas/scheduling.js"
     }
   },
   "scripts": {

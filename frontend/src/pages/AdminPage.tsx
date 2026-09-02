@@ -7,6 +7,7 @@ import {
 
 import AdminStaffPage from "./AdminStaffPage";
 import AdminOperationsPage from "./AdminOperationsPage";
+import AdminSchedulingPage from "./AdminSchedulingPage";
 
 import type {
   AccountRecord,
@@ -39,7 +40,7 @@ export default function AdminPage() {
     useState("");
 
   const [section, setSection] =
-    useState<"households" | "staff" | "operations">("households");
+    useState<"households" | "staff" | "operations" | "scheduling">("households");
 
   const [error, setError] =
     useState<string | null>(null);
@@ -212,6 +213,14 @@ export default function AdminPage() {
         >
           Operations
         </button>
+
+        <button
+          type="button"
+          className={section === "scheduling" ? "active" : ""}
+          onClick={() => setSection("scheduling")}
+        >
+          Scheduling
+        </button>
       </nav>
 
       <main className="admin-main">
@@ -219,6 +228,8 @@ export default function AdminPage() {
           <AdminStaffPage />
         ) : section === "operations" ? (
           <AdminOperationsPage />
+        ) : section === "scheduling" ? (
+          <AdminSchedulingPage />
         ) : (
           <>
         <div className="admin-heading">

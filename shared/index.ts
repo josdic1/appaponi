@@ -5,3 +5,5 @@ export * from "./schemas/staffMembers.js";
 export * from "./schemas/areas.js";
 export * from "./schemas/activities.js";
 export * from "./schemas/events.js";
+export * from "./schemas/qualifications.js";
+export * from "./schemas/scheduling.js";
