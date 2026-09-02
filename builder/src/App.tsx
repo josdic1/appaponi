@@ -3,6 +3,7 @@ import {
   useState,
   type ChangeEvent,
 } from "react";
+import SchemaView from "./SchemaView";
 
 type Tab =
   | "overview"
@@ -401,8 +402,9 @@ export default function App() {
           </section>
         )}
 
-        {(tab === "schema" ||
-          tab === "data" ||
+        {tab === "schema" && <SchemaView />}
+
+        {(tab === "data" ||
           tab === "api") && (
           <section>
             <div className="page-head">

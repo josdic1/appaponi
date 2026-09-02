@@ -381,3 +381,151 @@ pre {
     grid-template-columns: 1fr;
   }
 }
+
+.schema-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.schema-sidebar {
+  position: sticky;
+  top: 82px;
+}
+
+.schema-table-list {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 3px;
+}
+
+.schema-table-button {
+  width: 100%;
+  min-height: 36px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  text-align: left;
+}
+
+.schema-table-button:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.schema-table-button.active {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.schema-table-button code,
+.schema-name,
+.schema-column-row code,
+.schema-relation code {
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    monospace;
+}
+
+.schema-table-button span {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.schema-name {
+  font-size: 18px;
+  font-weight: 760;
+  letter-spacing: -0.03em;
+}
+
+.schema-column-row {
+  display: grid;
+  grid-template-columns:
+    minmax(150px, 1fr)
+    minmax(130px, 0.8fr)
+    90px
+    minmax(160px, 1.1fr);
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  font-size: 11px;
+}
+
+.schema-column-head {
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 780;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.schema-default {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.schema-relations {
+  padding: 14px 16px;
+}
+
+.schema-section-label {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 780;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.schema-relation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 11px;
+}
+
+.empty strong,
+.empty-sub {
+  display: block;
+}
+
+.empty-sub {
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+@media (max-width: 800px) {
+  .schema-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .schema-sidebar {
+    position: static;
+  }
+
+  .schema-column-row {
+    grid-template-columns:
+      minmax(130px, 1fr)
+      minmax(110px, 0.8fr)
+      70px
+      minmax(130px, 1fr);
+    min-width: 620px;
+  }
+
+  .schema-columns {
+    overflow-x: auto;
+  }
+}
