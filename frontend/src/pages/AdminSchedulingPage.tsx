@@ -36,6 +36,12 @@ import {
   createQualification,
   loadQualifications,
   loadScheduling,
+  removeActivityQualification,
+  removeEventActivity,
+  removeEventActivityStaff,
+  removeQualification,
+  removeStaffArea,
+  removeStaffQualification,
 } from "../api/scheduling";
 
 import HumanDateTimeInput from "../components/HumanDateTimeInput";
@@ -160,6 +166,21 @@ export default function AdminSchedulingPage() {
           : "Request failed",
       );
     }
+  }
+
+  function confirmRemove(
+    label: string,
+    action: () => Promise<unknown>,
+  ) {
+    if (
+      !window.confirm(
+        `Remove ${label}?`,
+      )
+    ) {
+      return;
+    }
+
+    void run(action);
   }
 
   function submitQualification(event: FormEvent) {
@@ -302,7 +323,28 @@ export default function AdminSchedulingPage() {
 
           <div className="compact-list">
             {qualifications.map((item) => (
-              <div key={item.id}>{item.name}</div>
+              <div
+                className="admin-inline-record"
+                key={item.id}
+              >
+                <span>{item.name}</span>
+
+                <button
+                  className="admin-delete-button"
+                  type="button"
+                  onClick={() =>
+                    confirmRemove(
+                      `qualification "${item.name}"`,
+                      () =>
+                        removeQualification(
+                          item.id,
+                        ),
+                    )
+                  }
+                >
+                  Remove
+                </button>
+              </div>
             ))}
           </div>
         </section>
@@ -357,8 +399,29 @@ export default function AdminSchedulingPage() {
 
           <div className="compact-list">
             {staffAreas.map((item) => (
-              <div key={item.id}>
-                {item.staff_name} → {item.area_name}
+              <div
+                className="admin-inline-record"
+                key={item.id}
+              >
+                <span>
+                  {item.staff_name} → {item.area_name}
+                </span>
+
+                <button
+                  className="admin-delete-button"
+                  type="button"
+                  onClick={() =>
+                    confirmRemove(
+                      `${item.staff_name} from ${item.area_name}`,
+                      () =>
+                        removeStaffArea(
+                          item.id,
+                        ),
+                    )
+                  }
+                >
+                  Remove
+                </button>
               </div>
             ))}
           </div>
@@ -418,9 +481,30 @@ export default function AdminSchedulingPage() {
 
           <div className="compact-list">
             {staffQualifications.map((item) => (
-              <div key={item.id}>
-                {item.staff_name} →{" "}
-                {item.qualification_name}
+              <div
+                className="admin-inline-record"
+                key={item.id}
+              >
+                <span>
+                  {item.staff_name} →{" "}
+                  {item.qualification_name}
+                </span>
+
+                <button
+                  className="admin-delete-button"
+                  type="button"
+                  onClick={() =>
+                    confirmRemove(
+                      `${item.qualification_name} from ${item.staff_name}`,
+                      () =>
+                        removeStaffQualification(
+                          item.id,
+                        ),
+                    )
+                  }
+                >
+                  Remove
+                </button>
               </div>
             ))}
           </div>
@@ -492,10 +576,31 @@ export default function AdminSchedulingPage() {
 
           <div className="compact-list">
             {activityQualifications.map((item) => (
-              <div key={item.id}>
-                {item.activity_name} →{" "}
-                {item.required_staff_count} ×{" "}
-                {item.qualification_name}
+              <div
+                className="admin-inline-record"
+                key={item.id}
+              >
+                <span>
+                  {item.activity_name} →{" "}
+                  {item.required_staff_count} ×{" "}
+                  {item.qualification_name}
+                </span>
+
+                <button
+                  className="admin-delete-button"
+                  type="button"
+                  onClick={() =>
+                    confirmRemove(
+                      `${item.qualification_name} requirement from ${item.activity_name}`,
+                      () =>
+                        removeActivityQualification(
+                          item.id,
+                        ),
+                    )
+                  }
+                >
+                  Remove
+                </button>
               </div>
             ))}
           </div>
@@ -627,10 +732,45 @@ export default function AdminSchedulingPage() {
 
                     <div className="schedule-assigned">
                       {assigned.map((person) => (
-                        <span key={person.id}>
+                        <span
+                          className="schedule-assigned-person"
+                          key={person.id}
+                        >
                           {person.staff_name}
+
+                          <button
+                            type="button"
+                            aria-label={`Remove ${person.staff_name}`}
+                            onClick={() =>
+                              confirmRemove(
+                                `${person.staff_name} from ${item.activity_name}`,
+                                () =>
+                                  removeEventActivityStaff(
+                                    person.id,
+                                  ),
+                              )
+                            }
+                          >
+                            ×
+                          </button>
                         </span>
                       ))}
+
+                      <button
+                        className="admin-delete-button"
+                        type="button"
+                        onClick={() =>
+                          confirmRemove(
+                            `scheduled ${item.activity_name}`,
+                            () =>
+                              removeEventActivity(
+                                item.id,
+                              ),
+                          )
+                        }
+                      >
+                        Remove activity
+                      </button>
                     </div>
                   </div>
                 );

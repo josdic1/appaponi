@@ -134,6 +134,20 @@ async function post(
   return json(response);
 }
 
+async function remove(
+  path: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/scheduling/${path}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
 export const addStaffArea = (
   staff_member_id: number,
   area_id: number,
@@ -181,3 +195,42 @@ export const assignEventActivityStaff = (
     event_activity_id,
     staff_member_id,
   });
+
+export async function removeQualification(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/qualifications/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+export const removeStaffArea = (
+  id: string,
+) =>
+  remove(`staff-areas/${id}`);
+
+export const removeStaffQualification = (
+  id: string,
+) =>
+  remove(`staff-qualifications/${id}`);
+
+export const removeActivityQualification = (
+  id: string,
+) =>
+  remove(`activity-qualifications/${id}`);
+
+export const removeEventActivity = (
+  id: string,
+) =>
+  remove(`event-activities/${id}`);
+
+export const removeEventActivityStaff = (
+  id: string,
+) =>
+  remove(`event-activity-staff/${id}`);

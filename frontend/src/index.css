@@ -2920,6 +2920,31 @@ body {
   font-weight: 700;
 }
 
+.admin-inline-record {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.schedule-assigned .schedule-assigned-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.schedule-assigned-person button {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent-ink);
+  font: inherit;
+  line-height: 1;
+}
+
 .schedule-assignment-form {
   display: grid;
   grid-template-columns:
