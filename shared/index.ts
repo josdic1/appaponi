@@ -2,3 +2,6 @@ export * from "./schemas/auth.js";
 export * from "./schemas/accounts.js";
 export * from "./schemas/householdMembers.js";
 export * from "./schemas/staffMembers.js";
+export * from "./schemas/areas.js";
+export * from "./schemas/activities.js";
+export * from "./schemas/events.js";

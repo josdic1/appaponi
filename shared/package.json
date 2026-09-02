@@ -23,6 +23,18 @@
     "./schemas/staffMembers": {
       "types": "./dist/schemas/staffMembers.d.ts",
       "import": "./dist/schemas/staffMembers.js"
+    },
+    "./schemas/areas": {
+      "types": "./dist/schemas/areas.d.ts",
+      "import": "./dist/schemas/areas.js"
+    },
+    "./schemas/activities": {
+      "types": "./dist/schemas/activities.d.ts",
+      "import": "./dist/schemas/activities.js"
+    },
+    "./schemas/events": {
+      "types": "./dist/schemas/events.d.ts",
+      "import": "./dist/schemas/events.js"
     }
   },
   "scripts": {

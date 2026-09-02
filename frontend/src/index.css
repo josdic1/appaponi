@@ -2803,3 +2803,44 @@ body {
     overflow-x: auto;
   }
 }
+
+.operations-tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 18px;
+}
+
+.operations-tabs button {
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 0 12px;
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.operations-tabs button:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.operations-tabs button.active {
+  border-color: #b7ddcf;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.operation-event-row {
+  min-height: 62px;
+}
+
+@media (max-width: 760px) {
+  .operations-tabs {
+    overflow-x: auto;
+  }
+
+  .operations-tabs button {
+    flex: 0 0 auto;
+  }
+}

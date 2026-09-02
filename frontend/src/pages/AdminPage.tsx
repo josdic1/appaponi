@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import AdminStaffPage from "./AdminStaffPage";
+import AdminOperationsPage from "./AdminOperationsPage";
 
 import type {
   AccountRecord,
@@ -38,7 +39,7 @@ export default function AdminPage() {
     useState("");
 
   const [section, setSection] =
-    useState<"households" | "staff">("households");
+    useState<"households" | "staff" | "operations">("households");
 
   const [error, setError] =
     useState<string | null>(null);
@@ -203,11 +204,21 @@ export default function AdminPage() {
         >
           Staff
         </button>
+
+        <button
+          type="button"
+          className={section === "operations" ? "active" : ""}
+          onClick={() => setSection("operations")}
+        >
+          Operations
+        </button>
       </nav>
 
       <main className="admin-main">
         {section === "staff" ? (
           <AdminStaffPage />
+        ) : section === "operations" ? (
+          <AdminOperationsPage />
         ) : (
           <>
         <div className="admin-heading">
