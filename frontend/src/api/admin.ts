@@ -344,3 +344,104 @@ export async function assignRegistrationCabin(
 
   return json(response);
 }
+
+export async function updateAccount(
+  id: string,
+  username: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/accounts/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username }),
+    },
+  );
+
+  return (
+    await json<{ account: AccountRecord }>(
+      response,
+    )
+  ).account;
+}
+
+export async function deleteAccount(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/accounts/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+export async function updateHouseholdMember(
+  id: string,
+  input: {
+    full_name?: string;
+    email?: string | null;
+    phone?: string | null;
+    dietary_restrictions?: string | null;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/household-members/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{
+      household_member: HouseholdMember;
+    }>(response)
+  ).household_member;
+}
+
+export async function transferHouseholdPrimary(
+  currentPrimaryId: string,
+  targetMemberId: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/household-members/${currentPrimaryId}/transfer-primary`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        target_member_id:
+          Number(targetMemberId),
+      }),
+    },
+  );
+
+  return json(response);
+}
+
+export async function deleteHouseholdMember(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/household-members/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}

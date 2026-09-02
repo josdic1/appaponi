@@ -4002,3 +4002,113 @@ body {
 }
 
 /* HUMAN DATE/TIME INPUT END */
+
+/* ACCOUNTS HOUSEHOLDS CRUD START */
+.admin-manage-row {
+  gap: 10px;
+}
+
+.admin-row-main {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.admin-row-main > span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-row-main b {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.admin-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-inline-edit {
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-inline-edit input,
+.admin-edit-fields input {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0 10px;
+  font: inherit;
+}
+
+.profile-manage-row {
+  gap: 12px;
+}
+
+.profile-manage-row > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-edit-row {
+  align-items: stretch;
+  gap: 10px;
+}
+
+.admin-edit-fields {
+  min-width: 0;
+  flex: 1;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px !important;
+}
+
+@media (max-width: 700px) {
+  .admin-manage-row,
+  .profile-manage-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-row-main {
+    width: 100%;
+  }
+
+  .admin-row-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .admin-inline-edit {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-edit-fields {
+    grid-template-columns: 1fr;
+  }
+}
+/* ACCOUNTS HOUSEHOLDS CRUD END */
