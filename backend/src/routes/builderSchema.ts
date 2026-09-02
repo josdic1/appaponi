@@ -1,6 +1,18 @@
 import { Router } from "express";
 
+import {
+  requireAccountType,
+  requireAuth,
+  requirePasswordChanged,
+} from "../middleware/auth.js";
+
 export const builderSchemaRouter = Router();
+
+builderSchemaRouter.use(
+  requireAuth,
+  requirePasswordChanged,
+  requireAccountType("admin"),
+);
 
 builderSchemaRouter.get("/", async (_req, res) => {
   if (!process.env.DATABASE_URL) {

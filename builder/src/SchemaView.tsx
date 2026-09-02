@@ -43,7 +43,12 @@ export default function SchemaView() {
 
     async function loadSchema() {
       try {
-        const response = await fetch("/__appoponi/schema");
+        const response = await fetch(
+          "/__appoponi/schema",
+          {
+            credentials: "include",
+          },
+        );
         const data = (await response.json()) as SchemaResponse;
 
         if (!response.ok) {
