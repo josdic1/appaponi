@@ -47,6 +47,8 @@ registrationsRouter.get(
               ) AS selected_attendees,
               er.cabin_id,
               c.name AS cabin_name,
+              c.map_x AS cabin_map_x,
+              c.map_y AS cabin_map_y,
               er.share_cabin_publicly
             FROM event_registrations er
             JOIN accounts a
@@ -123,6 +125,8 @@ registrationsRouter.post(
               0::int AS selected_attendees,
               i.cabin_id,
               c.name AS cabin_name,
+              c.map_x AS cabin_map_x,
+              c.map_y AS cabin_map_y,
               i.share_cabin_publicly
             FROM inserted i
             JOIN accounts a

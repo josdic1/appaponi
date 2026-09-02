@@ -3500,3 +3500,201 @@ body {
     grid-column: auto;
   }
 }
+
+
+/* MEMBER CAMP MAP START */
+
+.member-map-card {
+  overflow: hidden;
+}
+
+.member-map-head {
+  border-bottom: 1px solid var(--line);
+}
+
+.member-map-shell {
+  width: 100%;
+  overflow: hidden;
+  background: #fbfaf6;
+}
+
+.member-map-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 1000 / 1160;
+  background: #fbfaf6;
+  touch-action: manipulation;
+}
+
+.member-map-base {
+  pointer-events: none;
+}
+
+.camp-map-ground {
+  fill: #fbfaf6;
+}
+
+.camp-map-lake {
+  fill: #dce8e8;
+}
+
+.camp-map-shore {
+  fill: none;
+  stroke: #73847d;
+  stroke-width: 2.5;
+}
+
+.camp-map-woodland {
+  fill: #e2eadf;
+}
+
+.camp-map-road {
+  fill: none;
+  stroke: #d5d8d2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.camp-map-path {
+  fill: none;
+  stroke: #b7c1b9;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 6 8;
+}
+
+.camp-map-title {
+  fill: #315844;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.camp-map-water-label {
+  fill: #596d71;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.camp-map-road-label,
+.camp-map-small-label {
+  fill: #718078;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.member-map-place {
+  cursor: pointer;
+  outline: none;
+}
+
+.member-map-place rect,
+.member-map-place ellipse {
+  vector-effect: non-scaling-stroke;
+  transition:
+    fill 120ms ease,
+    stroke 120ms ease;
+}
+
+.member-map-place-building rect {
+  fill: #fff;
+  stroke: #315844;
+  stroke-width: 1.5;
+}
+
+.member-map-place-activity rect,
+.member-map-place-activity ellipse {
+  fill: #eef3e8;
+  stroke: #61816d;
+  stroke-width: 1.5;
+}
+
+.member-map-place-cabin rect {
+  fill: #fff;
+  stroke: #63726a;
+  stroke-width: 1.2;
+}
+
+.member-map-place:hover rect,
+.member-map-place:hover ellipse,
+.member-map-place:focus-visible rect,
+.member-map-place:focus-visible ellipse,
+.member-map-place.selected rect,
+.member-map-place.selected ellipse {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.member-map-place-label {
+  fill: #29483a;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.member-map-your-cabin {
+  cursor: pointer;
+  outline: none;
+}
+
+.member-map-your-cabin circle:first-child {
+  fill: #fff;
+  stroke: var(--accent);
+  stroke-width: 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.member-map-your-cabin circle:last-child {
+  fill: var(--accent);
+}
+
+.member-map-your-cabin:hover circle:first-child,
+.member-map-your-cabin:focus-visible circle:first-child,
+.member-map-your-cabin.selected circle:first-child {
+  fill: var(--accent-soft);
+  stroke-width: 6;
+}
+
+.member-map-detail {
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 9px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.member-map-detail strong {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.member-map-detail span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+@media (max-width: 520px) {
+  .member-map-card {
+    margin-left: -14px;
+    margin-right: -14px;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+  }
+}
+
+/* MEMBER CAMP MAP END */

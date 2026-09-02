@@ -50,6 +50,8 @@ export type EventRegistration = {
   selected_attendees: number;
   cabin_id: string | null;
   cabin_name: string | null;
+  cabin_map_x: number | null;
+  cabin_map_y: number | null;
   share_cabin_publicly: boolean;
 };
 

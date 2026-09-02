@@ -27,6 +27,7 @@ import {
 } from "../api/member";
 
 import { useAuth } from "../hooks/useAuth";
+import MemberCampMap from "./MemberCampMap";
 import MemberServicesPanel from "./MemberServicesPanel";
 
 type EventActivityWithCount =
@@ -239,6 +240,10 @@ export default function MemberPage() {
                 </div>
               </div>
             </section>
+
+            <MemberCampMap
+              registration={registration}
+            />
 
             <section className="member-card">
               <div className="member-card-head">
