@@ -69,6 +69,38 @@ staffMembersRouter.post("/", async (req, res) => {
   }
 
   try {
+    const accountResult = await query<{
+      account_type: string;
+    }>(
+      `
+        SELECT account_type
+        FROM accounts
+        WHERE id = $1
+        LIMIT 1
+      `,
+      [parsed.data.account_id],
+    );
+
+    const account =
+      accountResult.rows[0];
+
+    if (!account) {
+      res.status(404).json({
+        error: "Account does not exist",
+      });
+      return;
+    }
+
+    if (
+      account.account_type !== "staff"
+    ) {
+      res.status(409).json({
+        error:
+          "Staff profiles can only use staff accounts",
+      });
+      return;
+    }
+
     const result = await query<StaffMember>(
       `
         WITH inserted AS (
@@ -119,7 +151,7 @@ staffMembersRouter.post("/", async (req, res) => {
     ) {
       res.status(409).json({
         error:
-          "Staff profiles can only use staff or admin accounts",
+          "Staff profiles can only use staff accounts",
       });
       return;
     }

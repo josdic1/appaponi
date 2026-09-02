@@ -74,8 +74,7 @@ export default function AdminStaffPage() {
 
     return accounts.filter(
       (item) =>
-        (item.account_type === "staff" ||
-          item.account_type === "admin") &&
+        item.account_type === "staff" &&
         !used.has(item.id),
     );
   }, [accounts, staff]);
