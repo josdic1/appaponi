@@ -108,3 +108,50 @@ export async function createHouseholdMember(
     }>(response)
   ).household_member;
 }
+
+import type {
+  StaffMember,
+  StaffRole,
+} from "@appoponi/shared/schemas/staffMembers";
+
+export async function loadStaffMembers() {
+  const response = await fetch(
+    `${API_URL}/api/staff-members`,
+    { credentials: "include" },
+  );
+
+  return (
+    await json<{
+      staff_members: StaffMember[];
+    }>(response)
+  ).staff_members;
+}
+
+export async function createStaffMember(
+  input: {
+    account_id: number;
+    full_name: string;
+    email?: string;
+    phone?: string;
+    role: StaffRole;
+    babysitting_eligible: boolean;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/staff-members`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{
+      staff_member: StaffMember;
+    }>(response)
+  ).staff_member;
+}

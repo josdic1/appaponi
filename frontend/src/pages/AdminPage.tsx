@@ -5,6 +5,8 @@ import {
   type FormEvent,
 } from "react";
 
+import AdminStaffPage from "./AdminStaffPage";
+
 import type {
   AccountRecord,
 } from "@appoponi/shared/schemas/accounts";
@@ -34,6 +36,9 @@ export default function AdminPage() {
 
   const [selectedAccountId, setSelectedAccountId] =
     useState("");
+
+  const [section, setSection] =
+    useState<"households" | "staff">("households");
 
   const [error, setError] =
     useState<string | null>(null);
@@ -182,7 +187,29 @@ export default function AdminPage() {
         </div>
       </header>
 
+      <nav className="admin-tabs">
+        <button
+          type="button"
+          className={section === "households" ? "active" : ""}
+          onClick={() => setSection("households")}
+        >
+          Accounts & Households
+        </button>
+
+        <button
+          type="button"
+          className={section === "staff" ? "active" : ""}
+          onClick={() => setSection("staff")}
+        >
+          Staff
+        </button>
+      </nav>
+
       <main className="admin-main">
+        {section === "staff" ? (
+          <AdminStaffPage />
+        ) : (
+          <>
         <div className="admin-heading">
           <div>
             <div className="admin-eyebrow">
@@ -414,6 +441,8 @@ export default function AdminPage() {
             </div>
           )}
         </section>
+          </>
+        )}
       </main>
     </div>
   );

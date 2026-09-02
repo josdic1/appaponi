@@ -2745,3 +2745,61 @@ body {
     width: 100%;
   }
 }
+
+.admin-tabs {
+  height: 44px;
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  padding: 0 max(24px, calc((100vw - 1200px) / 2 + 28px));
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.admin-tabs button {
+  position: relative;
+  border: 0;
+  background: transparent;
+  padding: 0 1px;
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.admin-tabs button.active {
+  color: var(--ink);
+}
+
+.admin-tabs button.active::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--accent);
+}
+
+.admin-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+}
+
+.admin-check input {
+  width: 16px;
+  height: 16px;
+}
+
+.admin-check span {
+  color: var(--ink) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 12px !important;
+}
+
+@media (max-width: 760px) {
+  .admin-tabs {
+    padding: 0 14px;
+    overflow-x: auto;
+  }
+}

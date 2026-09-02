@@ -19,6 +19,10 @@
     "./schemas/householdMembers": {
       "types": "./dist/schemas/householdMembers.d.ts",
       "import": "./dist/schemas/householdMembers.js"
+    },
+    "./schemas/staffMembers": {
+      "types": "./dist/schemas/staffMembers.d.ts",
+      "import": "./dist/schemas/staffMembers.js"
     }
   },
   "scripts": {
