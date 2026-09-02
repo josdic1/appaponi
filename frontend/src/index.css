@@ -2464,3 +2464,284 @@ body {
   background: var(--surface-2);
   color: var(--ink);
 }
+
+.admin-page {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.app-header {
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255,255,255,.94);
+  backdrop-filter: blur(12px);
+}
+
+.app-header-brand,
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-header-brand > div:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header-brand span,
+.app-header-actions span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.app-header-actions button {
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 0 11px;
+}
+
+.admin-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 28px 60px;
+}
+
+.admin-heading {
+  margin-bottom: 22px;
+}
+
+.admin-heading h1 {
+  margin: 0;
+}
+
+.admin-heading p {
+  margin: 7px 0 0;
+  color: var(--muted);
+}
+
+.admin-eyebrow {
+  margin-bottom: 7px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.admin-error {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff0ef;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.admin-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.admin-card-head {
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-card-head > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-card-head span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.admin-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.admin-form label > span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: .055em;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-household-head select {
+  width: 100%;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 0 10px;
+}
+
+.admin-primary {
+  height: 38px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-list-row {
+  width: 100%;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  text-align: left;
+}
+
+.admin-list-row:last-child {
+  border-bottom: 0;
+}
+
+.admin-list-row.active {
+  background: var(--accent-soft);
+}
+
+.admin-list-row > span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-list-row small {
+  color: var(--muted);
+}
+
+.admin-list-row b {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.admin-household-card {
+  margin-top: 18px;
+}
+
+.admin-household-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-household-head select {
+  width: 240px;
+}
+
+.household-layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+}
+
+.household-layout .admin-form {
+  border-right: 1px solid var(--line);
+}
+
+.profile-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-row {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.profile-row span {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.admin-empty {
+  padding: 28px 18px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .app-header {
+    padding: 0 14px;
+  }
+
+  .admin-main {
+    padding: 20px 14px 44px;
+  }
+
+  .admin-grid,
+  .household-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .household-layout .admin-form {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .admin-household-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-household-head select {
+    width: 100%;
+  }
+}

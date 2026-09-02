@@ -4,6 +4,7 @@ import {
 
 import AuthProvider from "./providers/AuthProvider";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import AdminPage from "./pages/AdminPage";
 import LoginPage from "./pages/LoginPage";
 import { useAuth } from "./hooks/useAuth";
 
@@ -24,6 +25,10 @@ function AppContent() {
 
   if (account.must_change_password) {
     return <ChangePasswordPage />;
+  }
+
+  if (account.account_type === "admin") {
+    return <AdminPage />;
   }
 
   return (
