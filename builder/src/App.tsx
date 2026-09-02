@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import ApiTesterView from "./ApiTesterView";
 import DataView from "./DataView";
 import ImportView from "./ImportView";
 import SchemaView from "./SchemaView";
@@ -58,11 +59,6 @@ export default function App() {
       cancelled = true;
     };
   }, []);
-
-  const currentLabel =
-    tabs.find(
-      (item) => item.id === tab,
-    )?.label ?? tab;
 
   return (
     <div className="app">
@@ -232,29 +228,7 @@ export default function App() {
 
         {tab === "data" && <DataView />}
 
-        {tab === "api" && (
-          <section>
-            <div className="page-head">
-              <div>
-                <div className="eyebrow">
-                  api
-                </div>
-
-                <h1>{currentLabel}</h1>
-
-                <p className="subtitle">
-                  API Tester is the next Builder pass.
-                </p>
-              </div>
-            </div>
-
-            <article className="card">
-              <div className="card-body empty">
-                Ready for Appoponi API routes.
-              </div>
-            </article>
-          </section>
-        )}
+        {tab === "api" && <ApiTesterView />}
       </main>
     </div>
   );
