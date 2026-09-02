@@ -2,9 +2,6 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { builderSchemaRouter } from "./routes/builderSchema.js";
-import { builderDataRouter } from "./routes/builderData.js";
-import { builderImportRouter } from "./routes/builderImport.js";
 import { authRouter } from "./routes/auth.js";
 import { accountsRouter } from "./routes/accounts.js";
 import { householdMembersRouter } from "./routes/householdMembers.js";
@@ -41,9 +38,6 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.use("/__appoponi/schema", builderSchemaRouter);
-app.use("/__appoponi/data", builderDataRouter);
-app.use("/__appoponi/import", builderImportRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/accounts", accountsRouter);
 app.use("/api/household-members", householdMembersRouter);
