@@ -27,6 +27,7 @@ import {
 } from "../api/member";
 
 import { useAuth } from "../hooks/useAuth";
+import MemberServicesPanel from "./MemberServicesPanel";
 
 type EventActivityWithCount =
   EventActivity & {
@@ -447,6 +448,7 @@ export default function MemberPage() {
             </section>
           </>
         )}
+        <MemberServicesPanel />
       </main>
     </div>
   );
