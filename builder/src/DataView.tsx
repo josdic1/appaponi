@@ -60,7 +60,11 @@ function displayValue(
   return String(value);
 }
 
-export default function DataView() {
+export default function DataView({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const [tables, setTables] =
     useState<TableSummary[]>([]);
 
@@ -248,15 +252,17 @@ export default function DataView() {
   if (loading) {
     return (
       <section>
-        <div className="page-head">
-          <div>
-            <div className="eyebrow">
-              Data
-            </div>
+        {!embedded && (
+          <div className="page-head">
+            <div>
+              <div className="eyebrow">
+                Data
+              </div>
 
-            <h1>Live data</h1>
+              <h1>Live data</h1>
+            </div>
           </div>
-        </div>
+        )}
 
         <article className="card">
           <div className="card-body empty">
@@ -269,21 +275,23 @@ export default function DataView() {
 
   return (
     <section>
-      <div className="page-head">
-        <div>
-          <div className="eyebrow">
-            Data
+      {!embedded && (
+        <div className="page-head">
+          <div>
+            <div className="eyebrow">
+              Data
+            </div>
+
+            <h1>Live data</h1>
+
+            <p className="subtitle">
+              Read the actual PostgreSQL
+              records. Sensitive fields are
+              hidden.
+            </p>
           </div>
-
-          <h1>Live data</h1>
-
-          <p className="subtitle">
-            Read the actual PostgreSQL
-            records. Sensitive fields are
-            hidden.
-          </p>
         </div>
-      </div>
+      )}
 
       {error && (
         <div className="builder-error">

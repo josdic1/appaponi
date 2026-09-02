@@ -3,31 +3,35 @@ import {
   useState,
 } from "react";
 import ApiTesterView from "./ApiTesterView";
-import DataView from "./DataView";
+import BuilderSectionRail from "./BuilderSectionRail";
+import DatabaseView from "./DatabaseView";
+import DataWorkspaceView from "./DataWorkspaceView";
+import IdeaLogView from "./IdeaLogView";
 import ImportView from "./ImportView";
 import SchemaView from "./SchemaView";
 
 type Tab =
-  | "overview"
-  | "import"
-  | "schema"
   | "data"
-  | "api";
+  | "schema"
+  | "database"
+  | "api"
+  | "ideas"
+  | "import";
 
 const tabs: Array<{
-  id: Tab;
+  id: Exclude<Tab, "data">;
   label: string;
 }> = [
-  { id: "overview", label: "Overview" },
-  { id: "import", label: "Import" },
   { id: "schema", label: "Schema" },
-  { id: "data", label: "Data" },
+  { id: "database", label: "Database" },
   { id: "api", label: "API Tester" },
+  { id: "ideas", label: "Idea Log" },
+  { id: "import", label: "Import" },
 ];
 
 export default function App() {
   const [tab, setTab] =
-    useState<Tab>("overview");
+    useState<Tab>("data");
 
   const [apiState, setApiState] =
     useState<
@@ -67,7 +71,7 @@ export default function App() {
           className="brand"
           type="button"
           onClick={() =>
-            setTab("overview")
+            setTab("data")
           }
         >
           <span className="mark">
@@ -83,6 +87,24 @@ export default function App() {
               application workspace
             </span>
           </span>
+        </button>
+
+        <button
+          className={`live-data-link ${
+            tab === "data"
+              ? "active"
+              : ""
+          }`}
+          type="button"
+          onClick={() =>
+            setTab("data")
+          }
+        >
+          <span
+            className="live-data-dot"
+            aria-hidden="true"
+          />
+          Live Data
         </button>
 
         <nav
@@ -116,119 +138,38 @@ export default function App() {
 
           {apiState === "checking"
             ? "Checking API…"
-            : apiState ===
-                "connected"
+            : apiState === "connected"
               ? "API connected"
               : "API offline"}
         </div>
       </header>
 
+      <BuilderSectionRail tab={tab} />
+
       <main>
-        {tab === "overview" && (
-          <section>
-            <div className="page-head">
-              <div>
-                <div className="eyebrow">
-                  Appoponi
-                </div>
-
-                <h1>Builder</h1>
-
-                <p className="subtitle">
-                  A human workspace over
-                  Appoponi's real
-                  contracts, database,
-                  records, and imports.
-                </p>
-              </div>
-            </div>
-
-            <div className="overview-grid">
-              <article className="card">
-                <div className="card-head">
-                  <div>
-                    <div className="card-title">
-                      Foundation
-                    </div>
-
-                    <div className="card-kicker">
-                      What exists right now.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card-body rows">
-                  <div>
-                    <span>Frontend</span>
-                    <strong>
-                      React + Vite
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>Backend</span>
-                    <strong>
-                      Express + TypeScript
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>
-                      Shared contracts
-                    </span>
-                    <strong>
-                      @appoponi/shared
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>Database</span>
-                    <strong>
-                      PostgreSQL
-                    </strong>
-                  </div>
-                </div>
-              </article>
-
-              <article className="card">
-                <div className="card-head">
-                  <div>
-                    <div className="card-title">
-                      Import pipeline
-                    </div>
-
-                    <div className="card-kicker">
-                      Nothing writes directly
-                      to Appoponi data.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card-body pipeline">
-                  <span>Raw input</span>
-                  <b>→</b>
-                  <span>Parse</span>
-                  <b>→</b>
-                  <span>Map</span>
-                  <b>→</b>
-                  <span>Review</span>
-                  <b>→</b>
-                  <span>Validate</span>
-                  <b>→</b>
-                  <span>Commit</span>
-                </div>
-              </article>
-            </div>
-          </section>
+        {tab === "data" && (
+          <DataWorkspaceView />
         )}
 
-        {tab === "import" && <ImportView />}
+        {tab === "schema" && (
+          <SchemaView />
+        )}
 
-        {tab === "schema" && <SchemaView />}
+        {tab === "database" && (
+          <DatabaseView />
+        )}
 
-        {tab === "data" && <DataView />}
+        {tab === "api" && (
+          <ApiTesterView />
+        )}
 
-        {tab === "api" && <ApiTesterView />}
+        {tab === "ideas" && (
+          <IdeaLogView />
+        )}
+
+        {tab === "import" && (
+          <ImportView />
+        )}
       </main>
     </div>
   );
