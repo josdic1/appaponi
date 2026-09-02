@@ -13,7 +13,7 @@ export const loginSchema = z.object({
 
 export const changePasswordSchema = z.object({
   current_password: z.string().min(1),
-  new_password: z.string().min(8),
+  new_password: z.string().min(1),
 });
 
 export type AccountType =

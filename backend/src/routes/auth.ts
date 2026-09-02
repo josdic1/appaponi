@@ -207,7 +207,7 @@ authRouter.post(
     if (!parsed.success) {
       res.status(400).json({
         error:
-          "Current password and a new password of at least 8 characters are required",
+          "Current password and new password are required",
       });
       return;
     }

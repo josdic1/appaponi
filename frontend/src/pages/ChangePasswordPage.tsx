@@ -35,9 +35,9 @@ export default function ChangePasswordPage() {
     event.preventDefault();
     setError(null);
 
-    if (newPassword.length < 8) {
+    if (!newPassword) {
       setError(
-        "New password must be at least 8 characters.",
+        "Enter a new password.",
       );
       return;
     }
