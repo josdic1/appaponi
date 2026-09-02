@@ -38,6 +38,11 @@ import {
   loadScheduling,
 } from "../api/scheduling";
 
+import HumanDateTimeInput from "../components/HumanDateTimeInput";
+import {
+  humanDateTimeToIso,
+} from "../lib/humanDateTime";
+
 export default function AdminSchedulingPage() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -209,12 +214,24 @@ export default function AdminSchedulingPage() {
       await addEventActivity({
         event_id: Number(scheduleEvent),
         activity_id: Number(scheduleActivity),
-        starts_at: new Date(
-          scheduleStart,
-        ).toISOString(),
-        ends_at: new Date(
-          scheduleEnd,
-        ).toISOString(),
+        starts_at:
+          humanDateTimeToIso(
+            scheduleStart,
+            events.find(
+              (item) =>
+                item.id ===
+                scheduleEvent,
+            )?.starts_at,
+          ),
+        ends_at:
+          humanDateTimeToIso(
+            scheduleEnd,
+            events.find(
+              (item) =>
+                item.id ===
+                scheduleEvent,
+            )?.starts_at,
+          ),
         capacity: scheduleCapacity
           ? Number(scheduleCapacity)
           : null,
@@ -530,22 +547,30 @@ export default function AdminSchedulingPage() {
 
             <label>
               <span>Starts</span>
-              <input
-                type="datetime-local"
+              <HumanDateTimeInput
                 value={scheduleStart}
-                onChange={(e) =>
-                  setScheduleStart(e.target.value)
+                onChange={setScheduleStart}
+                defaultDate={
+                  events.find(
+                    (item) =>
+                      item.id ===
+                      scheduleEvent,
+                  )?.starts_at
                 }
               />
             </label>
 
             <label>
               <span>Ends</span>
-              <input
-                type="datetime-local"
+              <HumanDateTimeInput
                 value={scheduleEnd}
-                onChange={(e) =>
-                  setScheduleEnd(e.target.value)
+                onChange={setScheduleEnd}
+                defaultDate={
+                  events.find(
+                    (item) =>
+                      item.id ===
+                      scheduleEvent,
+                  )?.starts_at
                 }
               />
             </label>

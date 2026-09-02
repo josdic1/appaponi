@@ -48,7 +48,7 @@ export default function LoginPage() {
   return (
     <main className="login-page">
       <form
-        className="login-card"
+        className="login-card login-form"
         onSubmit={submit}
       >
         <div className="login-brand">

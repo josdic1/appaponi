@@ -49,6 +49,11 @@ import {
   updateNotificationPreferences,
 } from "../api/services";
 
+import HumanDateTimeInput from "../components/HumanDateTimeInput";
+import {
+  humanDateTimeToIso,
+} from "../lib/humanDateTime";
+
 type View =
   | "meals"
   | "food"
@@ -323,13 +328,14 @@ export default function MemberServicesPanel() {
         event_registration_id:
           Number(registration.id),
         starts_at:
-          new Date(
+          humanDateTimeToIso(
             babyStart,
-          ).toISOString(),
+          ),
         ends_at:
-          new Date(
+          humanDateTimeToIso(
             babyEnd,
-          ).toISOString(),
+            babyStart,
+          ),
         notes:
           babyNotes || undefined,
         member_ids:
@@ -765,28 +771,19 @@ export default function MemberServicesPanel() {
               <label>
                 <span>Starts</span>
 
-                <input
-                  type="datetime-local"
+                <HumanDateTimeInput
                   value={babyStart}
-                  onChange={(e) =>
-                    setBabyStart(
-                      e.target.value,
-                    )
-                  }
+                  onChange={setBabyStart}
                 />
               </label>
 
               <label>
                 <span>Ends</span>
 
-                <input
-                  type="datetime-local"
+                <HumanDateTimeInput
                   value={babyEnd}
-                  onChange={(e) =>
-                    setBabyEnd(
-                      e.target.value,
-                    )
-                  }
+                  onChange={setBabyEnd}
+                  defaultDate={babyStart}
                 />
               </label>
 

@@ -232,7 +232,7 @@ export default function AdminCabinsPanel({
         {cabins.length ? (
           cabins.map((cabin) => (
             <div
-              className="registration-row"
+              className="registration-row cabin-row"
               key={cabin.id}
             >
               <label>
@@ -387,6 +387,7 @@ export default function AdminCabinsPanel({
               </label>
 
               <button
+                className="app-button app-button-danger"
                 type="button"
                 onClick={() =>
                   void run(() =>

@@ -29,6 +29,11 @@ import {
   loadEventTypes,
 } from "../api/operations";
 
+import HumanDateTimeInput from "../components/HumanDateTimeInput";
+import {
+  humanDateTimeToIso,
+} from "../lib/humanDateTime";
+
 type View =
   | "areas"
   | "activities"
@@ -201,9 +206,14 @@ export default function AdminOperationsPage() {
         event_type_id:
           Number(eventTypeId),
         starts_at:
-          new Date(startsAt).toISOString(),
+          humanDateTimeToIso(
+            startsAt,
+          ),
         ends_at:
-          new Date(endsAt).toISOString(),
+          humanDateTimeToIso(
+            endsAt,
+            startsAt,
+          ),
         ...(selectedEventType?.name ===
         "Other"
           ? {
@@ -615,28 +625,19 @@ export default function AdminOperationsPage() {
               <label>
                 <span>Starts</span>
 
-                <input
-                  type="datetime-local"
+                <HumanDateTimeInput
                   value={startsAt}
-                  onChange={(event) =>
-                    setStartsAt(
-                      event.target.value,
-                    )
-                  }
+                  onChange={setStartsAt}
                 />
               </label>
 
               <label>
                 <span>Ends</span>
 
-                <input
-                  type="datetime-local"
+                <HumanDateTimeInput
                   value={endsAt}
-                  onChange={(event) =>
-                    setEndsAt(
-                      event.target.value,
-                    )
-                  }
+                  onChange={setEndsAt}
+                  defaultDate={startsAt}
                 />
               </label>
 

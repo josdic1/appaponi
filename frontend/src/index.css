@@ -3718,3 +3718,262 @@ body {
 }
 
 /* OFFLINE FOUNDATION END */
+
+
+
+/* APPONI CONTROL TOKENS START */
+
+:root {
+  --control-height: 38px;
+  --control-height-compact: 32px;
+  --control-radius: 8px;
+  --control-border: var(--line-strong);
+  --control-bg: var(--surface);
+  --control-bg-hover: var(--surface-2);
+  --control-placeholder: #8a8e86;
+  --control-focus-ring: 0 0 0 3px var(--accent-soft);
+  --danger-soft: #fff0ef;
+  --danger-line: #e9c4c0;
+}
+
+/* One visual language for ordinary form controls across the app. */
+.login-card input,
+.admin-form input,
+.admin-form select,
+.admin-form textarea,
+.admin-household-head select,
+.registration-row input,
+.registration-row select,
+.service-wide-form input,
+.service-wide-form select,
+.service-wide-form textarea,
+.service-notification-form input,
+.service-notification-form select,
+.service-notification-form textarea,
+.service-record-controls select,
+.member-title select,
+.member-services-title select,
+.member-service-form input,
+.member-service-form select,
+.member-setup-field input,
+.member-person-actions select {
+  width: 100%;
+  min-width: 0;
+  height: var(--control-height);
+  min-height: var(--control-height);
+  padding: 0 10px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  outline: none;
+  background: var(--control-bg);
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.2;
+}
+
+.service-wide-form textarea,
+.service-notification-form textarea {
+  height: auto;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+.login-card input::placeholder,
+.admin-form input::placeholder,
+.registration-row input::placeholder,
+.service-wide-form input::placeholder,
+.service-notification-form input::placeholder,
+.service-notification-form textarea::placeholder,
+.member-service-form input::placeholder,
+.member-setup-field input::placeholder {
+  color: var(--control-placeholder);
+}
+
+.login-card input:focus,
+.admin-form input:focus,
+.admin-form select:focus,
+.admin-form textarea:focus,
+.admin-household-head select:focus,
+.registration-row input:focus,
+.registration-row select:focus,
+.service-wide-form input:focus,
+.service-wide-form select:focus,
+.service-wide-form textarea:focus,
+.service-notification-form input:focus,
+.service-notification-form select:focus,
+.service-notification-form textarea:focus,
+.service-record-controls select:focus,
+.member-title select:focus,
+.member-services-title select:focus,
+.member-service-form input:focus,
+.member-service-form select:focus,
+.member-setup-field input:focus,
+.member-person-actions select:focus {
+  border-color: var(--accent);
+  box-shadow: var(--control-focus-ring);
+}
+
+.admin-form select,
+.admin-household-head select,
+.registration-row select,
+.service-wide-form select,
+.service-notification-form select,
+.service-record-controls select,
+.member-title select,
+.member-services-title select,
+.member-service-form select,
+.member-person-actions select {
+  cursor: pointer;
+}
+
+/* Shared action tokens. */
+.app-button,
+.admin-primary,
+.login-submit,
+.member-setup-submit {
+  min-height: var(--control-height);
+  padding: 0 12px;
+  border-radius: var(--control-radius);
+  font: inherit;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.admin-primary,
+.login-submit,
+.member-setup-submit,
+.app-button-primary {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.admin-primary:hover,
+.login-submit:hover,
+.member-setup-submit:hover,
+.app-button-primary:hover {
+  border-color: var(--accent-ink);
+  background: var(--accent-ink);
+}
+
+.app-button-secondary {
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.app-button-secondary:hover {
+  background: var(--surface-2);
+}
+
+.app-button-danger {
+  border: 1px solid var(--danger-line);
+  background: var(--surface);
+  color: var(--danger);
+}
+
+.app-button-danger:hover {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+.app-button:disabled,
+.admin-primary:disabled,
+.login-submit:disabled,
+.member-setup-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+/* The login markup now actually uses the login form layout. */
+.login-card.login-form {
+  display: grid;
+  gap: 18px;
+}
+
+.login-card.login-form .login-brand,
+.login-card.login-form .login-heading {
+  margin-bottom: 0;
+}
+
+.login-card.login-form .login-heading {
+  margin-top: 16px;
+}
+
+/* Cabin editor and registration editor have different real shapes. */
+.cabin-row {
+  grid-template-columns:
+    minmax(150px, 1.5fr)
+    minmax(130px, 1fr)
+    72px
+    72px
+    auto;
+}
+
+.cabin-row input,
+.cabin-row select,
+.registration-account-row input,
+.registration-account-row select {
+  height: var(--control-height-compact);
+  min-height: var(--control-height-compact);
+  border-radius: 7px;
+}
+
+.cabin-row > button {
+  min-height: var(--control-height-compact);
+  align-self: end;
+}
+
+.registration-account-row {
+  grid-template-columns:
+    minmax(0, 1fr)
+    76px
+    minmax(130px, 180px)
+    auto;
+}
+
+@media (max-width: 760px) {
+  .cabin-row,
+  .registration-account-row {
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+  }
+
+  .cabin-row > label:first-child,
+  .cabin-row > label:nth-child(2),
+  .registration-account-row > div {
+    grid-column: 1 / -1;
+  }
+
+  .cabin-row > button,
+  .registration-account-row > b {
+    justify-self: start;
+  }
+}
+
+/* APPONI CONTROL TOKENS END */
+
+/* HUMAN DATE/TIME INPUT START */
+
+.appoponi-datetime {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.appoponi-datetime-input {
+  width: 100%;
+}
+
+.appoponi-datetime-input.invalid {
+  border-color: var(--danger) !important;
+}
+
+.appoponi-datetime-hint {
+  color: var(--danger);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+/* HUMAN DATE/TIME INPUT END */

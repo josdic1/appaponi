@@ -58,6 +58,11 @@ import {
   updateBabysittingRequest,
 } from "../api/services";
 
+import HumanDateTimeInput from "../components/HumanDateTimeInput";
+import {
+  humanDateTimeToIso,
+} from "../lib/humanDateTime";
+
 type View =
   | "meals"
   | "after-hours"
@@ -315,13 +320,23 @@ export default function AdminServicesPage() {
         title:
           mealTitle || undefined,
         starts_at:
-          new Date(
+          humanDateTimeToIso(
             mealStart,
-          ).toISOString(),
+            events.find(
+              (item) =>
+                item.id ===
+                mealEventId,
+            )?.starts_at,
+          ),
         ends_at:
-          new Date(
+          humanDateTimeToIso(
             mealEnd,
-          ).toISOString(),
+            events.find(
+              (item) =>
+                item.id ===
+                mealEventId,
+            )?.starts_at,
+          ),
       });
 
       setMealTitle("");
@@ -690,23 +705,27 @@ export default function AdminServicesPage() {
                 }
               />
 
-              <input
-                type="datetime-local"
+              <HumanDateTimeInput
                 value={mealStart}
-                onChange={(e) =>
-                  setMealStart(
-                    e.target.value,
-                  )
+                onChange={setMealStart}
+                defaultDate={
+                  events.find(
+                    (item) =>
+                      item.id ===
+                      mealEventId,
+                  )?.starts_at
                 }
               />
 
-              <input
-                type="datetime-local"
+              <HumanDateTimeInput
                 value={mealEnd}
-                onChange={(e) =>
-                  setMealEnd(
-                    e.target.value,
-                  )
+                onChange={setMealEnd}
+                defaultDate={
+                  events.find(
+                    (item) =>
+                      item.id ===
+                      mealEventId,
+                  )?.starts_at
                 }
               />
 

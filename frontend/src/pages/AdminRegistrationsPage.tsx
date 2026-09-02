@@ -289,7 +289,7 @@ export default function AdminRegistrationsPage() {
               registrations.map(
                 (item) => (
                   <div
-                    className="registration-row"
+                    className="registration-row registration-account-row"
                     key={item.id}
                   >
                     <div>
