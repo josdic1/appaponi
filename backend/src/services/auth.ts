@@ -51,7 +51,11 @@ export function sessionCookieOptions() {
     secure:
       process.env.NODE_ENV ===
       "production",
-    sameSite: "lax" as const,
+    sameSite:
+      process.env.NODE_ENV ===
+      "production"
+        ? ("none" as const)
+        : ("lax" as const),
     maxAge:
       getSessionHours() *
       60 *

@@ -24,9 +24,23 @@ import { notificationsRouter } from "./routes/notifications.js";
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
 
+const frontendUrl =
+  process.env.FRONTEND_URL ??
+  (
+    process.env.NODE_ENV === "production"
+      ? null
+      : "http://localhost:5173"
+  );
+
+if (!frontendUrl) {
+  throw new Error(
+    "FRONTEND_URL is required in production",
+  );
+}
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: frontendUrl,
     credentials: true,
   }),
 );
