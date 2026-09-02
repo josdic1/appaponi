@@ -20,6 +20,16 @@ import {
   AuthContext,
 } from "../contexts/AuthContext";
 
+import {
+  isOfflineFetchFailure,
+  readOfflineCache,
+  removeOfflineCache,
+  saveOfflineCache,
+} from "../lib/offlineCache";
+
+const SESSION_CACHE_KEY =
+  "session-account";
+
 export default function AuthProvider({
   children,
 }: {
@@ -41,9 +51,37 @@ export default function AuthProvider({
       setLoading(true);
 
       try {
-        setAccount(
-          await getCurrentAccount(),
-        );
+        const current =
+          await getCurrentAccount();
+
+        setAccount(current);
+
+        if (current) {
+          saveOfflineCache(
+            SESSION_CACHE_KEY,
+            current,
+          );
+        } else {
+          removeOfflineCache(
+            SESSION_CACHE_KEY,
+          );
+        }
+      } catch (error) {
+        const cached =
+          readOfflineCache<SessionAccount>(
+            SESSION_CACHE_KEY,
+          );
+
+        if (
+          isOfflineFetchFailure(
+            error,
+          ) &&
+          cached
+        ) {
+          setAccount(cached.value);
+        } else {
+          throw error;
+        }
       } finally {
         setLoading(false);
       }
@@ -60,12 +98,22 @@ export default function AuthProvider({
       await loginAccount(input);
 
     setAccount(authenticated);
+
+    saveOfflineCache(
+      SESSION_CACHE_KEY,
+      authenticated,
+    );
+
     return authenticated;
   }
 
   async function logout() {
     await logoutAccount();
     setAccount(null);
+
+    removeOfflineCache(
+      SESSION_CACHE_KEY,
+    );
   }
 
   return (

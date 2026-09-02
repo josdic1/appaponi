@@ -18,9 +18,27 @@ import {
   useAuth,
 } from "../hooks/useAuth";
 
+import {
+  useOnlineStatus,
+} from "../hooks/useOnlineStatus";
+
+import {
+  isOfflineFetchFailure,
+  readOfflineCache,
+  saveOfflineCache,
+} from "../lib/offlineCache";
+
 export default function StaffPage() {
   const { account, logout } =
     useAuth();
+
+  const online =
+    useOnlineStatus();
+
+  const [
+    usingCachedData,
+    setUsingCachedData,
+  ] = useState(false);
 
   const [activities, setActivities] =
     useState<
@@ -35,10 +53,23 @@ export default function StaffPage() {
   const [error, setError] =
     useState<string | null>(null);
 
-  async function refresh() {
-    const data =
-      await loadStaffDay();
+  type StaffDayData =
+    Awaited<
+      ReturnType<
+        typeof loadStaffDay
+      >
+    >;
 
+  function cacheKey() {
+    return `staff-day:${
+      account?.username ??
+      "unknown"
+    }`;
+  }
+
+  function applyStaffDay(
+    data: StaffDayData,
+  ) {
     setActivities(
       data.activities,
     );
@@ -46,6 +77,45 @@ export default function StaffPage() {
     setParticipants(
       data.participants,
     );
+  }
+
+  async function refresh() {
+    try {
+      const data =
+        await loadStaffDay();
+
+      applyStaffDay(data);
+
+      saveOfflineCache(
+        cacheKey(),
+        data,
+      );
+
+      setUsingCachedData(false);
+      setError(null);
+    } catch (err) {
+      const cached =
+        readOfflineCache<StaffDayData>(
+          cacheKey(),
+        );
+
+      if (
+        isOfflineFetchFailure(
+          err,
+        ) &&
+        cached
+      ) {
+        applyStaffDay(
+          cached.value,
+        );
+
+        setUsingCachedData(true);
+        setError(null);
+        return;
+      }
+
+      throw err;
+    }
   }
 
   useEffect(() => {
@@ -106,6 +176,16 @@ export default function StaffPage() {
       </header>
 
       <main className="member-main">
+        {(!online ||
+          usingCachedData) && (
+          <div className="member-offline">
+            Offline · showing the
+            last saved schedule.
+            Check-in changes are
+            unavailable.
+          </div>
+        )}
+
         <div className="member-title">
           <h1>Your schedule</h1>
 
@@ -181,6 +261,10 @@ export default function StaffPage() {
                             {!person.checked_in_at ? (
                               <button
                                 type="button"
+                                disabled={
+                                  !online ||
+                                  usingCachedData
+                                }
                                 onClick={() =>
                                   void run(
                                     () =>
@@ -196,6 +280,10 @@ export default function StaffPage() {
                               <button
                                 type="button"
                                 className="selected"
+                                disabled={
+                                  !online ||
+                                  usingCachedData
+                                }
                                 onClick={() =>
                                   void run(
                                     () =>

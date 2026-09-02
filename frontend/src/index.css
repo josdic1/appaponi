@@ -3698,3 +3698,23 @@ body {
 }
 
 /* MEMBER CAMP MAP END */
+
+/* OFFLINE FOUNDATION START */
+
+.member-offline {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.member-app button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+/* OFFLINE FOUNDATION END */

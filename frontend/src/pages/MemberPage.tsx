@@ -27,6 +27,14 @@ import {
 } from "../api/member";
 
 import { useAuth } from "../hooks/useAuth";
+import {
+  useOnlineStatus,
+} from "../hooks/useOnlineStatus";
+import {
+  isOfflineFetchFailure,
+  readOfflineCache,
+  saveOfflineCache,
+} from "../lib/offlineCache";
 import MemberCampMap from "./MemberCampMap";
 import MemberServicesPanel from "./MemberServicesPanel";
 
@@ -37,6 +45,12 @@ type EventActivityWithCount =
 
 export default function MemberPage() {
   const { account, logout } = useAuth();
+  const online = useOnlineStatus();
+
+  const [
+    usingCachedData,
+    setUsingCachedData,
+  ] = useState(false);
 
   const [
     registrations,
@@ -63,10 +77,16 @@ export default function MemberPage() {
   const [error, setError] =
     useState<string | null>(null);
 
-  async function refresh() {
-    const data =
-      await loadMemberHome();
+  type MemberHomeData =
+    Awaited<
+      ReturnType<
+        typeof loadMemberHome
+      >
+    >;
 
+  function applyHome(
+    data: MemberHomeData,
+  ) {
     setRegistrations(
       data.registrations,
     );
@@ -82,6 +102,49 @@ export default function MemberPage() {
           ?.event_id ||
         "",
     );
+  }
+
+  function cacheKey() {
+    return `member-home:${
+      account?.username ??
+      "unknown"
+    }`;
+  }
+
+  async function refresh() {
+    try {
+      const data =
+        await loadMemberHome();
+
+      applyHome(data);
+
+      saveOfflineCache(
+        cacheKey(),
+        data,
+      );
+
+      setUsingCachedData(false);
+      setError(null);
+    } catch (err) {
+      const cached =
+        readOfflineCache<MemberHomeData>(
+          cacheKey(),
+        );
+
+      if (
+        isOfflineFetchFailure(
+          err,
+        ) &&
+        cached
+      ) {
+        applyHome(cached.value);
+        setUsingCachedData(true);
+        setError(null);
+        return;
+      }
+
+      throw err;
+    }
   }
 
   useEffect(() => {
@@ -176,6 +239,15 @@ export default function MemberPage() {
       </header>
 
       <main className="member-main">
+        {(!online ||
+          usingCachedData) && (
+          <div className="member-offline">
+            Offline · showing the
+            last saved information.
+            Changes are unavailable.
+          </div>
+        )}
+
         <div className="member-title">
           <h1>Your stay</h1>
 
@@ -283,6 +355,10 @@ export default function MemberPage() {
                           attendee
                             ? "selected"
                             : ""
+                        }
+                        disabled={
+                          !online ||
+                          usingCachedData
                         }
                         onClick={() =>
                           void run(
@@ -427,6 +503,10 @@ export default function MemberPage() {
                                       signup
                                         ? "selected"
                                         : ""
+                                    }
+                                    disabled={
+                                      !online ||
+                                      usingCachedData
                                     }
                                     onClick={() =>
                                       void run(

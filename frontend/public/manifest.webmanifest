@@ -1,0 +1,22 @@
+{
+  "name": "Appoponi",
+  "short_name": "Appoponi",
+  "description": "Camp guest and staff app",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f5f1",
+  "theme_color": "#007854",
+  "icons": [
+    {
+      "src": "/appoponi-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/appoponi-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
