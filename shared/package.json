@@ -51,6 +51,22 @@
     "./schemas/staffDay": {
       "types": "./dist/schemas/staffDay.d.ts",
       "import": "./dist/schemas/staffDay.js"
+    },
+    "./schemas/meals": {
+      "types": "./dist/schemas/meals.d.ts",
+      "import": "./dist/schemas/meals.js"
+    },
+    "./schemas/afterHours": {
+      "types": "./dist/schemas/afterHours.d.ts",
+      "import": "./dist/schemas/afterHours.js"
+    },
+    "./schemas/babysitting": {
+      "types": "./dist/schemas/babysitting.d.ts",
+      "import": "./dist/schemas/babysitting.js"
+    },
+    "./schemas/notifications": {
+      "types": "./dist/schemas/notifications.d.ts",
+      "import": "./dist/schemas/notifications.js"
     }
   },
   "scripts": {
