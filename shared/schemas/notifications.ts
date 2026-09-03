@@ -21,6 +21,10 @@ export const createNotificationSchema = z.object({
   scheduled_for: z.string().datetime().nullable().optional(),
 });
 
+export const notificationIdParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
 export type NotificationPreferences = {
   account_id: string;
   activity_reminders: boolean;

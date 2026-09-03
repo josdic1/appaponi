@@ -5,6 +5,16 @@ export const createAfterHoursItemSchema = z.object({
   description: z.string().trim().min(1).optional(),
 });
 
+export const afterHoursItemIdParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+export const updateAfterHoursItemSchema = z.object({
+  name: z.string().trim().min(1).optional(),
+  description: z.string().trim().min(1).nullable().optional(),
+  available: z.boolean().optional(),
+});
+
 export const createAfterHoursOrderSchema = z.object({
   event_registration_id: z.coerce.number().int().positive(),
   requested_by_member_id: z.coerce.number().int().positive().nullable().optional(),

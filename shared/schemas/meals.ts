@@ -23,6 +23,41 @@ export const createEventMealSchema = z.object({
   ends_at: z.string().datetime(),
 });
 
+export const mealMenuIdParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+export const updateMealMenuSchema = z.object({
+  name: z.string().trim().min(1).optional(),
+  description: z.string().trim().min(1).nullable().optional(),
+});
+
+export const mealMenuItemIdParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+export const updateMealMenuItemSchema = z.object({
+  menu_id: z.coerce.number().int().positive().optional(),
+  name: z.string().trim().min(1).optional(),
+  description: z.string().trim().min(1).nullable().optional(),
+  dietary_notes: z.string().trim().min(1).nullable().optional(),
+  sort_order: z.coerce.number().int().optional(),
+});
+
+export const eventMealIdParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+export const updateEventMealSchema = z.object({
+  event_id: z.coerce.number().int().positive().optional(),
+  meal_type_id: z.coerce.number().int().positive().optional(),
+  menu_id: z.coerce.number().int().positive().nullable().optional(),
+  title: z.string().trim().min(1).nullable().optional(),
+  notes: z.string().trim().min(1).nullable().optional(),
+  starts_at: z.string().datetime().optional(),
+  ends_at: z.string().datetime().optional(),
+});
+
 export type MealType = {
   id: string;
   name: string;
