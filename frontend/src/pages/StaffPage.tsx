@@ -28,6 +28,14 @@ import {
   saveOfflineCache,
 } from "../lib/offlineCache";
 
+import {
+  applyStaffOfflineActions,
+  enqueueStaffOfflineAction,
+  readStaffOfflineQueue,
+  saveStaffOfflineQueue,
+  type StaffOfflineAction,
+} from "../lib/staffOfflineQueue";
+
 export default function StaffPage() {
   const { account, logout } =
     useAuth();
@@ -53,6 +61,14 @@ export default function StaffPage() {
   const [error, setError] =
     useState<string | null>(null);
 
+  const [
+    pendingActions,
+    setPendingActions,
+  ] = useState<StaffOfflineAction[]>([]);
+
+  const [syncing, setSyncing] =
+    useState(false);
+
   type StaffDayData =
     Awaited<
       ReturnType<
@@ -67,15 +83,61 @@ export default function StaffPage() {
     }`;
   }
 
+  function currentQueue() {
+    if (!account?.username) {
+      return [];
+    }
+
+    return readStaffOfflineQueue(
+      account.username,
+    );
+  }
+
   function applyStaffDay(
     data: StaffDayData,
   ) {
+    const queued =
+      currentQueue();
+
+    setPendingActions(queued);
+
     setActivities(
       data.activities,
     );
 
     setParticipants(
-      data.participants,
+      applyStaffOfflineActions(
+        data.participants,
+        queued,
+      ),
+    );
+  }
+
+  function queueParticipantAction(
+    signupId: string,
+    action:
+      | "check-in"
+      | "check-out",
+  ) {
+    if (!account?.username) {
+      return;
+    }
+
+    const queued =
+      enqueueStaffOfflineAction(
+        account.username,
+        signupId,
+        action,
+      );
+
+    setPendingActions(queued);
+
+    setParticipants(
+      (current) =>
+        applyStaffOfflineActions(
+          current,
+          queued,
+        ),
     );
   }
 
@@ -128,15 +190,47 @@ export default function StaffPage() {
     );
   }, []);
 
-  async function run(
-    action: () => Promise<unknown>,
+  async function changeParticipant(
+    signupId: string,
+    action:
+      | "check-in"
+      | "check-out",
   ) {
     setError(null);
 
+    if (!online) {
+      queueParticipantAction(
+        signupId,
+        action,
+      );
+      return;
+    }
+
     try {
-      await action();
+      if (action === "check-in") {
+        await checkInParticipant(
+          signupId,
+        );
+      } else {
+        await checkOutParticipant(
+          signupId,
+        );
+      }
+
       await refresh();
     } catch (err) {
+      if (
+        isOfflineFetchFailure(err)
+      ) {
+        queueParticipantAction(
+          signupId,
+          action,
+        );
+
+        setUsingCachedData(true);
+        return;
+      }
+
       setError(
         err instanceof Error
           ? err.message
@@ -144,6 +238,98 @@ export default function StaffPage() {
       );
     }
   }
+
+  async function syncPendingActions() {
+    if (
+      !online ||
+      !account?.username
+    ) {
+      return;
+    }
+
+    let queued =
+      readStaffOfflineQueue(
+        account.username,
+      );
+
+    if (!queued.length) {
+      setPendingActions([]);
+      return;
+    }
+
+    setSyncing(true);
+    setError(null);
+
+    try {
+      while (
+        queued.length &&
+        navigator.onLine
+      ) {
+        const next =
+          queued[0];
+
+        try {
+          if (
+            next.action ===
+            "check-in"
+          ) {
+            await checkInParticipant(
+              next.signup_id,
+            );
+          } else {
+            await checkOutParticipant(
+              next.signup_id,
+            );
+          }
+        } catch (err) {
+          if (
+            next.action ===
+              "check-in" &&
+            err instanceof Error &&
+            err.message ===
+              "Participant is already checked out"
+          ) {
+            // A completed participant must never be reopened.
+          } else {
+            throw err;
+          }
+        }
+
+        queued =
+          queued.slice(1);
+
+        saveStaffOfflineQueue(
+          account.username,
+          queued,
+        );
+
+        setPendingActions(
+          queued,
+        );
+      }
+
+      if (!queued.length) {
+        await refresh();
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not sync check-in changes",
+      );
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  useEffect(() => {
+    if (online) {
+      void syncPendingActions();
+    }
+  }, [
+    online,
+    account?.username,
+  ]);
 
   return (
     <div className="member-app">
@@ -177,12 +363,28 @@ export default function StaffPage() {
 
       <main className="member-main">
         {(!online ||
-          usingCachedData) && (
+          usingCachedData ||
+          pendingActions.length >
+            0 ||
+          syncing) && (
           <div className="member-offline">
-            Offline · showing the
-            last saved schedule.
-            Check-in changes are
-            unavailable.
+            {syncing
+              ? "Syncing check-in changes…"
+              : !online ||
+                  usingCachedData
+                ? "Offline · showing the last saved schedule. Check-in changes will sync automatically."
+                : "Check-in changes are waiting to sync."}
+
+            {pendingActions.length >
+              0 && (
+              <span className="staff-sync-count">
+                {" "}
+                {
+                  pendingActions.length
+                }{" "}
+                pending
+              </span>
+            )}
           </div>
         )}
 
@@ -252,25 +454,31 @@ export default function StaffPage() {
                               person.signup_id
                             }
                           >
-                            <strong>
-                              {
-                                person.member_name
-                              }
-                            </strong>
+                            <div className="staff-participant-copy">
+                              <strong>
+                                {
+                                  person.member_name
+                                }
+                              </strong>
+
+                              {pendingActions.some(
+                                (item) =>
+                                  item.signup_id ===
+                                  person.signup_id,
+                              ) && (
+                                <small>
+                                  Pending sync
+                                </small>
+                              )}
+                            </div>
 
                             {!person.checked_in_at ? (
                               <button
                                 type="button"
-                                disabled={
-                                  !online ||
-                                  usingCachedData
-                                }
                                 onClick={() =>
-                                  void run(
-                                    () =>
-                                      checkInParticipant(
-                                        person.signup_id,
-                                      ),
+                                  void changeParticipant(
+                                    person.signup_id,
+                                    "check-in",
                                   )
                                 }
                               >
@@ -280,16 +488,10 @@ export default function StaffPage() {
                               <button
                                 type="button"
                                 className="selected"
-                                disabled={
-                                  !online ||
-                                  usingCachedData
-                                }
                                 onClick={() =>
-                                  void run(
-                                    () =>
-                                      checkOutParticipant(
-                                        person.signup_id,
-                                      ),
+                                  void changeParticipant(
+                                    person.signup_id,
+                                    "check-out",
                                   )
                                 }
                               >

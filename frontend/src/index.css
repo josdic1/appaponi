@@ -4262,3 +4262,26 @@ body {
 }
 
 /* SERVICE LIFECYCLE CONTROLS END */
+
+
+/* STAFF OFFLINE SYNC START */
+
+.staff-participant-copy {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.staff-participant-copy small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.staff-sync-count {
+  color: var(--accent-ink);
+}
+
+/* STAFF OFFLINE SYNC END */

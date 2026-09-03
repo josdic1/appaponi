@@ -53,6 +53,15 @@ import {
 } from "../api/services";
 
 import HumanDateTimeInput from "../components/HumanDateTimeInput";
+import { useAuth } from "../hooks/useAuth";
+import {
+  useOnlineStatus,
+} from "../hooks/useOnlineStatus";
+import {
+  isOfflineFetchFailure,
+  readOfflineCache,
+  saveOfflineCache,
+} from "../lib/offlineCache";
 import {
   humanDateTimeToIso,
 } from "../lib/humanDateTime";
@@ -63,7 +72,29 @@ type View =
   | "babysitting"
   | "notices";
 
+type MemberServicesData = {
+  home: Awaited<
+    ReturnType<
+      typeof loadMemberHome
+    >
+  >;
+  meals: EventMeal[];
+  menuItems: MealMenuItem[];
+  items: AfterHoursItem[];
+  orders: AfterHoursOrder[];
+  babysitting: BabysittingRequest[];
+  preferences: NotificationPreferences;
+  notifications: NotificationRecord[];
+};
+
 export default function MemberServicesPanel() {
+  const { account } = useAuth();
+  const online = useOnlineStatus();
+
+  const [
+    usingCachedData,
+    setUsingCachedData,
+  ] = useState(false);
   const [view, setView] =
     useState<View>("meals");
 
@@ -149,55 +180,119 @@ export default function MemberServicesPanel() {
   const [error, setError] =
     useState<string | null>(null);
 
-  async function refresh() {
-    const [
-      home,
-      nextMeals,
-      nextMenuItems,
-      nextItems,
-      nextOrders,
-      nextBabysitting,
-      nextPreferences,
-      nextNotifications,
-    ] = await Promise.all([
-      loadMemberHome(),
-      loadEventMeals(),
-      loadMealMenuItems(),
-      loadAfterHoursItems(),
-      loadAfterHoursOrders(),
-      loadBabysittingRequests(),
-      loadNotificationPreferences(),
-      loadNotifications(),
-    ]);
+  function cacheKey() {
+    return `member-services:${
+      account?.username ??
+      "unknown"
+    }`;
+  }
 
+  function applyServices(
+    data: MemberServicesData,
+  ) {
     setRegistrations(
-      home.registrations,
+      data.home.registrations,
     );
 
     setHousehold(
-      home.household,
+      data.home.household,
     );
 
-    setMeals(nextMeals);
-    setMenuItems(nextMenuItems);
-    setItems(nextItems);
-    setOrders(nextOrders);
+    setMeals(data.meals);
+    setMenuItems(
+      data.menuItems,
+    );
+    setItems(data.items);
+    setOrders(data.orders);
     setBabysitting(
-      nextBabysitting,
+      data.babysitting,
     );
     setPreferences(
-      nextPreferences,
+      data.preferences,
     );
     setNotifications(
-      nextNotifications,
+      data.notifications,
     );
 
     setSelectedRegistrationId(
       (current) =>
         current ||
-        home.registrations[0]?.id ||
+        data.home
+          .registrations[0]?.id ||
         "",
     );
+  }
+
+  async function refresh() {
+    try {
+      const [
+        home,
+        nextMeals,
+        nextMenuItems,
+        nextItems,
+        nextOrders,
+        nextBabysitting,
+        nextPreferences,
+        nextNotifications,
+      ] = await Promise.all([
+        loadMemberHome(),
+        loadEventMeals(),
+        loadMealMenuItems(),
+        loadAfterHoursItems(),
+        loadAfterHoursOrders(),
+        loadBabysittingRequests(),
+        loadNotificationPreferences(),
+        loadNotifications(),
+      ]);
+
+      const data: MemberServicesData =
+        {
+          home,
+          meals: nextMeals,
+          menuItems:
+            nextMenuItems,
+          items: nextItems,
+          orders: nextOrders,
+          babysitting:
+            nextBabysitting,
+          preferences:
+            nextPreferences,
+          notifications:
+            nextNotifications,
+        };
+
+      applyServices(data);
+
+      saveOfflineCache(
+        cacheKey(),
+        data,
+      );
+
+      setUsingCachedData(false);
+      setError(null);
+    } catch (err) {
+      const cached =
+        readOfflineCache<MemberServicesData>(
+          cacheKey(),
+        );
+
+      if (
+        isOfflineFetchFailure(
+          err,
+        ) &&
+        cached
+      ) {
+        applyServices(
+          cached.value,
+        );
+
+        setUsingCachedData(true);
+        setError(null);
+        return;
+      }
+
+      throw err;
+    }
   }
 
   useEffect(() => {
@@ -209,6 +304,25 @@ export default function MemberServicesPanel() {
       ),
     );
   }, []);
+
+  useEffect(() => {
+    if (
+      online &&
+      usingCachedData
+    ) {
+      void refresh().catch(
+        (err) =>
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Could not refresh services",
+          ),
+      );
+    }
+  }, [
+    online,
+    usingCachedData,
+  ]);
 
   const registration =
     useMemo(
@@ -233,10 +347,21 @@ export default function MemberServicesPanel() {
         )
       : [];
 
+  const changesUnavailable =
+    !online ||
+    usingCachedData;
+
   async function run(
     action: () => Promise<unknown>,
   ) {
     setError(null);
+
+    if (changesUnavailable) {
+      setError(
+        "Reconnect to make changes.",
+      );
+      return;
+    }
 
     try {
       await action();
@@ -362,6 +487,13 @@ export default function MemberServicesPanel() {
       | "general_notifications",
     value: boolean,
   ) {
+    if (changesUnavailable) {
+      setError(
+        "Reconnect to make changes.",
+      );
+      return;
+    }
+
     try {
       const next =
         await updateNotificationPreferences(
@@ -468,6 +600,16 @@ export default function MemberServicesPanel() {
           Notices
         </button>
       </div>
+
+      {(!online ||
+        usingCachedData) && (
+        <div className="member-offline">
+          Offline · showing the last
+          saved food, services, and
+          notices. Changes are
+          unavailable.
+        </div>
+      )}
 
       {error && (
         <div className="member-error">
@@ -677,6 +819,9 @@ export default function MemberServicesPanel() {
               <button
                 className="login-submit"
                 type="submit"
+                disabled={
+                  changesUnavailable
+                }
               >
                 Place order
               </button>
@@ -721,6 +866,9 @@ export default function MemberServicesPanel() {
                         "open" && (
                         <button
                           type="button"
+                          disabled={
+                            changesUnavailable
+                          }
                           onClick={() =>
                             void run(() =>
                               cancelAfterHoursOrder(
@@ -821,6 +969,9 @@ export default function MemberServicesPanel() {
               <button
                 className="login-submit"
                 type="submit"
+                disabled={
+                  changesUnavailable
+                }
               >
                 Request sitter
               </button>
@@ -870,6 +1021,9 @@ export default function MemberServicesPanel() {
                       ) && (
                         <button
                           type="button"
+                          disabled={
+                            changesUnavailable
+                          }
                           onClick={() =>
                             void run(() =>
                               cancelBabysittingRequest(
@@ -937,6 +1091,9 @@ export default function MemberServicesPanel() {
 
                       <input
                         type="checkbox"
+                        disabled={
+                          changesUnavailable
+                        }
                         checked={
                           preferences[
                             key as keyof Omit<
@@ -1002,6 +1159,9 @@ export default function MemberServicesPanel() {
                       {!notice.read_at && (
                         <button
                           type="button"
+                          disabled={
+                            changesUnavailable
+                          }
                           onClick={() =>
                             void run(() =>
                               markNotificationRead(

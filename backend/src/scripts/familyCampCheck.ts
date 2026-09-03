@@ -1324,6 +1324,37 @@ async function main() {
     signup?.checked_in_at,
   );
 
+  const firstCheckedInAt =
+    signup.checked_in_at;
+
+  await staff.request(
+    "POST",
+    `/api/staff-day/signups/${signupId}/check-in`,
+  );
+
+  memberSignups =
+    arrayFrom(
+      (
+        await member.request(
+          "GET",
+          "/api/member/signups",
+        )
+      ).body,
+      "signups",
+    );
+
+  signup =
+    memberSignups.find(
+      (item) =>
+        String(item.id) ===
+        signupId,
+    );
+
+  assert.equal(
+    signup?.checked_in_at,
+    firstCheckedInAt,
+  );
+
   pass("staff check-in");
 
   await staff.request(
@@ -1353,7 +1384,68 @@ async function main() {
     signup?.checked_out_at,
   );
 
-  pass("staff check-out");
+  const firstCheckedOutAt =
+    signup.checked_out_at;
+
+  await staff.request(
+    "POST",
+    `/api/staff-day/signups/${signupId}/check-out`,
+  );
+
+  memberSignups =
+    arrayFrom(
+      (
+        await member.request(
+          "GET",
+          "/api/member/signups",
+        )
+      ).body,
+      "signups",
+    );
+
+  signup =
+    memberSignups.find(
+      (item) =>
+        String(item.id) ===
+        signupId,
+    );
+
+  assert.equal(
+    signup?.checked_out_at,
+    firstCheckedOutAt,
+  );
+
+  await staff.request(
+    "POST",
+    `/api/staff-day/signups/${signupId}/check-in`,
+    undefined,
+    409,
+  );
+
+  memberSignups =
+    arrayFrom(
+      (
+        await member.request(
+          "GET",
+          "/api/member/signups",
+        )
+      ).body,
+      "signups",
+    );
+
+  signup =
+    memberSignups.find(
+      (item) =>
+        String(item.id) ===
+        signupId,
+    );
+
+  assert.equal(
+    signup?.checked_out_at,
+    firstCheckedOutAt,
+  );
+
+  pass("staff check-out + retry safety");
 
   /* STAFF SERVICES */
 

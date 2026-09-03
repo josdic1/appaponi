@@ -197,30 +197,49 @@ staffDayRouter.post(
       return;
     }
 
-    const result = await query<{
-      id: string;
-      checked_in_at: string;
-    }>(
-      `
-        UPDATE event_activity_signups
-        SET
-          checked_in_at =
-            COALESCE(
-              checked_in_at,
-              NOW()
-            ),
-          checked_out_at = NULL
-        WHERE id = $1
-        RETURNING
-          id,
-          checked_in_at
-      `,
-      [parsed.data.id],
-    );
+    try {
+      const result = await query<{
+        id: string;
+        checked_in_at: string;
+        checked_out_at: string | null;
+      }>(
+        `
+          UPDATE event_activity_signups
+          SET
+            checked_in_at =
+              COALESCE(
+                checked_in_at,
+                NOW()
+              )
+          WHERE id = $1
+            AND checked_out_at IS NULL
+          RETURNING
+            id,
+            checked_in_at,
+            checked_out_at
+        `,
+        [parsed.data.id],
+      );
 
-    res.json({
-      signup: result.rows[0],
-    });
+      if (!result.rows[0]) {
+        res.status(409).json({
+          error:
+            "Participant is already checked out",
+        });
+        return;
+      }
+
+      res.json({
+        signup: result.rows[0],
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error:
+          "Could not check participant in",
+      });
+    }
   },
 );
 
@@ -262,7 +281,11 @@ staffDayRouter.post(
       }>(
         `
           UPDATE event_activity_signups
-          SET checked_out_at = NOW()
+          SET checked_out_at =
+            COALESCE(
+              checked_out_at,
+              NOW()
+            )
           WHERE id = $1
             AND checked_in_at IS NOT NULL
           RETURNING
