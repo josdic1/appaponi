@@ -1,9 +1,11 @@
 import { Router } from "express";
 
 import {
+  afterHoursItemIdParamsSchema,
   afterHoursOrderIdParamsSchema,
   createAfterHoursItemSchema,
   createAfterHoursOrderSchema,
+  updateAfterHoursItemSchema,
   updateAfterHoursOrderSchema,
   type AfterHoursItem,
   type AfterHoursOrder,
@@ -320,6 +322,195 @@ afterHoursRouter.patch(
     if (!result.rows[0]) {
       res.status(404).json({
         error: "Order does not exist",
+      });
+      return;
+    }
+
+    res.json({ ok: true });
+  },
+);
+
+afterHoursRouter.patch(
+  "/items/:id",
+  requireAccountType("admin"),
+  async (req, res) => {
+    const params =
+      afterHoursItemIdParamsSchema.safeParse(
+        req.params,
+      );
+
+    const body =
+      updateAfterHoursItemSchema.safeParse(
+        req.body,
+      );
+
+    if (
+      !params.success ||
+      !body.success
+    ) {
+      res.status(400).json({
+        error:
+          "Invalid after-hours item update",
+      });
+      return;
+    }
+
+    try {
+      const result =
+        await query<AfterHoursItem>(
+          `
+            UPDATE after_hours_items
+            SET
+              name =
+                COALESCE($2, name),
+              description =
+                CASE
+                  WHEN $3 THEN $4
+                  ELSE description
+                END,
+              available =
+                COALESCE(
+                  $5,
+                  available
+                )
+            WHERE id = $1
+            RETURNING
+              id,
+              name,
+              description,
+              available
+          `,
+          [
+            params.data.id,
+            body.data.name ?? null,
+            Object.prototype.hasOwnProperty.call(
+              body.data,
+              "description",
+            ),
+            body.data.description ?? null,
+            body.data.available ?? null,
+          ],
+        );
+
+      const item =
+        result.rows[0];
+
+      if (!item) {
+        res.status(404).json({
+          error:
+            "After-hours item does not exist",
+        });
+        return;
+      }
+
+      res.json({ item });
+    } catch (error: any) {
+      if (error?.code === "23505") {
+        res.status(409).json({
+          error: "Item already exists",
+        });
+        return;
+      }
+
+      throw error;
+    }
+  },
+);
+
+afterHoursRouter.delete(
+  "/items/:id",
+  requireAccountType("admin"),
+  async (req, res) => {
+    const params =
+      afterHoursItemIdParamsSchema.safeParse(
+        req.params,
+      );
+
+    if (!params.success) {
+      res.status(400).json({
+        error:
+          "Invalid after-hours item id",
+      });
+      return;
+    }
+
+    try {
+      const result =
+        await query<{ id: string }>(
+          `
+            DELETE FROM after_hours_items
+            WHERE id = $1
+            RETURNING id
+          `,
+          [params.data.id],
+        );
+
+      if (!result.rows[0]) {
+        res.status(404).json({
+          error:
+            "After-hours item does not exist",
+        });
+        return;
+      }
+
+      res.json({
+        ok: true,
+        deleted_item_id:
+          result.rows[0].id,
+      });
+    } catch (error: any) {
+      if (error?.code === "23503") {
+        res.status(409).json({
+          error:
+            "This item has order history. Make it unavailable instead of deleting it.",
+        });
+        return;
+      }
+
+      throw error;
+    }
+  },
+);
+
+afterHoursRouter.patch(
+  "/orders/:id/cancel",
+  requireAccountType("member"),
+  async (req, res) => {
+    const params =
+      afterHoursOrderIdParamsSchema.safeParse(
+        req.params,
+      );
+
+    if (!params.success) {
+      res.status(400).json({
+        error: "Invalid order id",
+      });
+      return;
+    }
+
+    const result =
+      await query<{ id: string }>(
+        `
+          UPDATE after_hours_orders o
+          SET status = 'cancelled'
+          FROM event_registrations er
+          WHERE o.id = $1
+            AND er.id =
+              o.event_registration_id
+            AND er.account_id = $2
+            AND o.status = 'open'
+          RETURNING o.id
+        `,
+        [
+          params.data.id,
+          req.auth!.sub,
+        ],
+      );
+
+    if (!result.rows[0]) {
+      res.status(409).json({
+        error:
+          "Only your open orders can be cancelled",
       });
       return;
     }

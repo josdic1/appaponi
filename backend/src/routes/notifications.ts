@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import {
   createNotificationSchema,
+  notificationIdParamsSchema,
   updateNotificationPreferencesSchema,
   type NotificationPreferences,
   type NotificationRecord,
@@ -211,5 +212,65 @@ notificationsRouter.post(
     res.status(201).json({
       notification: result.rows[0],
     });
+  },
+);
+
+notificationsRouter.patch(
+  "/:id/read",
+  async (req, res) => {
+    const params =
+      notificationIdParamsSchema.safeParse(
+        req.params,
+      );
+
+    if (!params.success) {
+      res.status(400).json({
+        error:
+          "Invalid notification id",
+      });
+      return;
+    }
+
+    const result =
+      await query<NotificationRecord>(
+        `
+          UPDATE notifications
+          SET
+            read_at =
+              COALESCE(
+                read_at,
+                NOW()
+              )
+          WHERE id = $1
+            AND account_id = $2
+          RETURNING
+            id,
+            account_id,
+            event_id,
+            kind,
+            title,
+            body,
+            scheduled_for,
+            read_at,
+            created_at
+        `,
+        [
+          params.data.id,
+          req.auth!.sub,
+        ],
+      );
+
+    const notification =
+      result.rows[0];
+
+    if (!notification) {
+      res.status(404).json({
+        error:
+          "Notification does not exist",
+      });
+      return;
+    }
+
+    res.json({ notification });
   },
 );

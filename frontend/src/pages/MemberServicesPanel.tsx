@@ -37,6 +37,8 @@ import {
 } from "../api/member";
 
 import {
+  cancelAfterHoursOrder,
+  cancelBabysittingRequest,
   createAfterHoursOrder,
   createBabysittingRequest,
   loadAfterHoursItems,
@@ -46,6 +48,7 @@ import {
   loadMealMenuItems,
   loadNotificationPreferences,
   loadNotifications,
+  markNotificationRead,
   updateNotificationPreferences,
 } from "../api/services";
 
@@ -709,9 +712,27 @@ export default function MemberServicesPanel() {
                       </small>
                     </span>
 
-                    <b>
-                      {order.status}
-                    </b>
+                    <span className="member-service-actions">
+                      <b>
+                        {order.status}
+                      </b>
+
+                      {order.status ===
+                        "open" && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void run(() =>
+                              cancelAfterHoursOrder(
+                                order.id,
+                              ),
+                            )
+                          }
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </span>
                   </div>
                 ),
               )
@@ -836,9 +857,31 @@ export default function MemberServicesPanel() {
                       </small>
                     </span>
 
-                    <b>
-                      {request.status}
-                    </b>
+                    <span className="member-service-actions">
+                      <b>
+                        {request.status}
+                      </b>
+
+                      {[
+                        "pending",
+                        "confirmed",
+                      ].includes(
+                        request.status,
+                      ) && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void run(() =>
+                              cancelBabysittingRequest(
+                                request.id,
+                              ),
+                            )
+                          }
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </span>
                   </div>
                 ),
               )
@@ -934,7 +977,11 @@ export default function MemberServicesPanel() {
               notifications.map(
                 (notice) => (
                   <article
-                    className="member-notice"
+                    className={
+                      notice.read_at
+                        ? "member-notice"
+                        : "member-notice unread"
+                    }
                     key={notice.id}
                   >
                     <strong>
@@ -945,11 +992,28 @@ export default function MemberServicesPanel() {
                       {notice.body}
                     </span>
 
-                    <small>
-                      {new Date(
-                        notice.created_at,
-                      ).toLocaleString()}
-                    </small>
+                    <div className="member-notice-foot">
+                      <small>
+                        {new Date(
+                          notice.created_at,
+                        ).toLocaleString()}
+                      </small>
+
+                      {!notice.read_at && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void run(() =>
+                              markNotificationRead(
+                                notice.id,
+                              ),
+                            )
+                          }
+                        >
+                          Mark read
+                        </button>
+                      )}
+                    </div>
                   </article>
                 ),
               )

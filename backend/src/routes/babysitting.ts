@@ -351,3 +351,54 @@ babysittingRouter.patch(
     }
   },
 );
+
+babysittingRouter.patch(
+  "/:id/cancel",
+  requireAccountType("member"),
+  async (req, res) => {
+    const params =
+      babysittingRequestIdParamsSchema.safeParse(
+        req.params,
+      );
+
+    if (!params.success) {
+      res.status(400).json({
+        error:
+          "Invalid babysitting request id",
+      });
+      return;
+    }
+
+    const result =
+      await query<{ id: string }>(
+        `
+          UPDATE babysitting_requests br
+          SET status = 'cancelled'
+          FROM event_registrations er
+          WHERE br.id = $1
+            AND er.id =
+              br.event_registration_id
+            AND er.account_id = $2
+            AND br.status IN (
+              'pending',
+              'confirmed'
+            )
+          RETURNING br.id
+        `,
+        [
+          params.data.id,
+          req.auth!.sub,
+        ],
+      );
+
+    if (!result.rows[0]) {
+      res.status(409).json({
+        error:
+          "Only your pending or confirmed requests can be cancelled",
+      });
+      return;
+    }
+
+    res.json({ ok: true });
+  },
+);

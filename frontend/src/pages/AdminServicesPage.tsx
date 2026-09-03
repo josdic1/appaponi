@@ -47,6 +47,10 @@ import {
   createMealMenu,
   createMealMenuItem,
   createNotification,
+  deleteAfterHoursItem,
+  deleteEventMeal,
+  deleteMealMenu,
+  deleteMealMenuItem,
   loadAfterHoursItems,
   loadAfterHoursOrders,
   loadBabysittingRequests,
@@ -54,8 +58,12 @@ import {
   loadMealMenuItems,
   loadMealMenus,
   loadMealTypes,
+  updateAfterHoursItem,
   updateAfterHoursOrder,
   updateBabysittingRequest,
+  updateEventMeal,
+  updateMealMenu,
+  updateMealMenuItem,
 } from "../api/services";
 
 import HumanDateTimeInput from "../components/HumanDateTimeInput";
@@ -68,6 +76,29 @@ type View =
   | "after-hours"
   | "babysitting"
   | "notifications";
+
+function editableDateTime(
+  value: string,
+) {
+  const date = new Date(value);
+
+  let hour = date.getHours();
+  const minute = String(
+    date.getMinutes(),
+  ).padStart(2, "0");
+  const meridiem =
+    hour >= 12 ? "PM" : "AM";
+
+  hour %= 12;
+
+  if (hour === 0) {
+    hour = 12;
+  }
+
+  return `${
+    date.getMonth() + 1
+  }/${date.getDate()}/${date.getFullYear()} ${hour}:${minute} ${meridiem}`;
+}
 
 export default function AdminServicesPage() {
   const [view, setView] =
@@ -116,6 +147,11 @@ export default function AdminServicesPage() {
     setMenuDescription,
   ] = useState("");
 
+  const [
+    editingMenuId,
+    setEditingMenuId,
+  ] = useState<string | null>(null);
+
   const [itemMenuId, setItemMenuId] =
     useState("");
 
@@ -124,6 +160,11 @@ export default function AdminServicesPage() {
 
   const [itemDietary, setItemDietary] =
     useState("");
+
+  const [
+    editingMenuItemId,
+    setEditingMenuItemId,
+  ] = useState<string | null>(null);
 
   const [mealEventId, setMealEventId] =
     useState("");
@@ -144,6 +185,11 @@ export default function AdminServicesPage() {
     useState("");
 
   const [
+    editingMealId,
+    setEditingMealId,
+  ] = useState<string | null>(null);
+
+  const [
     afterItemName,
     setAfterItemName,
   ] = useState("");
@@ -152,6 +198,11 @@ export default function AdminServicesPage() {
     afterItemDescription,
     setAfterItemDescription,
   ] = useState("");
+
+  const [
+    editingAfterItemId,
+    setEditingAfterItemId,
+  ] = useState<string | null>(null);
 
   const [
     notificationAccountId,
@@ -250,20 +301,74 @@ export default function AdminServicesPage() {
     }
   }
 
+  function confirmDelete(
+    label: string,
+    action: () => Promise<unknown>,
+  ) {
+    if (
+      !window.confirm(
+        `Delete ${label}?`,
+      )
+    ) {
+      return;
+    }
+
+    void run(action);
+  }
+
+  function cancelMenuEdit() {
+    setEditingMenuId(null);
+    setMenuName("");
+    setMenuDescription("");
+  }
+
+  function cancelMenuItemEdit() {
+    setEditingMenuItemId(null);
+    setItemMenuId("");
+    setItemName("");
+    setItemDietary("");
+  }
+
+  function cancelMealEdit() {
+    setEditingMealId(null);
+    setMealEventId("");
+    setMealTypeId("");
+    setMealMenuId("");
+    setMealTitle("");
+    setMealStart("");
+    setMealEnd("");
+  }
+
+  function cancelAfterItemEdit() {
+    setEditingAfterItemId(null);
+    setAfterItemName("");
+    setAfterItemDescription("");
+  }
+
   function submitMenu(
     event: FormEvent,
   ) {
     event.preventDefault();
 
     void run(async () => {
-      await createMealMenu({
-        name: menuName,
-        description:
-          menuDescription || undefined,
-      });
+      if (editingMenuId) {
+        await updateMealMenu(
+          editingMenuId,
+          {
+            name: menuName,
+            description:
+              menuDescription || null,
+          },
+        );
+      } else {
+        await createMealMenu({
+          name: menuName,
+          description:
+            menuDescription || undefined,
+        });
+      }
 
-      setMenuName("");
-      setMenuDescription("");
+      cancelMenuEdit();
     });
   }
 
@@ -278,16 +383,28 @@ export default function AdminServicesPage() {
     }
 
     void run(async () => {
-      await createMealMenuItem({
-        menu_id:
-          Number(itemMenuId),
-        name: itemName,
-        dietary_notes:
-          itemDietary || undefined,
-      });
+      if (editingMenuItemId) {
+        await updateMealMenuItem(
+          editingMenuItemId,
+          {
+            menu_id:
+              Number(itemMenuId),
+            name: itemName,
+            dietary_notes:
+              itemDietary || null,
+          },
+        );
+      } else {
+        await createMealMenuItem({
+          menu_id:
+            Number(itemMenuId),
+          name: itemName,
+          dietary_notes:
+            itemDietary || undefined,
+        });
+      }
 
-      setItemName("");
-      setItemDietary("");
+      cancelMenuItemEdit();
     });
   }
 
@@ -309,7 +426,7 @@ export default function AdminServicesPage() {
     }
 
     void run(async () => {
-      await createEventMeal({
+      const input = {
         event_id:
           Number(mealEventId),
         meal_type_id:
@@ -317,8 +434,6 @@ export default function AdminServicesPage() {
         menu_id: mealMenuId
           ? Number(mealMenuId)
           : null,
-        title:
-          mealTitle || undefined,
         starts_at:
           humanDateTimeToIso(
             mealStart,
@@ -337,11 +452,26 @@ export default function AdminServicesPage() {
                 mealEventId,
             )?.starts_at,
           ),
-      });
+      };
 
-      setMealTitle("");
-      setMealStart("");
-      setMealEnd("");
+      if (editingMealId) {
+        await updateEventMeal(
+          editingMealId,
+          {
+            ...input,
+            title:
+              mealTitle || null,
+          },
+        );
+      } else {
+        await createEventMeal({
+          ...input,
+          title:
+            mealTitle || undefined,
+        });
+      }
+
+      cancelMealEdit();
     });
   }
 
@@ -351,16 +481,78 @@ export default function AdminServicesPage() {
     event.preventDefault();
 
     void run(async () => {
-      await createAfterHoursItem({
-        name: afterItemName,
-        description:
-          afterItemDescription ||
-          undefined,
-      });
+      if (editingAfterItemId) {
+        await updateAfterHoursItem(
+          editingAfterItemId,
+          {
+            name: afterItemName,
+            description:
+              afterItemDescription ||
+              null,
+          },
+        );
+      } else {
+        await createAfterHoursItem({
+          name: afterItemName,
+          description:
+            afterItemDescription ||
+            undefined,
+        });
+      }
 
-      setAfterItemName("");
-      setAfterItemDescription("");
+      cancelAfterItemEdit();
     });
+  }
+
+  function editMenu(
+    menu: MealMenu,
+  ) {
+    setEditingMenuId(menu.id);
+    setMenuName(menu.name);
+    setMenuDescription(
+      menu.description ?? "",
+    );
+  }
+
+  function editMenuItem(
+    item: MealMenuItem,
+  ) {
+    setEditingMenuItemId(item.id);
+    setItemMenuId(item.menu_id);
+    setItemName(item.name);
+    setItemDietary(
+      item.dietary_notes ?? "",
+    );
+  }
+
+  function editMeal(
+    meal: EventMeal,
+  ) {
+    setEditingMealId(meal.id);
+    setMealEventId(meal.event_id);
+    setMealTypeId(meal.meal_type_id);
+    setMealMenuId(meal.menu_id ?? "");
+    setMealTitle(meal.title ?? "");
+    setMealStart(
+      editableDateTime(
+        meal.starts_at,
+      ),
+    );
+    setMealEnd(
+      editableDateTime(
+        meal.ends_at,
+      ),
+    );
+  }
+
+  function editAfterItem(
+    item: AfterHoursItem,
+  ) {
+    setEditingAfterItemId(item.id);
+    setAfterItemName(item.name);
+    setAfterItemDescription(
+      item.description ?? "",
+    );
   }
 
   function submitNotification(
@@ -492,7 +684,9 @@ export default function AdminServicesPage() {
               <div className="admin-card-head">
                 <div>
                   <strong>
-                    Create menu
+                    {editingMenuId
+                      ? "Edit menu"
+                      : "Create menu"}
                   </strong>
                   <span>
                     Reusable meal menu.
@@ -526,12 +720,28 @@ export default function AdminServicesPage() {
                   }
                 />
 
-                <button
-                  className="admin-primary"
-                  type="submit"
-                >
-                  Create menu
-                </button>
+                <div className="service-form-actions">
+                  <button
+                    className="admin-primary"
+                    type="submit"
+                  >
+                    {editingMenuId
+                      ? "Save menu"
+                      : "Create menu"}
+                  </button>
+
+                  {editingMenuId && (
+                    <button
+                      className="admin-secondary-button"
+                      type="button"
+                      onClick={
+                        cancelMenuEdit
+                      }
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
             </section>
 
@@ -539,7 +749,9 @@ export default function AdminServicesPage() {
               <div className="admin-card-head">
                 <div>
                   <strong>
-                    Add menu item
+                    {editingMenuItemId
+                      ? "Edit menu item"
+                      : "Add menu item"}
                   </strong>
                   <span>
                     Food shown under a
@@ -596,12 +808,28 @@ export default function AdminServicesPage() {
                   }
                 />
 
-                <button
-                  className="admin-primary"
-                  type="submit"
-                >
-                  Add item
-                </button>
+                <div className="service-form-actions">
+                  <button
+                    className="admin-primary"
+                    type="submit"
+                  >
+                    {editingMenuItemId
+                      ? "Save item"
+                      : "Add item"}
+                  </button>
+
+                  {editingMenuItemId && (
+                    <button
+                      className="admin-secondary-button"
+                      type="button"
+                      onClick={
+                        cancelMenuItemEdit
+                      }
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
             </section>
           </div>
@@ -610,7 +838,9 @@ export default function AdminServicesPage() {
             <div className="admin-card-head">
               <div>
                 <strong>
-                  Schedule meal
+                  {editingMealId
+                    ? "Edit scheduled meal"
+                    : "Schedule meal"}
                 </strong>
                 <span>
                   Put a meal onto an
@@ -729,12 +959,26 @@ export default function AdminServicesPage() {
                 }
               />
 
-              <button
-                className="admin-primary"
-                type="submit"
-              >
-                Schedule
-              </button>
+              <div className="service-form-actions">
+                <button
+                  className="admin-primary"
+                  type="submit"
+                >
+                  {editingMealId
+                    ? "Save meal"
+                    : "Schedule"}
+                </button>
+
+                {editingMealId && (
+                  <button
+                    className="admin-secondary-button"
+                    type="button"
+                    onClick={cancelMealEdit}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
 
             <div className="service-record-list">
@@ -765,6 +1009,34 @@ export default function AdminServicesPage() {
                         meal.starts_at,
                       ).toLocaleString()}
                     </small>
+
+                    <div className="service-record-actions">
+                      <button
+                        className="admin-edit-button"
+                        type="button"
+                        onClick={() =>
+                          editMeal(meal)
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="admin-delete-button"
+                        type="button"
+                        onClick={() =>
+                          confirmDelete(
+                            `scheduled meal "${meal.title ?? meal.meal_type_name}"`,
+                            () =>
+                              deleteEventMeal(
+                                meal.id,
+                              ),
+                          )
+                        }
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ),
               )}
@@ -797,20 +1069,83 @@ export default function AdminServicesPage() {
                     className="menu-summary"
                     key={menu.id}
                   >
-                    <strong>
-                      {menu.name}
-                    </strong>
+                    <div className="menu-summary-head">
+                      <strong>
+                        {menu.name}
+                      </strong>
+
+                      <div className="service-record-actions">
+                        <button
+                          className="admin-edit-button"
+                          type="button"
+                          onClick={() =>
+                            editMenu(menu)
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="admin-delete-button"
+                          type="button"
+                          onClick={() =>
+                            confirmDelete(
+                              `menu "${menu.name}"`,
+                              () =>
+                                deleteMealMenu(
+                                  menu.id,
+                                ),
+                            )
+                          }
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
 
                     {items.map(
                       (item) => (
-                        <span
+                        <div
+                          className="menu-item-row"
                           key={item.id}
                         >
-                          {item.name}
-                          {item.dietary_notes
-                            ? ` · ${item.dietary_notes}`
-                            : ""}
-                        </span>
+                          <span>
+                            {item.name}
+                            {item.dietary_notes
+                              ? ` · ${item.dietary_notes}`
+                              : ""}
+                          </span>
+
+                          <div className="service-record-actions">
+                            <button
+                              className="admin-edit-button"
+                              type="button"
+                              onClick={() =>
+                                editMenuItem(
+                                  item,
+                                )
+                              }
+                            >
+                              Edit
+                            </button>
+
+                            <button
+                              className="admin-delete-button"
+                              type="button"
+                              onClick={() =>
+                                confirmDelete(
+                                  `menu item "${item.name}"`,
+                                  () =>
+                                    deleteMealMenuItem(
+                                      item.id,
+                                    ),
+                                )
+                              }
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
                       ),
                     )}
                   </div>
@@ -828,7 +1163,9 @@ export default function AdminServicesPage() {
               <div className="admin-card-head">
                 <div>
                   <strong>
-                    Add food item
+                    {editingAfterItemId
+                      ? "Edit food item"
+                      : "Add food item"}
                   </strong>
                   <span>
                     Available for
@@ -867,12 +1204,28 @@ export default function AdminServicesPage() {
                   }
                 />
 
-                <button
-                  className="admin-primary"
-                  type="submit"
-                >
-                  Add item
-                </button>
+                <div className="service-form-actions">
+                  <button
+                    className="admin-primary"
+                    type="submit"
+                  >
+                    {editingAfterItemId
+                      ? "Save item"
+                      : "Add item"}
+                  </button>
+
+                  {editingAfterItemId && (
+                    <button
+                      className="admin-secondary-button"
+                      type="button"
+                      onClick={
+                        cancelAfterItemEdit
+                      }
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
             </section>
 
@@ -891,8 +1244,66 @@ export default function AdminServicesPage() {
               <div className="compact-list">
                 {afterItems.map(
                   (item) => (
-                    <div key={item.id}>
-                      {item.name}
+                    <div
+                      className="admin-inline-record"
+                      key={item.id}
+                    >
+                      <span>
+                        {item.name}
+                        {!item.available
+                          ? " · unavailable"
+                          : ""}
+                      </span>
+
+                      <div className="service-record-actions">
+                        <button
+                          className="admin-edit-button"
+                          type="button"
+                          onClick={() =>
+                            editAfterItem(
+                              item,
+                            )
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="admin-manage-button"
+                          type="button"
+                          onClick={() =>
+                            void run(() =>
+                              updateAfterHoursItem(
+                                item.id,
+                                {
+                                  available:
+                                    !item.available,
+                                },
+                              ),
+                            )
+                          }
+                        >
+                          {item.available
+                            ? "Hide"
+                            : "Make available"}
+                        </button>
+
+                        <button
+                          className="admin-delete-button"
+                          type="button"
+                          onClick={() =>
+                            confirmDelete(
+                              `food item "${item.name}"`,
+                              () =>
+                                deleteAfterHoursItem(
+                                  item.id,
+                                ),
+                            )
+                          }
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   ),
                 )}

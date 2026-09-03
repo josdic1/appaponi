@@ -165,6 +165,126 @@ export async function createEventMeal(
   return json(response);
 }
 
+
+export async function updateMealMenu(
+  id: string,
+  input: {
+    name?: string;
+    description?: string | null;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/menus/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return json(response);
+}
+
+export async function deleteMealMenu(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/menus/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+export async function updateMealMenuItem(
+  id: string,
+  input: {
+    menu_id?: number;
+    name?: string;
+    description?: string | null;
+    dietary_notes?: string | null;
+    sort_order?: number;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/menu-items/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return json(response);
+}
+
+export async function deleteMealMenuItem(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/menu-items/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+export async function updateEventMeal(
+  id: string,
+  input: {
+    event_id?: number;
+    meal_type_id?: number;
+    menu_id?: number | null;
+    title?: string | null;
+    notes?: string | null;
+    starts_at?: string;
+    ends_at?: string;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/event-meals/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return json(response);
+}
+
+export async function deleteEventMeal(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/event-meals/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
 /* After hours */
 
 export async function loadAfterHoursItems() {
@@ -272,6 +392,59 @@ export async function updateAfterHoursOrder(
   return json(response);
 }
 
+
+export async function updateAfterHoursItem(
+  id: string,
+  input: {
+    name?: string;
+    description?: string | null;
+    available?: boolean;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/after-hours/items/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return json(response);
+}
+
+export async function deleteAfterHoursItem(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/after-hours/items/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+export async function cancelAfterHoursOrder(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/after-hours/orders/${id}/cancel`,
+    {
+      method: "PATCH",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
 /* Babysitting */
 
 export async function loadBabysittingRequests() {
@@ -335,6 +508,21 @@ export async function updateBabysittingRequest(
           "application/json",
       },
       body: JSON.stringify(input),
+    },
+  );
+
+  return json(response);
+}
+
+
+export async function cancelBabysittingRequest(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/babysitting/${id}/cancel`,
+    {
+      method: "PATCH",
+      credentials: "include",
     },
   );
 
@@ -428,4 +616,24 @@ export async function createNotification(
   );
 
   return json(response);
+}
+
+
+export async function markNotificationRead(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/notifications/${id}/read`,
+    {
+      method: "PATCH",
+      credentials: "include",
+    },
+  );
+
+  return (
+    await json<{
+      notification:
+        NotificationRecord;
+    }>(response)
+  ).notification;
 }

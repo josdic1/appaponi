@@ -4171,3 +4171,94 @@ body {
   }
 }
 /* ADMIN OPERATIONS STAFF CRUD END */
+
+/* SERVICE LIFECYCLE CONTROLS START */
+
+.service-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-wide-form > .service-form-actions {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+.admin-form > .service-form-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.service-record-actions,
+.menu-summary-head,
+.menu-item-row,
+.member-service-actions,
+.member-notice-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.service-record-actions {
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+
+.menu-summary-head,
+.menu-item-row,
+.member-notice-foot {
+  justify-content: space-between;
+}
+
+.menu-item-row {
+  min-height: 30px;
+}
+
+.member-service-actions {
+  flex: 0 0 auto;
+}
+
+.member-service-actions button,
+.member-notice-foot button {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.member-notice-foot button {
+  color: var(--accent-ink);
+}
+
+.member-notice.unread {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+}
+
+@media (max-width: 760px) {
+  .service-wide-form > .service-form-actions {
+    grid-column: auto;
+    justify-content: stretch;
+  }
+
+  .service-form-actions,
+  .admin-form > .service-form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .service-record:not(.service-record-controls) {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .service-record-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* SERVICE LIFECYCLE CONTROLS END */
