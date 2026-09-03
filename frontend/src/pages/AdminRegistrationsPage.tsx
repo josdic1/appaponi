@@ -271,7 +271,7 @@ export default function AdminRegistrationsPage() {
           }}
         />
 
-        <section className="admin-card">
+        <section className="admin-card registration-card">
           <div className="admin-card-head">
             <div>
               <strong>

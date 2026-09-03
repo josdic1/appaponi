@@ -8,11 +8,19 @@ import type {
   StaffScheduledActivity,
 } from "@appoponi/shared/schemas/staffDay";
 
+import type {
+  BabysittingRequest,
+} from "@appoponi/shared/schemas/babysitting";
+
 import {
   checkInParticipant,
   checkOutParticipant,
   loadStaffDay,
 } from "../api/staffDay";
+
+import {
+  loadBabysittingRequests,
+} from "../api/services";
 
 import {
   useAuth,
@@ -57,6 +65,11 @@ export default function StaffPage() {
     participants,
     setParticipants,
   ] = useState<StaffParticipant[]>([]);
+
+  const [
+    babysitting,
+    setBabysitting,
+  ] = useState<BabysittingRequest[]>([]);
 
   const [error, setError] =
     useState<string | null>(null);
@@ -141,6 +154,48 @@ export default function StaffPage() {
     );
   }
 
+  function babysittingCacheKey() {
+    return `staff-babysitting:${
+      account?.username ??
+      "unknown"
+    }`;
+  }
+
+  async function refreshBabysitting() {
+    try {
+      const next =
+        await loadBabysittingRequests();
+
+      setBabysitting(next);
+
+      saveOfflineCache(
+        babysittingCacheKey(),
+        next,
+      );
+    } catch (err) {
+      const cached =
+        readOfflineCache<
+          BabysittingRequest[]
+        >(
+          babysittingCacheKey(),
+        );
+
+      if (
+        isOfflineFetchFailure(
+          err,
+        ) &&
+        cached
+      ) {
+        setBabysitting(
+          cached.value,
+        );
+        return;
+      }
+
+      throw err;
+    }
+  }
+
   async function refresh() {
     try {
       const data =
@@ -181,7 +236,10 @@ export default function StaffPage() {
   }
 
   useEffect(() => {
-    void refresh().catch((err) =>
+    void Promise.all([
+      refresh(),
+      refreshBabysitting(),
+    ]).catch((err) =>
       setError(
         err instanceof Error
           ? err.message
@@ -189,6 +247,43 @@ export default function StaffPage() {
       ),
     );
   }, []);
+
+  useEffect(() => {
+    if (!online) {
+      return;
+    }
+
+    const refreshAll = () => {
+      void Promise.all([
+        refresh(),
+        refreshBabysitting(),
+      ]).catch(() => {});
+    };
+
+    window.addEventListener(
+      "focus",
+      refreshAll,
+    );
+
+    const timer =
+      window.setInterval(
+        refreshAll,
+        30_000,
+      );
+
+    return () => {
+      window.removeEventListener(
+        "focus",
+        refreshAll,
+      );
+      window.clearInterval(
+        timer,
+      );
+    };
+  }, [
+    online,
+    account?.username,
+  ]);
 
   async function changeParticipant(
     signupId: string,
@@ -392,8 +487,9 @@ export default function StaffPage() {
           <h1>Your schedule</h1>
 
           <p>
-            Today's assigned activities
-            and participant check-in.
+            Assigned activities,
+            babysitting, and participant
+            check-in.
           </p>
         </div>
 
@@ -401,6 +497,77 @@ export default function StaffPage() {
           <div className="member-error">
             {error}
           </div>
+        )}
+
+        {babysitting.some(
+          (request) =>
+            request.status !==
+            "cancelled",
+        ) && (
+          <section className="member-card staff-babysitting-card">
+            <div className="member-card-head">
+              <div>
+                <strong>
+                  Babysitting
+                </strong>
+
+                <span>
+                  Assigned requests.
+                </span>
+              </div>
+            </div>
+
+            <div className="staff-babysitting-list">
+              {babysitting
+                .filter(
+                  (request) =>
+                    request.status !==
+                    "cancelled",
+                )
+                .map(
+                  (request) => (
+                    <div
+                      className="staff-babysitting-row"
+                      key={request.id}
+                    >
+                      <div>
+                        <strong>
+                          {request.username}
+                        </strong>
+
+                        <span>
+                          {request.member_names.join(
+                            ", ",
+                          )}
+                        </span>
+
+                        <small>
+                          {new Date(
+                            request.starts_at,
+                          ).toLocaleString()}
+                          {" → "}
+                          {new Date(
+                            request.ends_at,
+                          ).toLocaleTimeString(
+                            [],
+                            {
+                              hour:
+                                "numeric",
+                              minute:
+                                "2-digit",
+                            },
+                          )}
+                        </small>
+                      </div>
+
+                      <span className={`staff-babysitting-status ${request.status}`}>
+                        {request.status}
+                      </span>
+                    </div>
+                  ),
+                )}
+            </div>
+          </section>
         )}
 
         {activities.length ? (

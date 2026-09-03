@@ -18,6 +18,10 @@ import type {
   EventActivity,
 } from "@appoponi/shared/schemas/scheduling";
 
+import type {
+  NotificationRecord,
+} from "@appoponi/shared/schemas/notifications";
+
 import {
   addAttendee,
   addSignup,
@@ -25,6 +29,11 @@ import {
   removeAttendee,
   removeSignup,
 } from "../api/member";
+
+import {
+  loadNotifications,
+  markNotificationRead,
+} from "../api/services";
 
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -70,6 +79,11 @@ export default function MemberPage() {
     useState<ActivitySignup[]>([]);
 
   const [
+    notifications,
+    setNotifications,
+  ] = useState<NotificationRecord[]>([]);
+
+  const [
     selectedEventId,
     setSelectedEventId,
   ] = useState("");
@@ -111,6 +125,48 @@ export default function MemberPage() {
     }`;
   }
 
+  function noticeCacheKey() {
+    return `member-notices:${
+      account?.username ??
+      "unknown"
+    }`;
+  }
+
+  async function refreshNotices() {
+    try {
+      const next =
+        await loadNotifications();
+
+      setNotifications(next);
+
+      saveOfflineCache(
+        noticeCacheKey(),
+        next,
+      );
+    } catch (err) {
+      const cached =
+        readOfflineCache<
+          NotificationRecord[]
+        >(
+          noticeCacheKey(),
+        );
+
+      if (
+        isOfflineFetchFailure(
+          err,
+        ) &&
+        cached
+      ) {
+        setNotifications(
+          cached.value,
+        );
+        return;
+      }
+
+      throw err;
+    }
+  }
+
   async function refresh() {
     try {
       const data =
@@ -148,7 +204,10 @@ export default function MemberPage() {
   }
 
   useEffect(() => {
-    void refresh().catch((err) =>
+    void Promise.all([
+      refresh(),
+      refreshNotices(),
+    ]).catch((err) =>
       setError(
         err instanceof Error
           ? err.message
@@ -156,6 +215,42 @@ export default function MemberPage() {
       ),
     );
   }, []);
+
+  useEffect(() => {
+    if (!online) {
+      return;
+    }
+
+    const updateNotices = () => {
+      void refreshNotices().catch(
+        () => {},
+      );
+    };
+
+    window.addEventListener(
+      "focus",
+      updateNotices,
+    );
+
+    const timer =
+      window.setInterval(
+        updateNotices,
+        30_000,
+      );
+
+    return () => {
+      window.removeEventListener(
+        "focus",
+        updateNotices,
+      );
+      window.clearInterval(
+        timer,
+      );
+    };
+  }, [
+    online,
+    account?.username,
+  ]);
 
   const registration =
     useMemo(
@@ -212,6 +307,47 @@ export default function MemberPage() {
     }
   }
 
+  const unreadNotifications =
+    notifications.filter(
+      (notice) =>
+        !notice.read_at,
+    );
+
+  async function readNotice(
+    notice: NotificationRecord,
+  ) {
+    if (
+      !online ||
+      usingCachedData
+    ) {
+      return;
+    }
+
+    try {
+      const updated =
+        await markNotificationRead(
+          notice.id,
+        );
+
+      setNotifications(
+        (current) =>
+          current.map(
+            (item) =>
+              item.id ===
+              updated.id
+                ? updated
+                : item,
+          ),
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not mark notice read",
+      );
+    }
+  }
+
   return (
     <div className="member-app">
       <header className="member-header">
@@ -246,6 +382,63 @@ export default function MemberPage() {
             last saved information.
             Changes are unavailable.
           </div>
+        )}
+
+        {unreadNotifications.length >
+          0 && (
+          <section
+            className="member-priority-notices"
+            aria-label="Unread notices"
+          >
+            <div className="member-priority-notices-head">
+              <strong>
+                {unreadNotifications.length ===
+                1
+                  ? "New notice"
+                  : `${unreadNotifications.length} new notices`}
+              </strong>
+            </div>
+
+            {unreadNotifications.map(
+              (notice) => (
+                <article
+                  className="member-priority-notice"
+                  key={notice.id}
+                >
+                  <div>
+                    <strong>
+                      {notice.title}
+                    </strong>
+
+                    <span>
+                      {notice.body}
+                    </span>
+
+                    <small>
+                      {new Date(
+                        notice.created_at,
+                      ).toLocaleString()}
+                    </small>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={
+                      !online ||
+                      usingCachedData
+                    }
+                    onClick={() =>
+                      void readNotice(
+                        notice,
+                      )
+                    }
+                  >
+                    Mark read
+                  </button>
+                </article>
+              ),
+            )}
+          </section>
         )}
 
         <div className="member-title">

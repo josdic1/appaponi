@@ -4003,6 +4003,56 @@ body {
 
 /* HUMAN DATE/TIME INPUT END */
 
+/* DATE/TIME CALENDAR PICKER START */
+
+.appoponi-datetime-control {
+  position: relative;
+  width: 100%;
+}
+
+.appoponi-datetime-control .appoponi-datetime-input {
+  padding-right: 48px;
+}
+
+.appoponi-datetime-calendar {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 36px;
+  height: 30px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.appoponi-datetime-calendar:focus-within {
+  color: var(--accent-ink);
+}
+
+.appoponi-datetime-date-picker {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.appoponi-datetime-date-picker:disabled {
+  cursor: default;
+}
+
+/* DATE/TIME CALENDAR PICKER END */
+
 /* ACCOUNTS HOUSEHOLDS CRUD START */
 .admin-manage-row {
   gap: 10px;
@@ -4789,3 +4839,285 @@ body {
 }
 
 /* ACCOUNTS HOUSEHOLDS REDESIGN END */
+
+/* ADMIN DENSE LAYOUT FIX START */
+
+/* Accounts: keep people and their actions on one clean line. */
+.account-profile-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.account-profile-row .admin-row-actions {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: auto;
+}
+
+.account-detail-actions {
+  flex-wrap: nowrap;
+}
+
+/* Registrations need the full admin width; the old narrow grid column crushed them. */
+.registration-card {
+  grid-column: 1 / -1;
+}
+
+.registration-card .registration-account-row {
+  min-height: 70px;
+  grid-template-columns:
+    minmax(190px, 1fr)
+    90px
+    minmax(170px, 230px)
+    auto;
+  gap: 16px;
+  padding: 12px 16px;
+}
+
+.registration-account-row > div {
+  min-width: 0;
+}
+
+.registration-account-row > div strong {
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.registration-account-row > div span {
+  line-height: 1.3;
+}
+
+.registration-account-row label {
+  min-width: 0;
+}
+
+.registration-account-row input,
+.registration-account-row select {
+  width: 100%;
+}
+
+.registration-account-row > b {
+  align-self: end;
+  justify-self: end;
+  min-height: var(--control-height-compact);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* At narrower desktop widths, stop forcing the account directory beside details. */
+@media (max-width: 1080px) {
+  .account-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .account-directory-list {
+    display: grid;
+    grid-template-columns:
+      repeat(auto-fit, minmax(190px, 1fr));
+  }
+
+  .account-directory-row {
+    border-right: 1px solid var(--line);
+  }
+
+  .account-directory-row:last-child {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .account-detail-actions,
+  .account-profile-row .admin-row-actions {
+    flex-wrap: wrap;
+  }
+
+  .registration-card .registration-account-row {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(150px, 1fr);
+  }
+
+  .registration-card .registration-account-row > div {
+    grid-column: 1 / -1;
+  }
+
+  .registration-card .registration-account-row > b {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 520px) {
+  .registration-card .registration-account-row {
+    grid-template-columns: 1fr;
+  }
+
+  .registration-card .registration-account-row > * {
+    grid-column: 1;
+  }
+
+  .account-profile-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .account-profile-row .admin-row-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* ADMIN DENSE LAYOUT FIX END */
+
+/* STAFF BABYSITTING SCHEDULE START */
+
+.staff-babysitting-card {
+  overflow: hidden;
+}
+
+.staff-babysitting-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-babysitting-row {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.staff-babysitting-row > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.staff-babysitting-row strong {
+  font-size: 13px;
+}
+
+.staff-babysitting-row span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.staff-babysitting-row small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.staff-babysitting-status {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 10px !important;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.staff-babysitting-status.confirmed {
+  border-color: #b7ddcf;
+  background: var(--accent-soft);
+  color: var(--accent-ink) !important;
+}
+
+.staff-babysitting-status.completed {
+  background: var(--surface-2);
+}
+
+@media (max-width: 520px) {
+  .staff-babysitting-row {
+    align-items: flex-start;
+  }
+}
+
+/* STAFF BABYSITTING SCHEDULE END */
+
+/* MEMBER PRIORITY NOTICES START */
+
+.member-priority-notices {
+  overflow: hidden;
+  margin: 0 0 16px;
+  border: 1px solid #b7ddcf;
+  border-radius: 12px;
+  background: var(--accent-soft);
+}
+
+.member-priority-notices-head {
+  padding: 9px 13px;
+  border-bottom: 1px solid #b7ddcf;
+  color: var(--accent-ink);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.member-priority-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 13px;
+  border-bottom: 1px solid #cce5dc;
+}
+
+.member-priority-notice:last-child {
+  border-bottom: 0;
+}
+
+.member-priority-notice > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.member-priority-notice strong {
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.member-priority-notice span {
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.member-priority-notice small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.member-priority-notice button {
+  flex: 0 0 auto;
+  min-height: 34px;
+  border: 1px solid #9ccfbd;
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 0 10px;
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.member-priority-notice button:disabled {
+  opacity: 0.55;
+}
+
+@media (max-width: 520px) {
+  .member-priority-notice {
+    align-items: flex-start;
+  }
+}
+
+/* MEMBER PRIORITY NOTICES END */
