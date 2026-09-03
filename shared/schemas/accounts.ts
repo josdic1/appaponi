@@ -20,6 +20,10 @@ export const updateAccountSchema = z
     { message: "At least one field is required" },
   );
 
+export const resetAccountPasswordSchema = z.object({
+  password: z.string().min(1),
+});
+
 export const accountIdParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
 });

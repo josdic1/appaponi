@@ -27,6 +27,7 @@ import {
   deleteHouseholdMember,
   loadAccounts,
   loadHouseholdMembers,
+  resetAccountPassword,
   transferHouseholdPrimary,
   updateAccount,
   updateHouseholdMember,
@@ -88,6 +89,26 @@ export default function AdminPage() {
   const [editingUsername, setEditingUsername] =
     useState("");
 
+  const [
+    resettingAccountId,
+    setResettingAccountId,
+  ] = useState<string | null>(null);
+
+  const [
+    temporaryPassword,
+    setTemporaryPassword,
+  ] = useState("");
+
+  const [
+    showCreateAccount,
+    setShowCreateAccount,
+  ] = useState(false);
+
+  const [
+    showAddProfile,
+    setShowAddProfile,
+  ] = useState(false);
+
   const [editingMemberId, setEditingMemberId] =
     useState<string | null>(null);
 
@@ -146,10 +167,6 @@ export default function AdminPage() {
     [selectedMembers],
   );
 
-  const memberAccounts = accounts.filter(
-    (item) => item.account_type === "member",
-  );
-
   async function run(
     action: () => Promise<unknown>,
   ) {
@@ -181,10 +198,8 @@ export default function AdminPage() {
 
       setUsername("");
       setPassword("");
-
-      if (created.account_type === "member") {
-        setSelectedAccountId(created.id);
-      }
+      setShowCreateAccount(false);
+      setSelectedAccountId(created.id);
     });
   }
 
@@ -193,7 +208,10 @@ export default function AdminPage() {
   ) {
     event.preventDefault();
 
-    if (!selectedAccount) {
+    if (
+      !selectedAccount ||
+      selectedAccount.account_type !== "member"
+    ) {
       setError("Choose a member account.");
       return;
     }
@@ -206,6 +224,7 @@ export default function AdminPage() {
       });
 
       setFullName("");
+      setShowAddProfile(false);
 
       if (selectedMembers.length === 0) {
         setMemberRole("adult");
@@ -218,6 +237,39 @@ export default function AdminPage() {
   ) {
     setEditingAccountId(item.id);
     setEditingUsername(item.username);
+  }
+
+  function beginPasswordReset(
+    item: AccountRecord,
+  ) {
+    setResettingAccountId(item.id);
+    setTemporaryPassword("");
+    setEditingAccountId(null);
+    setError(null);
+  }
+
+  async function savePasswordReset(
+    event: FormEvent,
+    id: string,
+  ) {
+    event.preventDefault();
+
+    if (!temporaryPassword) {
+      setError(
+        "Temporary password is required.",
+      );
+      return;
+    }
+
+    await run(async () => {
+      await resetAccountPassword(
+        id,
+        temporaryPassword,
+      );
+
+      setResettingAccountId(null);
+      setTemporaryPassword("");
+    });
   }
 
   async function saveAccountEdit(
@@ -435,17 +487,33 @@ export default function AdminPage() {
           <AdminServicesPage />
         ) : (
           <>
-            <div className="admin-heading">
+            <div className="admin-heading accounts-heading">
               <div>
                 <div className="admin-eyebrow">
                   ADMIN
                 </div>
+
                 <h1>Accounts & households</h1>
+
                 <p>
-                  One member account is one household login.
-                  People live inside that account as profiles.
+                  Manage logins and the people inside each
+                  member household.
                 </p>
               </div>
+
+              <button
+                className="admin-primary-button"
+                type="button"
+                onClick={() =>
+                  setShowCreateAccount(
+                    (current) => !current,
+                  )
+                }
+              >
+                {showCreateAccount
+                  ? "Close"
+                  : "New account"}
+              </button>
             </div>
 
             {error && (
@@ -454,24 +522,26 @@ export default function AdminPage() {
               </div>
             )}
 
-            <div className="admin-grid">
-              <section className="admin-card">
-                <div className="admin-card-head">
+            {showCreateAccount && (
+              <section className="admin-card account-create-drawer">
+                <div className="account-create-head">
                   <div>
-                    <strong>Create account</strong>
+                    <strong>New account</strong>
                     <span>
-                      Member, staff, or admin login.
+                      Creates a login. Member profiles are
+                      added after the account exists.
                     </span>
                   </div>
                 </div>
 
                 <form
-                  className="admin-form"
+                  className="account-create-grid"
                   onSubmit={submitAccount}
                 >
                   <label>
                     <span>Username</span>
                     <input
+                      autoFocus
                       value={username}
                       onChange={(event) =>
                         setUsername(event.target.value)
@@ -483,6 +553,7 @@ export default function AdminPage() {
                     <span>Temporary password</span>
                     <input
                       type="password"
+                      autoComplete="new-password"
                       value={password}
                       onChange={(event) =>
                         setPassword(event.target.value)
@@ -509,51 +580,170 @@ export default function AdminPage() {
                     </select>
                   </label>
 
-                  <button
-                    className="admin-primary"
-                    type="submit"
-                  >
-                    Create account
-                  </button>
+                  <div className="account-create-actions">
+                    <button
+                      className="admin-secondary-button"
+                      type="button"
+                      onClick={() => {
+                        setShowCreateAccount(false);
+                        setUsername("");
+                        setPassword("");
+                      }}
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      className="admin-primary-button"
+                      type="submit"
+                    >
+                      Create account
+                    </button>
+                  </div>
                 </form>
               </section>
+            )}
 
-              <section className="admin-card admin-card-wide">
-                <div className="admin-card-head">
+            <div className="account-workspace">
+              <section className="admin-card account-directory">
+                <div className="account-directory-head">
                   <div>
                     <strong>Accounts</strong>
                     <span>{accounts.length} total</span>
                   </div>
                 </div>
 
-                <div className="admin-list">
-                  {accounts.map((item) =>
-                    editingAccountId === item.id ? (
-                      <form
-                        className="admin-inline-edit"
-                        key={item.id}
-                        onSubmit={saveAccountEdit}
+                <div className="account-directory-list">
+                  {accounts.map((item) => (
+                    <button
+                      className={`account-directory-row ${
+                        selectedAccountId === item.id
+                          ? "active"
+                          : ""
+                      }`}
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedAccountId(item.id);
+                        setEditingAccountId(null);
+                        setResettingAccountId(null);
+                        setEditingMemberId(null);
+                        setShowAddProfile(false);
+                      }}
+                    >
+                      <span className="account-directory-main">
+                        <strong>{item.username}</strong>
+                        <small>
+                          {item.must_change_password
+                            ? "Password change required"
+                            : "Active"}
+                        </small>
+                      </span>
+
+                      <span
+                        className={`account-type-pill ${item.account_type}`}
                       >
-                        <input
-                          aria-label="Username"
-                          value={editingUsername}
-                          onChange={(event) =>
-                            setEditingUsername(
-                              event.target.value,
+                        {item.account_type}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section className="admin-card account-detail">
+                {selectedAccount ? (
+                  <>
+                    <div className="account-detail-head">
+                      <div className="account-detail-title">
+                        <span>
+                          {selectedAccount.account_type ===
+                          "member"
+                            ? "MEMBER HOUSEHOLD"
+                            : `${selectedAccount.account_type.toUpperCase()} ACCOUNT`}
+                        </span>
+
+                        <h2>{selectedAccount.username}</h2>
+
+                        <p>
+                          {selectedAccount.must_change_password
+                            ? "Temporary password — change required at next sign in."
+                            : "Password active."}
+                        </p>
+                      </div>
+
+                      <div className="account-detail-actions">
+                        <button
+                          className="admin-secondary-button"
+                          type="button"
+                          onClick={() =>
+                            beginAccountEdit(
+                              selectedAccount,
                             )
                           }
-                        />
+                        >
+                          Edit login
+                        </button>
+
+                        {selectedAccount.id !== account?.id && (
+                          <>
+                            <button
+                              className="admin-secondary-button"
+                              type="button"
+                              onClick={() =>
+                                beginPasswordReset(
+                                  selectedAccount,
+                                )
+                              }
+                            >
+                              Reset password
+                            </button>
+
+                            <button
+                              className="admin-delete-button"
+                              type="button"
+                              onClick={() =>
+                                removeAccount(
+                                  selectedAccount,
+                                )
+                              }
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {editingAccountId ===
+                      selectedAccount.id && (
+                      <form
+                        className="account-detail-tool"
+                        onSubmit={saveAccountEdit}
+                      >
+                        <label>
+                          <span>Username</span>
+
+                          <input
+                            autoFocus
+                            value={editingUsername}
+                            onChange={(event) =>
+                              setEditingUsername(
+                                event.target.value,
+                              )
+                            }
+                          />
+                        </label>
 
                         <div className="admin-row-actions">
                           <button
-                            className="admin-secondary-button"
+                            className="admin-primary-button"
                             type="submit"
                           >
                             Save
                           </button>
 
                           <button
-                            className="admin-delete-button"
+                            className="admin-secondary-button"
                             type="button"
                             onClick={() =>
                               setEditingAccountId(null)
@@ -563,289 +753,361 @@ export default function AdminPage() {
                           </button>
                         </div>
                       </form>
-                    ) : (
-                      <div
-                        key={item.id}
-                        className={`admin-list-row admin-manage-row ${
-                          selectedAccountId === item.id
-                            ? "active"
-                            : ""
-                        }`}
+                    )}
+
+                    {resettingAccountId ===
+                      selectedAccount.id && (
+                      <form
+                        className="account-detail-tool"
+                        onSubmit={(event) =>
+                          void savePasswordReset(
+                            event,
+                            selectedAccount.id,
+                          )
+                        }
                       >
-                        <button
-                          className="admin-row-main"
-                          type="button"
-                          onClick={() =>
-                            item.account_type === "member"
-                              ? setSelectedAccountId(item.id)
-                              : setSelectedAccountId("")
-                          }
-                        >
+                        <label>
                           <span>
-                            <strong>{item.username}</strong>
-                            <small>
-                              {item.must_change_password
-                                ? "Temporary password"
-                                : "Active password"}
-                            </small>
+                            New temporary password
                           </span>
 
-                          <b>{item.account_type}</b>
-                        </button>
+                          <input
+                            autoFocus
+                            type="password"
+                            autoComplete="new-password"
+                            value={temporaryPassword}
+                            onChange={(event) =>
+                              setTemporaryPassword(
+                                event.target.value,
+                              )
+                            }
+                          />
+                        </label>
 
                         <div className="admin-row-actions">
+                          <button
+                            className="admin-primary-button"
+                            type="submit"
+                          >
+                            Reset password
+                          </button>
+
+                          <button
+                            className="admin-secondary-button"
+                            type="button"
+                            onClick={() => {
+                              setResettingAccountId(null);
+                              setTemporaryPassword("");
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    )}
+
+                    {selectedAccount.account_type ===
+                    "member" ? (
+                      <div className="household-detail">
+                        <div className="household-section-head">
+                          <div>
+                            <strong>People</strong>
+                            <span>
+                              {selectedMembers.length}{" "}
+                              {selectedMembers.length === 1
+                                ? "profile"
+                                : "profiles"}
+                            </span>
+                          </div>
+
                           <button
                             className="admin-secondary-button"
                             type="button"
                             onClick={() =>
-                              beginAccountEdit(item)
+                              setShowAddProfile(
+                                (current) => !current,
+                              )
                             }
                           >
-                            Edit
+                            {showAddProfile
+                              ? "Close"
+                              : "Add person"}
                           </button>
-
-                          {item.id !== account?.id && (
-                            <button
-                              className="admin-delete-button"
-                              type="button"
-                              onClick={() =>
-                                removeAccount(item)
-                              }
-                            >
-                              Delete
-                            </button>
-                          )}
                         </div>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </section>
-            </div>
 
-            <section className="admin-card admin-household-card">
-              <div className="admin-card-head admin-household-head">
-                <div>
-                  <strong>Household profiles</strong>
-                  <span>
-                    Primary, Adult, and Child profiles.
-                  </span>
-                </div>
-
-                <select
-                  value={selectedAccountId}
-                  onChange={(event) =>
-                    setSelectedAccountId(event.target.value)
-                  }
-                >
-                  <option value="">
-                    Choose member account
-                  </option>
-
-                  {memberAccounts.map((item) => (
-                    <option
-                      key={item.id}
-                      value={item.id}
-                    >
-                      {item.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {selectedAccount ? (
-                <div className="household-layout">
-                  <form
-                    className="admin-form"
-                    onSubmit={submitMember}
-                  >
-                    <label>
-                      <span>Name</span>
-                      <input
-                        value={fullName}
-                        onChange={(event) =>
-                          setFullName(event.target.value)
-                        }
-                      />
-                    </label>
-
-                    <label>
-                      <span>Profile role</span>
-                      <select
-                        value={memberRole}
-                        onChange={(event) =>
-                          setMemberRole(
-                            event.target.value as MemberRole,
-                          )
-                        }
-                      >
-                        <option value="primary">
-                          Primary
-                        </option>
-                        <option value="adult">
-                          Adult
-                        </option>
-                        <option value="child">
-                          Child
-                        </option>
-                      </select>
-                    </label>
-
-                    <button
-                      className="admin-primary"
-                      type="submit"
-                    >
-                      Add profile
-                    </button>
-                  </form>
-
-                  <div className="profile-list">
-                    {selectedMembers.length ? (
-                      selectedMembers.map((member) =>
-                        editingMemberId === member.id ? (
+                        {showAddProfile && (
                           <form
-                            className="profile-row profile-edit-row"
-                            key={member.id}
-                            onSubmit={saveMemberEdit}
+                            className="profile-add-form"
+                            onSubmit={submitMember}
                           >
-                            <div className="admin-edit-fields">
-                              <input
-                                aria-label="Name"
-                                value={memberEdit.full_name}
-                                onChange={(event) =>
-                                  setMemberEdit((current) => ({
-                                    ...current,
-                                    full_name: event.target.value,
-                                  }))
-                                }
-                              />
+                            <label>
+                              <span>Name</span>
 
                               <input
-                                aria-label="Email"
-                                placeholder="Email"
-                                value={memberEdit.email}
+                                autoFocus
+                                value={fullName}
                                 onChange={(event) =>
-                                  setMemberEdit((current) => ({
-                                    ...current,
-                                    email: event.target.value,
-                                  }))
+                                  setFullName(
+                                    event.target.value,
+                                  )
                                 }
                               />
+                            </label>
 
-                              <input
-                                aria-label="Phone"
-                                placeholder="Phone"
-                                value={memberEdit.phone}
+                            <label>
+                              <span>Role</span>
+
+                              <select
+                                value={memberRole}
                                 onChange={(event) =>
-                                  setMemberEdit((current) => ({
-                                    ...current,
-                                    phone: event.target.value,
-                                  }))
+                                  setMemberRole(
+                                    event.target
+                                      .value as MemberRole,
+                                  )
                                 }
-                              />
+                              >
+                                <option value="primary">
+                                  Primary
+                                </option>
+                                <option value="adult">
+                                  Adult
+                                </option>
+                                <option value="child">
+                                  Child
+                                </option>
+                              </select>
+                            </label>
 
-                              <input
-                                aria-label="Dietary restrictions"
-                                placeholder="Dietary restrictions"
-                                value={memberEdit.dietary_restrictions}
-                                onChange={(event) =>
-                                  setMemberEdit((current) => ({
-                                    ...current,
-                                    dietary_restrictions:
-                                      event.target.value,
-                                  }))
-                                }
-                              />
-                            </div>
-
-                            <div className="admin-row-actions">
+                            <div className="profile-add-actions">
                               <button
                                 className="admin-secondary-button"
-                                type="submit"
-                              >
-                                Save
-                              </button>
-
-                              <button
-                                className="admin-delete-button"
                                 type="button"
-                                onClick={() =>
-                                  setEditingMemberId(null)
-                                }
+                                onClick={() => {
+                                  setShowAddProfile(false);
+                                  setFullName("");
+                                }}
                               >
                                 Cancel
                               </button>
+
+                              <button
+                                className="admin-primary-button"
+                                type="submit"
+                              >
+                                Add person
+                              </button>
                             </div>
                           </form>
-                        ) : (
-                          <div
-                            className="profile-row profile-manage-row"
-                            key={member.id}
-                          >
-                            <div>
-                              <strong>
-                                {member.full_name}
-                              </strong>
-                              <span>
-                                {member.member_role}
-                                {member.email
-                                  ? ` · ${member.email}`
-                                  : ""}
-                              </span>
-                            </div>
+                        )}
 
-                            <div className="admin-row-actions">
-                              {member.member_role === "adult" &&
-                                currentPrimary && (
-                                  <button
-                                    className="admin-secondary-button"
-                                    type="button"
-                                    onClick={() =>
-                                      makePrimary(member)
-                                    }
+                        <div className="profile-list account-profile-list">
+                          {selectedMembers.length ? (
+                            selectedMembers.map(
+                              (member) =>
+                                editingMemberId ===
+                                member.id ? (
+                                  <form
+                                    className="profile-row profile-edit-row account-profile-edit"
+                                    key={member.id}
+                                    onSubmit={saveMemberEdit}
                                   >
-                                    Make primary
-                                  </button>
-                                )}
+                                    <div className="admin-edit-fields">
+                                      <input
+                                        aria-label="Name"
+                                        value={
+                                          memberEdit.full_name
+                                        }
+                                        onChange={(event) =>
+                                          setMemberEdit(
+                                            (current) => ({
+                                              ...current,
+                                              full_name:
+                                                event.target
+                                                  .value,
+                                            }),
+                                          )
+                                        }
+                                      />
 
-                              <button
-                                className="admin-secondary-button"
-                                type="button"
-                                onClick={() =>
-                                  beginMemberEdit(member)
-                                }
-                              >
-                                Edit
-                              </button>
+                                      <input
+                                        aria-label="Email"
+                                        placeholder="Email"
+                                        value={
+                                          memberEdit.email
+                                        }
+                                        onChange={(event) =>
+                                          setMemberEdit(
+                                            (current) => ({
+                                              ...current,
+                                              email:
+                                                event.target
+                                                  .value,
+                                            }),
+                                          )
+                                        }
+                                      />
 
-                              <button
-                                className="admin-delete-button"
-                                type="button"
-                                onClick={() =>
-                                  removeMember(member)
-                                }
-                              >
-                                Delete
-                              </button>
+                                      <input
+                                        aria-label="Phone"
+                                        placeholder="Phone"
+                                        value={
+                                          memberEdit.phone
+                                        }
+                                        onChange={(event) =>
+                                          setMemberEdit(
+                                            (current) => ({
+                                              ...current,
+                                              phone:
+                                                event.target
+                                                  .value,
+                                            }),
+                                          )
+                                        }
+                                      />
+
+                                      <input
+                                        aria-label="Dietary restrictions"
+                                        placeholder="Dietary restrictions"
+                                        value={
+                                          memberEdit.dietary_restrictions
+                                        }
+                                        onChange={(event) =>
+                                          setMemberEdit(
+                                            (current) => ({
+                                              ...current,
+                                              dietary_restrictions:
+                                                event.target
+                                                  .value,
+                                            }),
+                                          )
+                                        }
+                                      />
+                                    </div>
+
+                                    <div className="admin-row-actions">
+                                      <button
+                                        className="admin-primary-button"
+                                        type="submit"
+                                      >
+                                        Save
+                                      </button>
+
+                                      <button
+                                        className="admin-secondary-button"
+                                        type="button"
+                                        onClick={() =>
+                                          setEditingMemberId(
+                                            null,
+                                          )
+                                        }
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </form>
+                                ) : (
+                                  <div
+                                    className="profile-row account-profile-row"
+                                    key={member.id}
+                                  >
+                                    <div className="profile-person">
+                                      <div className="profile-avatar">
+                                        {member.full_name
+                                          .trim()
+                                          .charAt(0)
+                                          .toUpperCase() ||
+                                          "?"}
+                                      </div>
+
+                                      <div className="profile-summary">
+                                        <strong>
+                                          {member.full_name}
+                                        </strong>
+
+                                        <span>
+                                          {
+                                            member.member_role
+                                          }
+                                          {member.email
+                                            ? ` · ${member.email}`
+                                            : ""}
+                                          {member.phone
+                                            ? ` · ${member.phone}`
+                                            : ""}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    <div className="admin-row-actions">
+                                      {member.member_role ===
+                                        "adult" &&
+                                        currentPrimary && (
+                                          <button
+                                            className="admin-secondary-button"
+                                            type="button"
+                                            onClick={() =>
+                                              makePrimary(
+                                                member,
+                                              )
+                                            }
+                                          >
+                                            Make primary
+                                          </button>
+                                        )}
+
+                                      <button
+                                        className="admin-secondary-button"
+                                        type="button"
+                                        onClick={() =>
+                                          beginMemberEdit(
+                                            member,
+                                          )
+                                        }
+                                      >
+                                        Edit
+                                      </button>
+
+                                      <button
+                                        className="admin-delete-button"
+                                        type="button"
+                                        onClick={() =>
+                                          removeMember(
+                                            member,
+                                          )
+                                        }
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                ),
+                            )
+                          ) : (
+                            <div className="admin-empty">
+                              No people yet. The first
+                              profile must be Primary.
                             </div>
-                          </div>
-                        ),
-                      )
+                          )}
+                        </div>
+                      </div>
                     ) : (
-                      <div className="admin-empty">
-                        No profiles yet. The first profile
-                        must be Primary.
+                      <div className="account-no-household">
+                        This login does not have household
+                        profiles.
                       </div>
                     )}
+                  </>
+                ) : (
+                  <div className="account-empty-state">
+                    <strong>Select an account</strong>
+                    <span>
+                      Choose a login on the left to manage
+                      it.
+                    </span>
                   </div>
-                </div>
-              ) : (
-                <div className="admin-empty">
-                  Choose a member account to manage its
-                  household profiles.
-                </div>
-              )}
-            </section>
+                )}
+              </section>
+            </div>
           </>
         )}
       </main>

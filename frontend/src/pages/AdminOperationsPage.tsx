@@ -937,7 +937,7 @@ export default function AdminOperationsPage() {
                           )
                         }
                       >
-                        <div className="admin-edit-fields">
+                        <div className="admin-edit-fields operation-activity-edit-fields">
                           <input
                             aria-label="Activity name"
                             value={

@@ -425,6 +425,31 @@ export async function deleteAccount(
   return json(response);
 }
 
+export async function resetAccountPassword(
+  id: string,
+  password: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/accounts/${id}/reset-password`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        password,
+      }),
+    },
+  );
+
+  return (
+    await json<{ account: AccountRecord }>(
+      response,
+    )
+  ).account;
+}
+
 export async function updateHouseholdMember(
   id: string,
   input: {

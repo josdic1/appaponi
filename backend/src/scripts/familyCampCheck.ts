@@ -224,6 +224,9 @@ const staffUsername =
 const tempPassword =
   `temp-${stamp}`;
 
+const resetMemberPassword =
+  `reset-${stamp}`;
+
 const memberPassword =
   `member-${stamp}`;
 
@@ -300,6 +303,33 @@ async function main() {
   );
 
   pass("backend health");
+
+  const blockedOrigin =
+    await fetch(
+      `${API}/api/auth/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+          Origin:
+            "https://not-appoponi.example",
+        },
+        body: JSON.stringify({
+          username:
+            adminUsername,
+          password:
+            adminPassword,
+        }),
+      },
+    );
+
+  assert.equal(
+    blockedOrigin.status,
+    403,
+  );
+
+  pass("cross-site mutation blocked");
 
   /* ADMIN */
 
@@ -398,6 +428,47 @@ async function main() {
     );
 
   pass("member + staff accounts");
+
+  await admin.request(
+    "POST",
+    `/api/accounts/${memberAccountId}/reset-password`,
+    {
+      password:
+        resetMemberPassword,
+    },
+  );
+
+  const oldMemberPassword =
+    new Session();
+
+  await oldMemberPassword.request(
+    "POST",
+    "/api/auth/login",
+    {
+      username:
+        memberUsername,
+      password:
+        tempPassword,
+    },
+    401,
+  );
+
+  const resetMember =
+    new Session();
+
+  const resetLogin =
+    await resetMember.login(
+      memberUsername,
+      resetMemberPassword,
+    );
+
+  assert.equal(
+    resetLogin.body.account
+      .must_change_password,
+    true,
+  );
+
+  pass("admin password reset");
 
   /* HOUSEHOLD */
 
@@ -865,7 +936,7 @@ async function main() {
 
   await memberFirst.login(
     memberUsername,
-    tempPassword,
+    resetMemberPassword,
   );
 
   await memberFirst.request(
@@ -873,7 +944,7 @@ async function main() {
     "/api/auth/change-password",
     {
       current_password:
-        tempPassword,
+        resetMemberPassword,
       new_password:
         memberPassword,
     },

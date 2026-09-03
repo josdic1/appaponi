@@ -38,12 +38,42 @@ if (!frontendUrl) {
   );
 }
 
+const frontendOrigin =
+  new URL(frontendUrl).origin;
+
 app.use(
   cors({
-    origin: frontendUrl,
+    origin: frontendOrigin,
     credentials: true,
   }),
 );
+
+app.use((req, res, next) => {
+  if (
+    ["GET", "HEAD", "OPTIONS"].includes(
+      req.method,
+    )
+  ) {
+    next();
+    return;
+  }
+
+  const origin =
+    req.get("origin");
+
+  if (
+    origin &&
+    origin !== frontendOrigin
+  ) {
+    res.status(403).json({
+      error:
+        "Invalid request origin",
+    });
+    return;
+  }
+
+  next();
+});
 
 app.use(express.json({ limit: "20mb" }));
 app.use(cookieParser());

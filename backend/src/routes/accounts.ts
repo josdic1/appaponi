@@ -3,6 +3,7 @@ import { Router } from "express";
 import {
   accountIdParamsSchema,
   createAccountSchema,
+  resetAccountPasswordSchema,
   updateAccountSchema,
   type AccountRecord,
 } from "@appoponi/shared/schemas/accounts";
@@ -18,6 +19,10 @@ import {
 import {
   createAccount,
 } from "../services/accounts.js";
+
+import {
+  hashPassword,
+} from "../services/auth.js";
 
 export const accountsRouter = Router();
 
@@ -155,6 +160,92 @@ accountsRouter.patch("/:id", async (req, res) => {
     });
   }
 });
+
+accountsRouter.post(
+  "/:id/reset-password",
+  async (req, res) => {
+    const params =
+      accountIdParamsSchema.safeParse(
+        req.params,
+      );
+
+    const body =
+      resetAccountPasswordSchema.safeParse(
+        req.body,
+      );
+
+    if (
+      !params.success ||
+      !body.success
+    ) {
+      res.status(400).json({
+        error:
+          "Invalid password reset",
+      });
+      return;
+    }
+
+    if (
+      String(params.data.id) ===
+      String(req.auth!.sub)
+    ) {
+      res.status(409).json({
+        error:
+          "Cannot reset the account you are currently using",
+      });
+      return;
+    }
+
+    try {
+      const passwordHash =
+        await hashPassword(
+          body.data.password,
+        );
+
+      const result =
+        await query<AccountRecord>(
+          `
+            UPDATE accounts
+            SET
+              password_hash = $2,
+              must_change_password = TRUE
+            WHERE id = $1
+            RETURNING
+              id,
+              username,
+              account_type,
+              must_change_password,
+              created_at,
+              updated_at
+          `,
+          [
+            params.data.id,
+            passwordHash,
+          ],
+        );
+
+      const account =
+        result.rows[0];
+
+      if (!account) {
+        res.status(404).json({
+          error:
+            "Account does not exist",
+        });
+        return;
+      }
+
+      res.json({ account });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error:
+          "Could not reset password",
+      });
+    }
+  },
+);
 
 accountsRouter.delete("/:id", async (req, res) => {
   const parsed =
