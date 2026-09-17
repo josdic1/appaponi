@@ -98,6 +98,15 @@ if (setupStart < 0 || setupEnd < 0) {
   if (sectionCount !== 4) {
     failures.push(`Scheduling reusable setup expected 4 flat setup-section blocks, found ${sectionCount}`);
   }
+  const columnCount = (setupSource.match(/className="setup-column"/g) ?? []).length;
+  if (columnCount !== 2) {
+    failures.push(`Scheduling reusable setup expected 2 independent setup-column stacks, found ${columnCount}`);
+  }
+  for (const variant of ["compact-form-one", "compact-form-two", "compact-form-rule"]) {
+    if (!setupSource.includes(variant)) {
+      failures.push(`Scheduling reusable setup is missing ${variant}`);
+    }
+  }
 }
 
 for (const file of sourceFiles) {

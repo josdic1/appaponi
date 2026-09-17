@@ -4032,7 +4032,27 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .compact-form .app-control-number {
   width: 88px;
 }
+.compact-form-one {
+  grid-template-columns: minmax(180px, 360px) auto;
+  align-items: end;
+}
+.compact-form-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+}
+.compact-form-rule {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 88px auto;
+  align-items: end;
+}
+.compact-number-field {
+  width: 88px;
+}
+.compact-number-field .app-control-number {
+  width: 100%;
+}
 
+/* Two independent setup columns. Never pair unrelated sections into shared grid rows:
+   shared row heights create large dead zones when one library has more records. */
 .setup-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4040,14 +4060,19 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   padding: 0;
   background: var(--surface);
 }
+.setup-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.setup-column + .setup-column {
+  border-left: 1px solid var(--line);
+}
 .setup-section {
   min-width: 0;
   background: var(--surface);
 }
-.setup-section:nth-child(odd) {
-  border-right: 1px solid var(--line);
-}
-.setup-section:nth-child(n + 3) {
+.setup-section + .setup-section {
   border-top: 1px solid var(--line);
 }
 .setup-section-head {
@@ -4366,8 +4391,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .admin-event-context { align-items: stretch; flex-direction: column; }
   .admin-event-context select { width: 100%; }
   .setup-grid { grid-template-columns: 1fr; }
-  .setup-section:nth-child(odd) { border-right: 0; }
-  .setup-section + .setup-section { border-top: 1px solid var(--line); }
+  .setup-column + .setup-column { border-left: 0; border-top: 1px solid var(--line); }
+  .compact-form-one,
+  .compact-form-two,
+  .compact-form-rule { grid-template-columns: 1fr; }
   .operations-section-bar { align-items: stretch; flex-direction: column; }
   .operations-section-bar .app-button { width: 100%; }
   .registration-first .registration-row { grid-template-columns: minmax(0, 1fr) 78px; gap: 8px; }

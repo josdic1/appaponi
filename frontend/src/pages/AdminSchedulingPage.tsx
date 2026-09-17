@@ -598,7 +598,8 @@ export default function AdminSchedulingPage({
           <span className="setup-disclosure-badge">Reusable setup</span>
         </summary>
 
-        <div className="schedule-grid setup-grid">
+        <div className="setup-grid">
+          <div className="setup-column">
           <section className="setup-section">
             <div className="setup-section-head">
               <div>
@@ -607,7 +608,7 @@ export default function AdminSchedulingPage({
               </div>
             </div>
 
-            <form className="admin-form compact-form" onSubmit={submitQualification}>
+            <form className="admin-form compact-form compact-form-one" onSubmit={submitQualification}>
               <label>
                 <span>Name</span>
                 <input
@@ -644,12 +645,65 @@ export default function AdminSchedulingPage({
           <section className="setup-section">
             <div className="setup-section-head">
               <div>
+                <strong>Staff → qualifications</strong>
+                <span>{staffQualifications.length} current assignment{staffQualifications.length === 1 ? "" : "s"}</span>
+              </div>
+            </div>
+
+            <form className="admin-form compact-form compact-form-two" onSubmit={submitStaffQualification}>
+              <select
+                value={staffQualStaff}
+                onChange={(e) => setStaffQualStaff(e.target.value)}
+              >
+                <option value="">Choose staff</option>
+                {staff.map((item) => (
+                  <option key={item.id} value={item.id}>{item.full_name}</option>
+                ))}
+              </select>
+              <select
+                value={staffQualQual}
+                onChange={(e) => setStaffQualQual(e.target.value)}
+              >
+                <option value="">Choose qualification</option>
+                {qualifications.map((item) => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+              <button className="app-button app-button-primary" type="submit">Assign</button>
+            </form>
+
+            <div className="compact-list">
+              {staffQualifications.map((item) => (
+                <div className="admin-inline-record" key={item.id}>
+                  <span>{item.staff_name} → {item.qualification_name}</span>
+                  <button
+                    className="app-button app-button-danger"
+                    type="button"
+                    onClick={() =>
+                      confirmRemove(
+                        `${item.qualification_name} from ${item.staff_name}`,
+                        () => removeStaffQualification(item.id),
+                      )
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+          </div>
+
+          <div className="setup-column">
+          <section className="setup-section">
+            <div className="setup-section-head">
+              <div>
                 <strong>Staff → place assignments</strong>
                 <span>{staffAreas.length} current assignment{staffAreas.length === 1 ? "" : "s"}</span>
               </div>
             </div>
 
-            <form className="admin-form compact-form" onSubmit={submitStaffArea}>
+            <form className="admin-form compact-form compact-form-two" onSubmit={submitStaffArea}>
               <select
                 value={staffAreaStaff}
                 onChange={(e) => setStaffAreaStaff(e.target.value)}
@@ -695,63 +749,12 @@ export default function AdminSchedulingPage({
           <section className="setup-section">
             <div className="setup-section-head">
               <div>
-                <strong>Staff → qualifications</strong>
-                <span>{staffQualifications.length} current assignment{staffQualifications.length === 1 ? "" : "s"}</span>
-              </div>
-            </div>
-
-            <form className="admin-form compact-form" onSubmit={submitStaffQualification}>
-              <select
-                value={staffQualStaff}
-                onChange={(e) => setStaffQualStaff(e.target.value)}
-              >
-                <option value="">Choose staff</option>
-                {staff.map((item) => (
-                  <option key={item.id} value={item.id}>{item.full_name}</option>
-                ))}
-              </select>
-              <select
-                value={staffQualQual}
-                onChange={(e) => setStaffQualQual(e.target.value)}
-              >
-                <option value="">Choose qualification</option>
-                {qualifications.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
-                ))}
-              </select>
-              <button className="app-button app-button-primary" type="submit">Assign</button>
-            </form>
-
-            <div className="compact-list">
-              {staffQualifications.map((item) => (
-                <div className="admin-inline-record" key={item.id}>
-                  <span>{item.staff_name} → {item.qualification_name}</span>
-                  <button
-                    className="app-button app-button-danger"
-                    type="button"
-                    onClick={() =>
-                      confirmRemove(
-                        `${item.qualification_name} from ${item.staff_name}`,
-                        () => removeStaffQualification(item.id),
-                      )
-                    }
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="setup-section">
-            <div className="setup-section-head">
-              <div>
                 <strong>Activity requirement library</strong>
                 <span>{activityQualifications.length} reusable staffing rule{activityQualifications.length === 1 ? "" : "s"}</span>
               </div>
             </div>
 
-            <form className="admin-form compact-form" onSubmit={submitActivityQualification}>
+            <form className="admin-form compact-form compact-form-rule" onSubmit={submitActivityQualification}>
               <select
                 value={activityQualActivity}
                 onChange={(e) => setActivityQualActivity(e.target.value)}
@@ -770,7 +773,7 @@ export default function AdminSchedulingPage({
                   <option key={item.id} value={item.id}>{item.name}</option>
                 ))}
               </select>
-              <label>
+              <label className="compact-number-field">
                 <span>Required staff</span>
                 <input
                   className="app-control-number"
@@ -806,6 +809,7 @@ export default function AdminSchedulingPage({
               ))}
             </div>
           </section>
+          </div>
         </div>
       </details>
     </section>
