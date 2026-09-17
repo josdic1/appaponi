@@ -434,8 +434,7 @@ export default function AdminPage() {
         </button>
 
         <div className="app-header-actions">
-          {!import.meta.env.PROD && (
-            <div className="admin-dev-control">
+          <div className="admin-dev-control">
               <button
                 type="button"
                 className="admin-dev-trigger"
@@ -449,7 +448,7 @@ export default function AdminPage() {
                   <div className="admin-dev-menu-head">
                     <strong>Demo data</strong>
                     <span>
-                      {demoBusy ? "Working…" : demoMessage || "Local only"}
+                      {demoBusy ? "Working…" : demoMessage || "Ready"}
                     </span>
                   </div>
 
@@ -483,8 +482,7 @@ export default function AdminPage() {
                   </button>
                 </div>
               )}
-            </div>
-          )}
+          </div>
 
           <span>@{account?.username}</span>
 

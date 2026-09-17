@@ -1624,7 +1624,6 @@ async function seedFamilyCamp(
 
 devRouter.post(
   "/demo/:mode",
-  requireDevelopment,
   requireAuth,
   requirePasswordChanged,
   requireAccountType("admin"),
