@@ -797,7 +797,7 @@ export default function StaffPage() {
         <button
           type="button"
           className="app-home-brand member-home-brand"
-          aria-label="Appoponi home"
+          aria-label="Appaponi home"
           onClick={() =>
             window.scrollTo({
               top: 0,
@@ -811,7 +811,7 @@ export default function StaffPage() {
 
           <div>
             <strong>
-              Appoponi
+              Appaponi
             </strong>
 
             <span>

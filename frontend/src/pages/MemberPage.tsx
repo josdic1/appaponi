@@ -281,7 +281,7 @@ export default function MemberPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Could not load Appoponi",
+          : "Could not load Appaponi",
       ),
     );
   }, []);
@@ -519,14 +519,14 @@ export default function MemberPage() {
               behavior: "smooth",
             })
           }
-          aria-label="Appoponi home"
+          aria-label="Appaponi home"
         >
           <div className="brand-mark">
             A
           </div>
 
           <div>
-            <strong>Appoponi</strong>
+            <strong>Appaponi</strong>
             <span>
               {householdDisplayName}
             </span>

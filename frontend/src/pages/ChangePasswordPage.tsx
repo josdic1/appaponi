@@ -82,7 +82,7 @@ export default function ChangePasswordPage() {
 
           <div>
             <div className="brand-name">
-              Appoponi
+              Appaponi
             </div>
 
             <div className="brand-sub">

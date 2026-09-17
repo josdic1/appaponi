@@ -62,7 +62,7 @@ export default function LoginPage() {
 
           <div>
             <div className="brand-name">
-              Appoponi
+              Appaponi
             </div>
 
             <div className="brand-sub">
@@ -74,7 +74,7 @@ export default function LoginPage() {
         <div className="login-heading">
           <h1>Sign in</h1>
           <p>
-            Enter your Appoponi
+            Enter your Appaponi
             account.
           </p>
         </div>

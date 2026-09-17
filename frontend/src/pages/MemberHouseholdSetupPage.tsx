@@ -98,7 +98,7 @@ export default function MemberHouseholdSetupPage({
 
           <div>
             <div className="brand-name">
-              Appoponi
+              Appaponi
             </div>
 
             <div className="brand-sub">

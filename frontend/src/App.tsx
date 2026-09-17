@@ -43,7 +43,7 @@ function AppContent() {
           <div className="brand-mark">A</div>
 
           <div>
-            <div className="brand-name">Appoponi</div>
+            <div className="brand-name">Appaponi</div>
 
             <div className="brand-sub">{account.account_type}</div>
           </div>
@@ -52,7 +52,7 @@ function AppContent() {
         <div className="login-heading">
           <h1>{account.username}</h1>
 
-          <p>Authenticated Appoponi account.</p>
+          <p>Authenticated Appaponi account.</p>
         </div>
 
         <button

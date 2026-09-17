@@ -417,7 +417,7 @@ export default function AdminPage() {
         <button
           type="button"
           className="app-header-brand app-home-brand"
-          aria-label="Appoponi home"
+          aria-label="Appaponi home"
           onClick={() => {
             setSection("event");
             window.scrollTo({
@@ -428,7 +428,7 @@ export default function AdminPage() {
         >
           <div className="brand-mark">A</div>
           <div>
-            <strong>Appoponi</strong>
+            <strong>Appaponi</strong>
             <span>Admin</span>
           </div>
         </button>

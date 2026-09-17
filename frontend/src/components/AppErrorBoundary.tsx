@@ -31,7 +31,7 @@ export default class AppErrorBoundary extends Component<
     info: ErrorInfo,
   ) {
     console.error(
-      "Appoponi render failure",
+      "Appaponi render failure",
       error,
       info,
     );
@@ -55,7 +55,7 @@ export default class AppErrorBoundary extends Component<
 
             <div>
               <div className="brand-name">
-                Appoponi
+                Appaponi
               </div>
               <div className="brand-sub">
                 Camp app
@@ -66,7 +66,7 @@ export default class AppErrorBoundary extends Component<
           <div className="login-heading">
             <h1>Something went wrong</h1>
             <p>
-              Reload Appoponi to return to your current session.
+              Reload Appaponi to return to your current session.
             </p>
           </div>
 
@@ -77,7 +77,7 @@ export default class AppErrorBoundary extends Component<
               window.location.reload()
             }
           >
-            Reload Appoponi
+            Reload Appaponi
           </button>
         </section>
       </main>
