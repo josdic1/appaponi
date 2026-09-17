@@ -27,6 +27,19 @@ registrationsRouter.get(
       const isAdmin =
         req.auth!.account_type === "admin";
 
+      const eventId =
+        typeof req.query.event_id === "string" && req.query.event_id
+          ? Number(req.query.event_id)
+          : null;
+
+      if (
+        eventId !== null &&
+        (!Number.isInteger(eventId) || eventId <= 0)
+      ) {
+        res.status(400).json({ error: "Invalid event id" });
+        return;
+      }
+
       const result =
         await query<EventRegistration>(
           `
@@ -34,8 +47,11 @@ registrationsRouter.get(
               er.id,
               er.account_id,
               a.username,
+              a.display_name AS household_name,
               er.event_id,
               e.name AS event_name,
+              e.starts_at AS event_starts_at,
+              e.ends_at AS event_ends_at,
               er.spots_paid_for,
               (
                 SELECT COUNT(*)::int
@@ -47,9 +63,10 @@ registrationsRouter.get(
               ) AS selected_attendees,
               er.cabin_id,
               c.name AS cabin_name,
-              c.map_x AS cabin_map_x,
-              c.map_y AS cabin_map_y,
-              er.share_cabin_publicly
+              c.map_slot_id AS cabin_map_slot_id,
+              er.share_cabin_publicly,
+              lead_member.id AS household_lead_member_id,
+              lead_member.full_name AS household_lead_name
             FROM event_registrations er
             JOIN accounts a
               ON a.id = er.account_id
@@ -57,15 +74,29 @@ registrationsRouter.get(
               ON e.id = er.event_id
             LEFT JOIN cabins c
               ON c.id = er.cabin_id
+            LEFT JOIN member_attendees lead_attendee
+              ON lead_attendee.id = er.household_lead_attendee_id
+            LEFT JOIN household_members lead_member
+              ON lead_member.id = lead_attendee.member_id
             WHERE (
               $1::boolean = TRUE
               OR er.account_id = $2
             )
-            ORDER BY e.starts_at, a.username
+              AND (
+                $3::bigint IS NULL
+                OR er.event_id = $3
+              )
+            ORDER BY
+              e.starts_at,
+              COALESCE(
+                a.display_name,
+                a.username
+              )
           `,
           [
             isAdmin,
             req.auth!.sub,
+            eventId,
           ],
         );
 
@@ -119,15 +150,17 @@ registrationsRouter.post(
               i.id,
               i.account_id,
               a.username,
+              a.display_name AS household_name,
               i.event_id,
               e.name AS event_name,
               i.spots_paid_for,
               0::int AS selected_attendees,
               i.cabin_id,
               c.name AS cabin_name,
-              c.map_x AS cabin_map_x,
-              c.map_y AS cabin_map_y,
-              i.share_cabin_publicly
+              c.map_slot_id AS cabin_map_slot_id,
+              i.share_cabin_publicly,
+              lead_member.id AS household_lead_member_id,
+              lead_member.full_name AS household_lead_name
             FROM inserted i
             JOIN accounts a
               ON a.id = i.account_id
@@ -135,6 +168,10 @@ registrationsRouter.post(
               ON e.id = i.event_id
             LEFT JOIN cabins c
               ON c.id = i.cabin_id
+            LEFT JOIN member_attendees lead_attendee
+              ON lead_attendee.id = i.household_lead_attendee_id
+            LEFT JOIN household_members lead_member
+              ON lead_member.id = lead_attendee.member_id
           `,
           [
             parsed.data.account_id,
@@ -277,6 +314,48 @@ registrationsRouter.patch(
     }
 
     try {
+      if (body.data.cabin_id !== null) {
+        const conflict = await query<{
+          household_name: string;
+          event_name: string;
+        }>(
+          `
+            SELECT
+              COALESCE(
+                other_account.display_name,
+                other_account.username
+              ) AS household_name,
+              other_event.name AS event_name
+            FROM event_registrations target
+            JOIN events target_event
+              ON target_event.id = target.event_id
+            JOIN event_registrations other
+              ON other.cabin_id = $2
+             AND other.id <> target.id
+            JOIN events other_event
+              ON other_event.id = other.event_id
+            JOIN accounts other_account
+              ON other_account.id = other.account_id
+            WHERE target.id = $1
+              AND target_event.starts_at < other_event.ends_at
+              AND other_event.starts_at < target_event.ends_at
+            LIMIT 1
+          `,
+          [
+            params.data.id,
+            body.data.cabin_id,
+          ],
+        );
+
+        if (conflict.rows[0]) {
+          res.status(409).json({
+            error:
+              `Cabin is occupied by ${conflict.rows[0].household_name} during ${conflict.rows[0].event_name}`,
+          });
+          return;
+        }
+      }
+
       const result = await query<{
         id: string;
       }>(
@@ -305,6 +384,19 @@ registrationsRouter.patch(
       if (error?.code === "23503") {
         res.status(409).json({
           error: "Cabin does not exist",
+        });
+        return;
+      }
+
+      if (
+        error?.code === "P0001" &&
+        String(error?.message ?? "").includes(
+          "CABIN_OCCUPIED",
+        )
+      ) {
+        res.status(409).json({
+          error:
+            "Cabin is occupied during this event",
         });
         return;
       }

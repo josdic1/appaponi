@@ -48,6 +48,7 @@ householdMembersRouter.get("/", async (req, res) => {
           hm.id,
           hm.account_id,
           a.username,
+          a.display_name AS household_name,
           hm.full_name,
           hm.email,
           hm.phone,
@@ -60,7 +61,10 @@ householdMembersRouter.get("/", async (req, res) => {
           ON a.id = hm.account_id
         WHERE ($1::bigint IS NULL OR hm.account_id = $1)
         ORDER BY
-          a.username,
+          COALESCE(
+            a.display_name,
+            a.username
+          ),
           CASE hm.member_role
             WHEN 'primary' THEN 0
             WHEN 'adult' THEN 1
@@ -114,6 +118,7 @@ householdMembersRouter.post("/", async (req, res) => {
           i.id,
           i.account_id,
           a.username,
+          a.display_name AS household_name,
           i.full_name,
           i.email,
           i.phone,
@@ -146,7 +151,7 @@ householdMembersRouter.post("/", async (req, res) => {
     ) {
       res.status(409).json({
         error:
-          "The first household profile must be Primary, and each household must keep exactly one Primary",
+          "The first household profile must be the default lead, and each household must keep exactly one default lead",
       });
       return;
     }
@@ -203,6 +208,7 @@ householdMembersRouter.patch("/:id", async (req, res) => {
           u.id,
           u.account_id,
           a.username,
+          a.display_name AS household_name,
           u.full_name,
           u.email,
           u.phone,
@@ -327,7 +333,7 @@ householdMembersRouter.post(
 
         res.status(409).json({
           error:
-            "Only the current Primary can transfer Primary",
+            "Only the current default lead can change the default lead",
         });
         return;
       }
@@ -340,7 +346,7 @@ householdMembersRouter.post(
 
         res.status(409).json({
           error:
-            "Primary can only transfer within the same household",
+            "The default lead can only change within the same household",
         });
         return;
       }
@@ -350,7 +356,7 @@ householdMembersRouter.post(
 
         res.status(409).json({
           error:
-            "Primary can only transfer to another Adult",
+            "The default lead can only be changed to another Adult",
         });
         return;
       }
@@ -381,7 +387,7 @@ householdMembersRouter.post(
       console.error(error);
 
       res.status(500).json({
-        error: "Could not transfer Primary",
+        error: "Could not change default household lead",
       });
     } finally {
       client.release();
@@ -430,7 +436,7 @@ householdMembersRouter.delete("/:id", async (req, res) => {
     ) {
       res.status(409).json({
         error:
-          "A populated household must keep exactly one Primary",
+          "A populated household must keep exactly one default lead",
       });
       return;
     }

@@ -3,6 +3,8 @@ import {
   type FormEvent,
 } from "react";
 
+import DevLoginMenu from "../components/dev/DevLoginMenu";
+
 import {
   useAuth,
 } from "../hooks/useAuth";
@@ -47,6 +49,8 @@ export default function LoginPage() {
 
   return (
     <main className="login-page">
+      <DevLoginMenu />
+
       <form
         className="login-card login-form"
         onSubmit={submit}
@@ -103,13 +107,13 @@ export default function LoginPage() {
         </label>
 
         {error && (
-          <div className="login-error">
+          <div className="app-alert app-alert-danger">
             {error}
           </div>
         )}
 
         <button
-          className="login-submit"
+          className="app-button app-button-primary app-button-block"
           type="submit"
           disabled={submitting}
         >

@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+import type {
+  CampMapPlaceId,
+} from "./campMap.js";
+
 export const createStaffAreaSchema = z.object({
   staff_member_id: z.coerce.number().int().positive(),
   area_id: z.coerce.number().int().positive(),
@@ -65,6 +69,7 @@ export type EventActivity = {
   activity_id: string;
   activity_name: string;
   area_name: string;
+  map_place_id: CampMapPlaceId | null;
   starts_at: string;
   ends_at: string;
   capacity: number | null;

@@ -90,8 +90,7 @@ staffDayRouter.get(
               easign.id AS signup_id,
               easign.event_activity_id,
               hm.full_name AS member_name,
-              easign.checked_in_at,
-              easign.checked_out_at
+              easign.checked_in_at
             FROM event_activity_signups easign
             JOIN member_attendees ma
               ON ma.id =
@@ -201,7 +200,6 @@ staffDayRouter.post(
       const result = await query<{
         id: string;
         checked_in_at: string;
-        checked_out_at: string | null;
       }>(
         `
           UPDATE event_activity_signups
@@ -212,22 +210,13 @@ staffDayRouter.post(
                 NOW()
               )
           WHERE id = $1
-            AND checked_out_at IS NULL
           RETURNING
             id,
-            checked_in_at,
-            checked_out_at
+            checked_in_at
         `,
         [parsed.data.id],
       );
 
-      if (!result.rows[0]) {
-        res.status(409).json({
-          error:
-            "Participant is already checked out",
-        });
-        return;
-      }
 
       res.json({
         signup: result.rows[0],
@@ -238,80 +227,6 @@ staffDayRouter.post(
       res.status(500).json({
         error:
           "Could not check participant in",
-      });
-    }
-  },
-);
-
-staffDayRouter.post(
-  "/signups/:id/check-out",
-  async (req, res) => {
-    const parsed =
-      staffSignupIdParamsSchema.safeParse(
-        req.params,
-      );
-
-    if (!parsed.success) {
-      res.status(400).json({
-        error: "Invalid signup id",
-      });
-      return;
-    }
-
-    const allowed =
-      await canManageSignup(
-        parsed.data.id,
-        req.auth!.sub,
-        req.auth!.account_type ===
-          "admin",
-      );
-
-    if (!allowed) {
-      res.status(403).json({
-        error:
-          "You are not assigned to this activity",
-      });
-      return;
-    }
-
-    try {
-      const result = await query<{
-        id: string;
-        checked_out_at: string;
-      }>(
-        `
-          UPDATE event_activity_signups
-          SET checked_out_at =
-            COALESCE(
-              checked_out_at,
-              NOW()
-            )
-          WHERE id = $1
-            AND checked_in_at IS NOT NULL
-          RETURNING
-            id,
-            checked_out_at
-        `,
-        [parsed.data.id],
-      );
-
-      if (!result.rows[0]) {
-        res.status(409).json({
-          error:
-            "Participant must be checked in first",
-        });
-        return;
-      }
-
-      res.json({
-        signup: result.rows[0],
-      });
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        error:
-          "Could not check participant out",
       });
     }
   },

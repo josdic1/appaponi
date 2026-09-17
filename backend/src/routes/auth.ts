@@ -32,6 +32,7 @@ type AuthAccountRow = {
   password_hash: string;
   account_type: AccountType;
   must_change_password: boolean;
+  session_version: number;
 };
 
 export const authRouter =
@@ -71,7 +72,8 @@ authRouter.post(
               username,
               password_hash,
               account_type,
-              must_change_password
+              must_change_password,
+              session_version
             FROM accounts
             WHERE regexp_replace(
               lower(username),
@@ -164,7 +166,8 @@ authRouter.get(
               id,
               username,
               account_type,
-              must_change_password
+              must_change_password,
+              session_version
             FROM accounts
             WHERE id = $1
             LIMIT 1
@@ -257,18 +260,52 @@ authRouter.post(
           parsed.data.new_password,
         );
 
-      await query(
-        `
-          UPDATE accounts
-          SET
-            password_hash = $1,
-            must_change_password = FALSE
-          WHERE id = $2
-        `,
-        [
-          passwordHash,
-          req.auth!.sub,
-        ],
+      const updated =
+        await query<{
+          session_version: number;
+        }>(
+          `
+            UPDATE accounts
+            SET
+              password_hash = $1,
+              must_change_password = FALSE,
+              session_version =
+                session_version + 1
+            WHERE id = $2
+            RETURNING session_version
+          `,
+          [
+            passwordHash,
+            req.auth!.sub,
+          ],
+        );
+
+      const sessionVersion =
+        updated.rows[0]?.session_version;
+
+      if (!sessionVersion) {
+        res.status(401).json({
+          error:
+            "Account no longer exists",
+        });
+        return;
+      }
+
+      const token =
+        createAccessToken({
+          id: req.auth!.sub,
+          username:
+            req.auth!.username,
+          account_type:
+            req.auth!.account_type,
+          session_version:
+            sessionVersion,
+        });
+
+      res.cookie(
+        SESSION_COOKIE_NAME,
+        token,
+        sessionCookieOptions(),
       );
 
       res.json({ ok: true });

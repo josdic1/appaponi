@@ -32,6 +32,7 @@ activitiesRouter.get("/", async (_req, res) => {
         a.area_id,
         ar.name AS area_name,
         a.setting,
+        a.map_place_id,
         a.created_at,
         a.updated_at
       FROM activities a
@@ -70,9 +71,10 @@ activitiesRouter.post("/", async (req, res) => {
           INSERT INTO activities (
             name,
             area_id,
-            setting
+            setting,
+            map_place_id
           )
-          VALUES ($1, $2, $3)
+          VALUES ($1, $2, $3, $4)
           RETURNING *
         )
         SELECT
@@ -81,6 +83,7 @@ activitiesRouter.post("/", async (req, res) => {
           i.area_id,
           ar.name AS area_name,
           i.setting,
+          i.map_place_id,
           i.created_at,
           i.updated_at
         FROM inserted i
@@ -91,6 +94,7 @@ activitiesRouter.post("/", async (req, res) => {
         parsed.data.name,
         parsed.data.area_id,
         parsed.data.setting,
+        parsed.data.map_place_id ?? null,
       ],
     );
 
@@ -142,7 +146,11 @@ activitiesRouter.patch("/:id", async (req, res) => {
           SET
             name = COALESCE($2, name),
             area_id = COALESCE($3, area_id),
-            setting = COALESCE($4, setting)
+            setting = COALESCE($4, setting),
+            map_place_id = CASE
+              WHEN $5 THEN $6
+              ELSE map_place_id
+            END
           WHERE id = $1
           RETURNING *
         )
@@ -152,6 +160,7 @@ activitiesRouter.patch("/:id", async (req, res) => {
           u.area_id,
           ar.name AS area_name,
           u.setting,
+          u.map_place_id,
           u.created_at,
           u.updated_at
         FROM updated u
@@ -163,6 +172,11 @@ activitiesRouter.patch("/:id", async (req, res) => {
         body.data.name ?? null,
         body.data.area_id ?? null,
         body.data.setting ?? null,
+        Object.prototype.hasOwnProperty.call(
+          body.data,
+          "map_place_id",
+        ),
+        body.data.map_place_id ?? null,
       ],
     );
 

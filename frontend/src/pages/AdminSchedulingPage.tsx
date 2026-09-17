@@ -49,7 +49,38 @@ import {
   humanDateTimeToIso,
 } from "../lib/humanDateTime";
 
-export default function AdminSchedulingPage() {
+type Props = {
+  activeEventId?: string;
+};
+
+function scheduleDayKey(value: string) {
+  const date = new Date(value);
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
+function scheduleDayLabel(value: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(value));
+}
+
+function scheduleTimeLabel(value: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+export default function AdminSchedulingPage({
+  activeEventId = "",
+}: Props) {
   const [areas, setAreas] = useState<Area[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [events, setEvents] = useState<EventRecord[]>([]);
@@ -100,10 +131,11 @@ export default function AdminSchedulingPage() {
   const [scheduleEnd, setScheduleEnd] = useState("");
   const [scheduleCapacity, setScheduleCapacity] =
     useState("");
+  const [isAddingActivity, setIsAddingActivity] = useState(false);
 
-  const [assignmentActivity, setAssignmentActivity] =
-    useState("");
-  const [assignmentStaff, setAssignmentStaff] =
+  const [editingActivityId, setEditingActivityId] =
+    useState<string | null>(null);
+  const [editingStaffId, setEditingStaffId] =
     useState("");
 
   async function refresh() {
@@ -120,7 +152,7 @@ export default function AdminSchedulingPage() {
       loadEvents(),
       loadStaffMembers(),
       loadQualifications(),
-      loadScheduling(),
+      loadScheduling(activeEventId || undefined),
     ]);
 
     setAreas(nextAreas);
@@ -151,7 +183,34 @@ export default function AdminSchedulingPage() {
           : "Could not load scheduling",
       ),
     );
-  }, []);
+  }, [activeEventId]);
+
+  useEffect(() => {
+    if (activeEventId) {
+      setScheduleEvent(activeEventId);
+    }
+  }, [activeEventId]);
+
+  const visibleEventActivities = activeEventId
+    ? eventActivities.filter(
+        (item) => item.event_id === activeEventId,
+      )
+    : eventActivities;
+
+  const scheduleByDay = (() => {
+    const groups = new Map<string, EventActivity[]>();
+
+    for (const item of [...visibleEventActivities].sort(
+      (a, b) =>
+        new Date(a.starts_at).getTime() -
+        new Date(b.starts_at).getTime(),
+    )) {
+      const key = scheduleDayKey(item.starts_at);
+      groups.set(key, [...(groups.get(key) ?? []), item]);
+    }
+
+    return Array.from(groups.entries());
+  })();
 
   async function run(action: () => Promise<unknown>) {
     setError(null);
@@ -261,372 +320,57 @@ export default function AdminSchedulingPage() {
       setScheduleStart("");
       setScheduleEnd("");
       setScheduleCapacity("");
+      setIsAddingActivity(false);
     });
   }
 
-  function submitAssignment(event: FormEvent) {
+  function submitActivityStaff(
+    event: FormEvent,
+    eventActivityId: string,
+  ) {
     event.preventDefault();
+
+    if (!editingStaffId) {
+      return;
+    }
 
     void run(async () => {
       await assignEventActivityStaff(
-        Number(assignmentActivity),
-        Number(assignmentStaff),
+        Number(eventActivityId),
+        Number(editingStaffId),
       );
+      setEditingStaffId("");
     });
   }
 
   return (
-    <section>
-      <div className="admin-heading">
-        <div className="admin-eyebrow">ADMIN</div>
-        <h1>Scheduling</h1>
-        <p>
-          Qualifications, staff coverage, and the actual
-          event activity calendar.
-        </p>
-      </div>
-
-      {error && (
-        <div className="admin-error">{error}</div>
-      )}
-
-      <div className="schedule-grid">
-        <section className="admin-card">
-          <div className="admin-card-head">
-            <div>
-              <strong>Qualifications</strong>
-              <span>{qualifications.length} defined</span>
-            </div>
-          </div>
-
-          <form
-            className="admin-form"
-            onSubmit={submitQualification}
-          >
-            <label>
-              <span>Name</span>
-              <input
-                value={qualificationName}
-                onChange={(e) =>
-                  setQualificationName(e.target.value)
-                }
-              />
-            </label>
-
-            <button
-              className="admin-primary"
-              type="submit"
-            >
-              Add qualification
-            </button>
-          </form>
-
-          <div className="compact-list">
-            {qualifications.map((item) => (
-              <div
-                className="admin-inline-record"
-                key={item.id}
-              >
-                <span>{item.name}</span>
-
-                <button
-                  className="admin-delete-button"
-                  type="button"
-                  onClick={() =>
-                    confirmRemove(
-                      `qualification "${item.name}"`,
-                      () =>
-                        removeQualification(
-                          item.id,
-                        ),
-                    )
-                  }
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="admin-card">
-          <div className="admin-card-head">
-            <div>
-              <strong>Staff areas</strong>
-              <span>{staffAreas.length} assignments</span>
-            </div>
-          </div>
-
-          <form
-            className="admin-form"
-            onSubmit={submitStaffArea}
-          >
-            <select
-              value={staffAreaStaff}
-              onChange={(e) =>
-                setStaffAreaStaff(e.target.value)
-              }
-            >
-              <option value="">Choose staff</option>
-              {staff.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.full_name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={staffAreaArea}
-              onChange={(e) =>
-                setStaffAreaArea(e.target.value)
-              }
-            >
-              <option value="">Choose area</option>
-              {areas.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-
-            <button
-              className="admin-primary"
-              type="submit"
-            >
-              Assign area
-            </button>
-          </form>
-
-          <div className="compact-list">
-            {staffAreas.map((item) => (
-              <div
-                className="admin-inline-record"
-                key={item.id}
-              >
-                <span>
-                  {item.staff_name} → {item.area_name}
-                </span>
-
-                <button
-                  className="admin-delete-button"
-                  type="button"
-                  onClick={() =>
-                    confirmRemove(
-                      `${item.staff_name} from ${item.area_name}`,
-                      () =>
-                        removeStaffArea(
-                          item.id,
-                        ),
-                    )
-                  }
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="admin-card">
-          <div className="admin-card-head">
-            <div>
-              <strong>Staff qualifications</strong>
-              <span>
-                {staffQualifications.length} assignments
-              </span>
-            </div>
-          </div>
-
-          <form
-            className="admin-form"
-            onSubmit={submitStaffQualification}
-          >
-            <select
-              value={staffQualStaff}
-              onChange={(e) =>
-                setStaffQualStaff(e.target.value)
-              }
-            >
-              <option value="">Choose staff</option>
-              {staff.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.full_name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={staffQualQual}
-              onChange={(e) =>
-                setStaffQualQual(e.target.value)
-              }
-            >
-              <option value="">
-                Choose qualification
-              </option>
-              {qualifications.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-
-            <button
-              className="admin-primary"
-              type="submit"
-            >
-              Add qualification
-            </button>
-          </form>
-
-          <div className="compact-list">
-            {staffQualifications.map((item) => (
-              <div
-                className="admin-inline-record"
-                key={item.id}
-              >
-                <span>
-                  {item.staff_name} →{" "}
-                  {item.qualification_name}
-                </span>
-
-                <button
-                  className="admin-delete-button"
-                  type="button"
-                  onClick={() =>
-                    confirmRemove(
-                      `${item.qualification_name} from ${item.staff_name}`,
-                      () =>
-                        removeStaffQualification(
-                          item.id,
-                        ),
-                    )
-                  }
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="admin-card">
-          <div className="admin-card-head">
-            <div>
-              <strong>Activity requirements</strong>
-              <span>
-                {activityQualifications.length} rules
-              </span>
-            </div>
-          </div>
-
-          <form
-            className="admin-form"
-            onSubmit={submitActivityQualification}
-          >
-            <select
-              value={activityQualActivity}
-              onChange={(e) =>
-                setActivityQualActivity(e.target.value)
-              }
-            >
-              <option value="">Choose activity</option>
-              {activities.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={activityQualQual}
-              onChange={(e) =>
-                setActivityQualQual(e.target.value)
-              }
-            >
-              <option value="">
-                Choose qualification
-              </option>
-              {qualifications.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-
-            <label>
-              <span>Required staff</span>
-              <input
-                type="number"
-                min="1"
-                value={requiredCount}
-                onChange={(e) =>
-                  setRequiredCount(e.target.value)
-                }
-              />
-            </label>
-
-            <button
-              className="admin-primary"
-              type="submit"
-            >
-              Add requirement
-            </button>
-          </form>
-
-          <div className="compact-list">
-            {activityQualifications.map((item) => (
-              <div
-                className="admin-inline-record"
-                key={item.id}
-              >
-                <span>
-                  {item.activity_name} →{" "}
-                  {item.required_staff_count} ×{" "}
-                  {item.qualification_name}
-                </span>
-
-                <button
-                  className="admin-delete-button"
-                  type="button"
-                  onClick={() =>
-                    confirmRemove(
-                      `${item.qualification_name} requirement from ${item.activity_name}`,
-                      () =>
-                        removeActivityQualification(
-                          item.id,
-                        ),
-                    )
-                  }
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <section className="admin-card schedule-main-card">
-        <div className="admin-card-head">
-          <div>
-            <strong>Event activity schedule</strong>
-            <span>
-              Activities placed on the actual event calendar.
-            </span>
-          </div>
+    <section className="admin-workspace">
+      <div className="admin-heading admin-heading-split">
+        <div>
+          <div className="admin-eyebrow">ADMIN</div>
+          <h1>Schedule</h1>
+          <p>
+            See the event first. Add activities or change staffing only when you need to.
+          </p>
         </div>
 
-        <div className="schedule-main-layout">
+        <div className="action-disclosure schedule-add-control">
+          <button
+            className="app-button app-button-primary"
+            type="button"
+            aria-expanded={isAddingActivity}
+            onClick={() => setIsAddingActivity((open) => !open)}
+          >
+            Add activity
+          </button>
+          {isAddingActivity && (
           <form
-            className="admin-form"
+            className="admin-form action-disclosure-panel"
             onSubmit={submitSchedule}
           >
             <select
               value={scheduleEvent}
-              onChange={(e) =>
-                setScheduleEvent(e.target.value)
-              }
+              onChange={(e) => setScheduleEvent(e.target.value)}
             >
               <option value="">Choose event</option>
               {events.map((item) => (
@@ -638,9 +382,7 @@ export default function AdminSchedulingPage() {
 
             <select
               value={scheduleActivity}
-              onChange={(e) =>
-                setScheduleActivity(e.target.value)
-              }
+              onChange={(e) => setScheduleActivity(e.target.value)}
             >
               <option value="">Choose activity</option>
               {activities.map((item) => (
@@ -656,11 +398,7 @@ export default function AdminSchedulingPage() {
                 value={scheduleStart}
                 onChange={setScheduleStart}
                 defaultDate={
-                  events.find(
-                    (item) =>
-                      item.id ===
-                      scheduleEvent,
-                  )?.starts_at
+                  events.find((item) => item.id === scheduleEvent)?.starts_at
                 }
               />
             </label>
@@ -671,11 +409,7 @@ export default function AdminSchedulingPage() {
                 value={scheduleEnd}
                 onChange={setScheduleEnd}
                 defaultDate={
-                  events.find(
-                    (item) =>
-                      item.id ===
-                      scheduleEvent,
-                  )?.starts_at
+                  events.find((item) => item.id === scheduleEvent)?.starts_at
                 }
               />
             </label>
@@ -686,156 +420,392 @@ export default function AdminSchedulingPage() {
                 type="number"
                 min="1"
                 value={scheduleCapacity}
-                onChange={(e) =>
-                  setScheduleCapacity(e.target.value)
-                }
+                onChange={(e) => setScheduleCapacity(e.target.value)}
                 placeholder="Optional"
               />
             </label>
 
-            <button
-              className="admin-primary"
-              type="submit"
-            >
-              Schedule activity
-            </button>
+            <div className="schedule-add-actions">
+              <button
+                className="app-button"
+                type="button"
+                onClick={() => setIsAddingActivity(false)}
+              >
+                Cancel
+              </button>
+              <button className="app-button app-button-primary" type="submit">
+                Add to schedule
+              </button>
+            </div>
           </form>
+          )}
+        </div>
+      </div>
 
-          <div className="schedule-list">
-            {eventActivities.length ? (
-              eventActivities.map((item) => {
-                const assigned =
-                  eventActivityStaff.filter(
+      {error && <div className="app-alert app-alert-danger">{error}</div>}
+
+      <section className="app-card schedule-main-card schedule-first">
+        <div className="app-card-head">
+          <div>
+            <strong>Activity schedule</strong>
+            <span>{visibleEventActivities.length} scheduled activities</span>
+          </div>
+        </div>
+
+        <div className="schedule-list schedule-list-primary">
+          {scheduleByDay.length ? (
+            scheduleByDay.map(([dayKey, dayActivities]) => (
+              <section className="schedule-day-group" key={dayKey}>
+                <div className="schedule-day-heading">
+                  <strong>{scheduleDayLabel(dayActivities[0].starts_at)}</strong>
+                  <span>{dayActivities.length} activities</span>
+                </div>
+
+                {dayActivities.map((item) => {
+                  const assigned = eventActivityStaff.filter(
                     (staffAssignment) =>
-                      staffAssignment.event_activity_id ===
-                      item.id,
+                      staffAssignment.event_activity_id === item.id,
                   );
+                  const isEditing = editingActivityId === item.id;
 
-                return (
-                  <div
-                    className="schedule-row"
-                    key={item.id}
-                  >
-                    <div>
-                      <strong>
-                        {item.activity_name}
-                      </strong>
-                      <span>
-                        {item.event_name} · {item.area_name}
-                      </span>
-                      <small>
-                        {new Date(
-                          item.starts_at,
-                        ).toLocaleString()}
-                      </small>
-                    </div>
+                  return (
+                    <div className="schedule-activity-record" key={item.id}>
+                      <div className="schedule-row">
+                        <div className="schedule-row-time">
+                          <strong>{scheduleTimeLabel(item.starts_at)}</strong>
+                          <span>{scheduleTimeLabel(item.ends_at)}</span>
+                        </div>
 
-                    <div className="schedule-assigned">
-                      {assigned.map((person) => (
-                        <span
-                          className="schedule-assigned-person"
-                          key={person.id}
+                        <div className="schedule-row-main">
+                          <strong>{item.activity_name}</strong>
+                          <span>{item.area_name}</span>
+                          <small
+                            className={assigned.length ? "schedule-staff-summary" : "schedule-unassigned"}
+                          >
+                            {assigned.length
+                              ? `Staff · ${assigned.map((person) => person.staff_name).join(", ")}`
+                              : "Unstaffed"}
+                          </small>
+                        </div>
+
+                        <button
+                          className="app-button schedule-row-edit"
+                          type="button"
+                          aria-expanded={isEditing}
+                          onClick={() => {
+                            setEditingActivityId(isEditing ? null : item.id);
+                            setEditingStaffId("");
+                          }}
                         >
-                          {person.staff_name}
+                          {isEditing ? "Done" : "Edit"}
+                        </button>
+                      </div>
+
+                      {isEditing && (
+                        <div className="schedule-row-editor">
+                          <div className="schedule-row-editor-main">
+                            <strong>Staff</strong>
+                            <div className="schedule-editor-staff-list">
+                              {assigned.length ? (
+                                assigned.map((person) => (
+                                  <span className="schedule-assigned-person" key={person.id}>
+                                    {person.staff_name}
+                                    <button
+                                      type="button"
+                                      aria-label={`Remove ${person.staff_name}`}
+                                      onClick={() =>
+                                        confirmRemove(
+                                          `${person.staff_name} from ${item.activity_name}`,
+                                          () => removeEventActivityStaff(person.id),
+                                        )
+                                      }
+                                    >
+                                      ×
+                                    </button>
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="schedule-unassigned">No staff assigned</span>
+                              )}
+                            </div>
+
+                            <form
+                              className="schedule-inline-staff-form"
+                              onSubmit={(event) => submitActivityStaff(event, item.id)}
+                            >
+                              <select
+                                aria-label={`Add staff to ${item.activity_name}`}
+                                value={editingStaffId}
+                                onChange={(event) => setEditingStaffId(event.target.value)}
+                              >
+                                <option value="">Add staff…</option>
+                                {staff
+                                  .filter(
+                                    (person) =>
+                                      !assigned.some(
+                                        (assignment) =>
+                                          assignment.staff_member_id === person.id,
+                                      ),
+                                  )
+                                  .map((person) => (
+                                    <option key={person.id} value={person.id}>
+                                      {person.full_name}
+                                    </option>
+                                  ))}
+                              </select>
+                              <button
+                                className="app-button app-button-primary"
+                                type="submit"
+                                disabled={!editingStaffId}
+                              >
+                                Add staff
+                              </button>
+                            </form>
+                          </div>
 
                           <button
+                            className="app-button app-button-danger schedule-delete-activity"
                             type="button"
-                            aria-label={`Remove ${person.staff_name}`}
                             onClick={() =>
                               confirmRemove(
-                                `${person.staff_name} from ${item.activity_name}`,
-                                () =>
-                                  removeEventActivityStaff(
-                                    person.id,
-                                  ),
+                                `scheduled ${item.activity_name}`,
+                                () => removeEventActivity(item.id),
                               )
                             }
                           >
-                            ×
+                            Remove activity
                           </button>
-                        </span>
-                      ))}
-
-                      <button
-                        className="admin-delete-button"
-                        type="button"
-                        onClick={() =>
-                          confirmRemove(
-                            `scheduled ${item.activity_name}`,
-                            () =>
-                              removeEventActivity(
-                                item.id,
-                              ),
-                          )
-                        }
-                      >
-                        Remove activity
-                      </button>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="admin-empty">
-                No scheduled activities yet.
+                  );
+                })}
+              </section>
+            ))
+          ) : (
+            <div className="app-empty">No scheduled activities yet.</div>
+          )}
+        </div>
+      </section>
+
+      <details className="admin-setup-disclosure" open>
+        <summary>
+          <div className="setup-disclosure-copy">
+            <strong>Scheduling libraries</strong>
+            <span>Reusable qualifications and activity staffing rules stay when events are cleared.</span>
+          </div>
+          <span className="setup-disclosure-badge">Reusable setup</span>
+        </summary>
+
+        <div className="schedule-grid setup-grid">
+          <section className="app-card">
+            <div className="app-card-head">
+              <div>
+                <strong>Qualification library</strong>
+                <span>{qualifications.length} reusable skill{qualifications.length === 1 ? "" : "s"}</span>
               </div>
-            )}
-          </div>
+            </div>
+
+            <form className="admin-form compact-form" onSubmit={submitQualification}>
+              <label>
+                <span>Name</span>
+                <input
+                  value={qualificationName}
+                  onChange={(e) => setQualificationName(e.target.value)}
+                />
+              </label>
+              <button className="app-button app-button-primary" type="submit">
+                Add
+              </button>
+            </form>
+
+            <div className="compact-list">
+              {qualifications.map((item) => (
+                <div className="admin-inline-record" key={item.id}>
+                  <span>{item.name}</span>
+                  <button
+                    className="app-button app-button-danger"
+                    type="button"
+                    onClick={() =>
+                      confirmRemove(
+                        `qualification "${item.name}"`,
+                        () => removeQualification(item.id),
+                      )
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="app-card">
+            <div className="app-card-head">
+              <div>
+                <strong>Staff → place assignments</strong>
+                <span>{staffAreas.length} current assignment{staffAreas.length === 1 ? "" : "s"}</span>
+              </div>
+            </div>
+
+            <form className="admin-form compact-form" onSubmit={submitStaffArea}>
+              <select
+                value={staffAreaStaff}
+                onChange={(e) => setStaffAreaStaff(e.target.value)}
+              >
+                <option value="">Choose staff</option>
+                {staff.map((item) => (
+                  <option key={item.id} value={item.id}>{item.full_name}</option>
+                ))}
+              </select>
+              <select
+                value={staffAreaArea}
+                onChange={(e) => setStaffAreaArea(e.target.value)}
+              >
+                <option value="">Choose area</option>
+                {areas.map((item) => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+              <button className="app-button app-button-primary" type="submit">Assign</button>
+            </form>
+
+            <div className="compact-list">
+              {staffAreas.map((item) => (
+                <div className="admin-inline-record" key={item.id}>
+                  <span>{item.staff_name} → {item.area_name}</span>
+                  <button
+                    className="app-button app-button-danger"
+                    type="button"
+                    onClick={() =>
+                      confirmRemove(
+                        `${item.staff_name} from ${item.area_name}`,
+                        () => removeStaffArea(item.id),
+                      )
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="app-card">
+            <div className="app-card-head">
+              <div>
+                <strong>Staff → qualifications</strong>
+                <span>{staffQualifications.length} current assignment{staffQualifications.length === 1 ? "" : "s"}</span>
+              </div>
+            </div>
+
+            <form className="admin-form compact-form" onSubmit={submitStaffQualification}>
+              <select
+                value={staffQualStaff}
+                onChange={(e) => setStaffQualStaff(e.target.value)}
+              >
+                <option value="">Choose staff</option>
+                {staff.map((item) => (
+                  <option key={item.id} value={item.id}>{item.full_name}</option>
+                ))}
+              </select>
+              <select
+                value={staffQualQual}
+                onChange={(e) => setStaffQualQual(e.target.value)}
+              >
+                <option value="">Choose qualification</option>
+                {qualifications.map((item) => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+              <button className="app-button app-button-primary" type="submit">Assign</button>
+            </form>
+
+            <div className="compact-list">
+              {staffQualifications.map((item) => (
+                <div className="admin-inline-record" key={item.id}>
+                  <span>{item.staff_name} → {item.qualification_name}</span>
+                  <button
+                    className="app-button app-button-danger"
+                    type="button"
+                    onClick={() =>
+                      confirmRemove(
+                        `${item.qualification_name} from ${item.staff_name}`,
+                        () => removeStaffQualification(item.id),
+                      )
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="app-card">
+            <div className="app-card-head">
+              <div>
+                <strong>Activity requirement library</strong>
+                <span>{activityQualifications.length} reusable staffing rule{activityQualifications.length === 1 ? "" : "s"}</span>
+              </div>
+            </div>
+
+            <form className="admin-form compact-form" onSubmit={submitActivityQualification}>
+              <select
+                value={activityQualActivity}
+                onChange={(e) => setActivityQualActivity(e.target.value)}
+              >
+                <option value="">Choose activity</option>
+                {activities.map((item) => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+              <select
+                value={activityQualQual}
+                onChange={(e) => setActivityQualQual(e.target.value)}
+              >
+                <option value="">Choose qualification</option>
+                {qualifications.map((item) => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+              <label>
+                <span>Required staff</span>
+                <input
+                  type="number"
+                  min="1"
+                  value={requiredCount}
+                  onChange={(e) => setRequiredCount(e.target.value)}
+                />
+              </label>
+              <button className="app-button app-button-primary" type="submit">Add rule</button>
+            </form>
+
+            <div className="compact-list">
+              {activityQualifications.map((item) => (
+                <div className="admin-inline-record activity-requirement-row" key={item.id}>
+                  <div>
+                    <strong>{item.activity_name}</strong>
+                    <span>{item.required_staff_count} × {item.qualification_name}</span>
+                  </div>
+                  <button
+                    className="app-button app-button-danger"
+                    type="button"
+                    onClick={() =>
+                      confirmRemove(
+                        `${item.qualification_name} requirement from ${item.activity_name}`,
+                        () => removeActivityQualification(item.id),
+                      )
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
-      </section>
-
-      <section className="admin-card schedule-main-card">
-        <div className="admin-card-head">
-          <div>
-            <strong>Staff assignment</strong>
-            <span>
-              Put staff onto a scheduled activity.
-            </span>
-          </div>
-        </div>
-
-        <form
-          className="admin-form schedule-assignment-form"
-          onSubmit={submitAssignment}
-        >
-          <select
-            value={assignmentActivity}
-            onChange={(e) =>
-              setAssignmentActivity(e.target.value)
-            }
-          >
-            <option value="">
-              Choose scheduled activity
-            </option>
-            {eventActivities.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.event_name} · {item.activity_name}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={assignmentStaff}
-            onChange={(e) =>
-              setAssignmentStaff(e.target.value)
-            }
-          >
-            <option value="">Choose staff</option>
-            {staff.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.full_name}
-              </option>
-            ))}
-          </select>
-
-          <button
-            className="admin-primary"
-            type="submit"
-          >
-            Assign staff
-          </button>
-        </form>
-      </section>
+      </details>
     </section>
   );
 }

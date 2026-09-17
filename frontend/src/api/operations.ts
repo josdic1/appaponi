@@ -8,6 +8,7 @@ import type {
 } from "@appoponi/shared/schemas/activities";
 
 import type {
+  EventHqSummary,
   EventRecord,
   EventType,
 } from "@appoponi/shared/schemas/events";
@@ -65,8 +66,6 @@ export async function updateArea(
   id: string,
   input: {
     name?: string;
-    map_x?: number | null;
-    map_y?: number | null;
   },
 ) {
   const response = await fetch(
@@ -118,6 +117,7 @@ export async function createActivity(
     name: string;
     area_id: number;
     setting: ActivitySetting;
+    map_place_id?: Activity["map_place_id"];
   },
 ) {
   const response = await fetch(
@@ -145,6 +145,7 @@ export async function updateActivity(
     name?: string;
     area_id?: number;
     setting?: ActivitySetting;
+    map_place_id?: Activity["map_place_id"];
   },
 ) {
   const response = await fetch(
@@ -206,6 +207,24 @@ export async function loadEvents() {
   ).events;
 }
 
+
+export async function loadEventHq(
+  eventId: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/events/${eventId}/hq`,
+    {
+      credentials: "include",
+    },
+  );
+
+  return (
+    await json<{
+      hq: EventHqSummary;
+    }>(response)
+  ).hq;
+}
+
 export async function createEvent(
   input: {
     name: string;
@@ -233,6 +252,37 @@ export async function createEvent(
       response,
     )
   ).event;
+}
+
+export async function cloneEvent(
+  id: string,
+  input: {
+    name: string;
+    starts_at: string;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/events/${id}/clone`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{
+      event: EventRecord;
+      copied: {
+        activities: number;
+        food_services: number;
+        food_offerings: number;
+      };
+    }>(response)
+  );
 }
 
 export async function updateEvent(

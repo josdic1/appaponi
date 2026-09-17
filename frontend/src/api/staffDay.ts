@@ -77,10 +77,3 @@ export const checkInParticipant = (
   post(
     `signups/${signupId}/check-in`,
   );
-
-export const checkOutParticipant = (
-  signupId: string,
-) =>
-  post(
-    `signups/${signupId}/check-out`,
-  );

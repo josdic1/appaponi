@@ -5,7 +5,13 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently -n backend,frontend \"npm --workspace @appoponi/backend run dev\" \"npm --workspace frontend run dev\"",
-    "typecheck": "npm --workspace @appoponi/shared run build && npm --workspace @appoponi/backend run typecheck && npm --workspace frontend run build"
+    "typecheck": "npm --workspace @appoponi/shared run build && npm --workspace @appoponi/backend run typecheck && npm --workspace frontend run check:ui && npm --workspace frontend run build",
+    "build": "npm --workspace @appoponi/shared run build && npm --workspace @appoponi/backend run build && npm --workspace frontend run build",
+    "build:backend": "npm --workspace @appoponi/shared run build && npm --workspace @appoponi/backend run build",
+    "build:frontend": "npm --workspace @appoponi/shared run build && npm --workspace frontend run build",
+    "start": "npm --workspace @appoponi/backend run start",
+    "check:browser": "npm --workspace @appoponi/backend run check:browser",
+    "package:handoff": "bash scripts/package-handoff.sh"
   },
   "repository": {
     "type": "git",

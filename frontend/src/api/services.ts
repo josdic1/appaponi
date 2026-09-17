@@ -1,14 +1,17 @@
 import type {
   EventMeal,
+  FoodTag,
+  MealItem,
   MealMenu,
   MealMenuItem,
   MealType,
 } from "@appoponi/shared/schemas/meals";
 
 import type {
-  AfterHoursItem,
-  AfterHoursOrder,
-} from "@appoponi/shared/schemas/afterHours";
+  FoodOffering,
+  FoodOfferingType,
+  FoodOrder,
+} from "@appoponi/shared/schemas/foodOrders";
 
 import type {
   BabysittingRequest,
@@ -52,6 +55,115 @@ export async function loadMealTypes() {
   ).meal_types;
 }
 
+export type MealMenuPreset = {
+  key: string;
+  name: string;
+  description: string | null;
+  item_count: number;
+};
+
+export async function loadMealMenuPresets() {
+  const response = await fetch(
+    `${API_URL}/api/meals/presets`,
+    { credentials: "include" },
+  );
+
+  return (
+    await json<{ presets: MealMenuPreset[] }>(response)
+  ).presets;
+}
+
+export async function seedMealMenuPreset(
+  key: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/presets/${encodeURIComponent(key)}`,
+    {
+      method: "POST",
+      credentials: "include",
+    },
+  );
+
+  return json<{
+    key: string;
+    menu_id: string;
+    item_count: number;
+    message: string;
+  }>(response);
+}
+
+export async function loadMealItems() {
+  const response = await fetch(
+    `${API_URL}/api/meals/items`,
+    { credentials: "include" },
+  );
+
+  return (
+    await json<{
+      items: MealItem[];
+    }>(response)
+  ).items;
+}
+
+export async function createMealItem(
+  input: {
+    name: string;
+    description?: string;
+    dietary_notes?: string;
+    tags?: FoodTag[];
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/items`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return json<{ item: MealItem }>(response);
+}
+
+export async function updateMealItem(
+  id: string,
+  input: {
+    name?: string;
+    description?: string | null;
+    dietary_notes?: string | null;
+    tags?: FoodTag[];
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/items/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return json<{ item: MealItem }>(response);
+}
+
+export async function deleteMealItem(id: string) {
+  const response = await fetch(
+    `${API_URL}/api/meals/items/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
 export async function loadMealMenus() {
   const response = await fetch(
     `${API_URL}/api/meals/menus`,
@@ -65,9 +177,13 @@ export async function loadMealMenus() {
   ).menus;
 }
 
-export async function loadMealMenuItems() {
+export async function loadMealMenuItems(menuId?: string) {
+  const query = menuId
+    ? `?menu_id=${encodeURIComponent(menuId)}`
+    : "";
+
   const response = await fetch(
-    `${API_URL}/api/meals/menu-items`,
+    `${API_URL}/api/meals/menu-items${query}`,
     { credentials: "include" },
   );
 
@@ -78,9 +194,13 @@ export async function loadMealMenuItems() {
   ).menu_items;
 }
 
-export async function loadEventMeals() {
+export async function loadEventMeals(eventId?: string) {
+  const query = eventId
+    ? `?event_id=${encodeURIComponent(eventId)}`
+    : "";
+
   const response = await fetch(
-    `${API_URL}/api/meals/event-meals`,
+    `${API_URL}/api/meals/event-meals${query}`,
     { credentials: "include" },
   );
 
@@ -110,15 +230,15 @@ export async function createMealMenu(
     },
   );
 
-  return json(response);
+  return json<{ menu: MealMenu }>(response);
 }
 
 export async function createMealMenuItem(
   input: {
     menu_id: number;
-    name: string;
-    description?: string;
-    dietary_notes?: string;
+    item_id: number;
+    meal_type_id?: number | null;
+    day_of_week?: number | null;
     sort_order?: number;
   },
 ) {
@@ -142,7 +262,6 @@ export async function createEventMeal(
   input: {
     event_id: number;
     meal_type_id: number;
-    menu_id?: number | null;
     title?: string;
     notes?: string;
     starts_at: string;
@@ -189,6 +308,33 @@ export async function updateMealMenu(
   return json(response);
 }
 
+export async function applyMealMenuToEvent(
+  menuId: string,
+  eventId: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/menus/${menuId}/apply-to-event`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        event_id: Number(eventId),
+      }),
+    },
+  );
+
+  return json<{
+    ok: true;
+    event_id: string;
+    menu_id: string;
+    scheduled_meals: number;
+  }>(response);
+}
+
 export async function deleteMealMenu(
   id: string,
 ) {
@@ -207,9 +353,9 @@ export async function updateMealMenuItem(
   id: string,
   input: {
     menu_id?: number;
-    name?: string;
-    description?: string | null;
-    dietary_notes?: string | null;
+    item_id?: number;
+    meal_type_id?: number | null;
+    day_of_week?: number | null;
     sort_order?: number;
   },
 ) {
@@ -248,7 +394,6 @@ export async function updateEventMeal(
   input: {
     event_id?: number;
     meal_type_id?: number;
-    menu_id?: number | null;
     title?: string | null;
     notes?: string | null;
     starts_at?: string;
@@ -285,48 +430,158 @@ export async function deleteEventMeal(
   return json(response);
 }
 
-/* After hours */
-
-export async function loadAfterHoursItems() {
-  const response = await fetch(
-    `${API_URL}/api/after-hours/items`,
-    { credentials: "include" },
-  );
-
-  return (
-    await json<{
-      items: AfterHoursItem[];
-    }>(response)
-  ).items;
-}
-
-export async function loadAfterHoursOrders() {
-  const response = await fetch(
-    `${API_URL}/api/after-hours/orders`,
-    { credentials: "include" },
-  );
-
-  return (
-    await json<{
-      orders: AfterHoursOrder[];
-    }>(response)
-  ).orders;
-}
-
-export async function createAfterHoursItem(
-  input: {
-    name: string;
-    description?: string;
-  },
+export async function addEventMealItem(
+  eventMealId: string,
+  itemId: string,
+  sortOrder?: number,
 ) {
   const response = await fetch(
-    `${API_URL}/api/after-hours/items`,
+    `${API_URL}/api/meals/event-meals/${eventMealId}/items`,
     {
       method: "POST",
       credentials: "include",
       headers: {
-        "Content-Type":
-          "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        item_id: Number(itemId),
+        ...(sortOrder == null ? {} : { sort_order: sortOrder }),
+      }),
+    },
+  );
+
+  return json(response);
+}
+
+export async function removeFoodFromEventMeal(
+  eventMealId: string,
+  itemId: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/event-meals/${eventMealId}/items/${itemId}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+export async function moveFoodInEventMeal(
+  eventMealId: string,
+  itemId: string,
+  sortOrder: number,
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/event-meals/${eventMealId}/items/${itemId}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ sort_order: sortOrder }),
+    },
+  );
+
+  return json(response);
+}
+
+export async function updateEventMealItem(
+  id: string,
+  sortOrder: number,
+) {
+  const response = await fetch(
+    `${API_URL}/api/meals/event-meal-items/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ sort_order: sortOrder }),
+    },
+  );
+
+  return json(response);
+}
+
+export async function deleteEventMealItem(id: string) {
+  const response = await fetch(
+    `${API_URL}/api/meals/event-meal-items/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+export async function resetEventMealItems(eventMealId: string) {
+  const response = await fetch(
+    `${API_URL}/api/meals/event-meals/${eventMealId}/items`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+/* Member-selectable food offerings */
+
+export async function loadFoodOfferings(eventId?: string) {
+  const query = eventId
+    ? `?event_id=${encodeURIComponent(eventId)}`
+    : "";
+
+  const response = await fetch(
+    `${API_URL}/api/food/items${query}`,
+    { credentials: "include" },
+  );
+
+  return (
+    await json<{
+      items: FoodOffering[];
+    }>(response)
+  ).items;
+}
+
+export async function loadFoodOrders(eventId?: string) {
+  const query = eventId
+    ? `?event_id=${encodeURIComponent(eventId)}`
+    : "";
+
+  const response = await fetch(
+    `${API_URL}/api/food/orders${query}`,
+    { credentials: "include" },
+  );
+
+  return (
+    await json<{
+      orders: FoodOrder[];
+    }>(response)
+  ).orders;
+}
+
+export async function createFoodOffering(
+  input: {
+    event_id: number;
+    item_id: number;
+    offering_type: FoodOfferingType;
+    sort_order?: number;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/food/items`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(input),
     },
@@ -335,10 +590,11 @@ export async function createAfterHoursItem(
   return json(response);
 }
 
-export async function createAfterHoursOrder(
+export async function createFoodOrder(
   input: {
     event_registration_id: number;
     requested_by_member_id?: number | null;
+    offering_type: FoodOfferingType;
     fulfillment: "pickup" | "delivery";
     delivery_location?: string;
     notes?: string;
@@ -349,13 +605,12 @@ export async function createAfterHoursOrder(
   },
 ) {
   const response = await fetch(
-    `${API_URL}/api/after-hours/orders`,
+    `${API_URL}/api/food/orders`,
     {
       method: "POST",
       credentials: "include",
       headers: {
-        "Content-Type":
-          "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(input),
     },
@@ -364,26 +619,20 @@ export async function createAfterHoursOrder(
   return json(response);
 }
 
-export async function updateAfterHoursOrder(
+export async function updateFoodOrder(
   id: string,
   input: {
-    assigned_staff_member_id?:
-      | number
-      | null;
-    status?:
-      | "open"
-      | "fulfilled"
-      | "cancelled";
+    assigned_staff_member_id?: number | null;
+    status?: "open" | "fulfilled" | "cancelled";
   },
 ) {
   const response = await fetch(
-    `${API_URL}/api/after-hours/orders/${id}`,
+    `${API_URL}/api/food/orders/${id}`,
     {
       method: "PATCH",
       credentials: "include",
       headers: {
-        "Content-Type":
-          "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(input),
     },
@@ -392,23 +641,20 @@ export async function updateAfterHoursOrder(
   return json(response);
 }
 
-
-export async function updateAfterHoursItem(
+export async function updateFoodOffering(
   id: string,
   input: {
-    name?: string;
-    description?: string | null;
     available?: boolean;
+    sort_order?: number;
   },
 ) {
   const response = await fetch(
-    `${API_URL}/api/after-hours/items/${id}`,
+    `${API_URL}/api/food/items/${id}`,
     {
       method: "PATCH",
       credentials: "include",
       headers: {
-        "Content-Type":
-          "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(input),
     },
@@ -417,11 +663,9 @@ export async function updateAfterHoursItem(
   return json(response);
 }
 
-export async function deleteAfterHoursItem(
-  id: string,
-) {
+export async function deleteFoodOffering(id: string) {
   const response = await fetch(
-    `${API_URL}/api/after-hours/items/${id}`,
+    `${API_URL}/api/food/items/${id}`,
     {
       method: "DELETE",
       credentials: "include",
@@ -431,11 +675,25 @@ export async function deleteAfterHoursItem(
   return json(response);
 }
 
-export async function cancelAfterHoursOrder(
+export async function fulfillAssignedFoodOrder(
   id: string,
 ) {
   const response = await fetch(
-    `${API_URL}/api/after-hours/orders/${id}/cancel`,
+    `${API_URL}/api/food/orders/${id}/fulfill`,
+    {
+      method: "PATCH",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
+
+export async function cancelFoodOrder(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/food/orders/${id}/cancel`,
     {
       method: "PATCH",
       credentials: "include",
@@ -447,9 +705,13 @@ export async function cancelAfterHoursOrder(
 
 /* Babysitting */
 
-export async function loadBabysittingRequests() {
+export async function loadBabysittingRequests(eventId?: string) {
+  const query = eventId
+    ? `?event_id=${encodeURIComponent(eventId)}`
+    : "";
+
   const response = await fetch(
-    `${API_URL}/api/babysitting`,
+    `${API_URL}/api/babysitting${query}`,
     { credentials: "include" },
   );
 
@@ -514,6 +776,20 @@ export async function updateBabysittingRequest(
   return json(response);
 }
 
+
+export async function completeAssignedBabysitting(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/babysitting/${id}/complete`,
+    {
+      method: "PATCH",
+      credentials: "include",
+    },
+  );
+
+  return json(response);
+}
 
 export async function cancelBabysittingRequest(
   id: string,
@@ -586,6 +862,37 @@ export async function loadNotifications() {
         NotificationRecord[];
     }>(response)
   ).notifications;
+}
+
+export async function createEventNotificationBroadcast(
+  input: {
+    event_id: number;
+    kind:
+      | "activity"
+      | "meal"
+      | "special"
+      | "general";
+    title: string;
+    body: string;
+    scheduled_for?: string | null;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/notifications/broadcast`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return json<{
+    recipient_count: number;
+  }>(response);
 }
 
 export async function createNotification(

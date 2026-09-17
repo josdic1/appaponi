@@ -59,7 +59,11 @@ export async function createQualification(
   return json(response);
 }
 
-export async function loadScheduling() {
+export async function loadScheduling(eventId?: string) {
+  const eventQuery = eventId
+    ? `?event_id=${encodeURIComponent(eventId)}`
+    : "";
+
   const [
     staffAreas,
     staffQualifications,
@@ -86,14 +90,14 @@ export async function loadScheduling() {
         activity_qualifications: ActivityQualification[];
       }>(r),
     ),
-    fetch(`${API_URL}/api/scheduling/event-activities`, {
+    fetch(`${API_URL}/api/scheduling/event-activities${eventQuery}`, {
       credentials: "include",
     }).then((r) =>
       json<{
         event_activities: EventActivity[];
       }>(r),
     ),
-    fetch(`${API_URL}/api/scheduling/event-activity-staff`, {
+    fetch(`${API_URL}/api/scheduling/event-activity-staff${eventQuery}`, {
       credentials: "include",
     }).then((r) =>
       json<{

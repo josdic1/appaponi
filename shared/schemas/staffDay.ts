@@ -18,5 +18,4 @@ export type StaffParticipant = {
   event_activity_id: string;
   member_name: string;
   checked_in_at: string | null;
-  checked_out_at: string | null;
 };

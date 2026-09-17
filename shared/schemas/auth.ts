@@ -6,6 +6,10 @@ export const accountTypeSchema = z.enum([
   "admin",
 ]);
 
+export const newPasswordSchema = z
+  .string()
+  .min(15, "Password must be at least 15 characters");
+
 export const loginSchema = z.object({
   username: z.string().trim().min(1),
   password: z.string().min(1),
@@ -13,7 +17,7 @@ export const loginSchema = z.object({
 
 export const changePasswordSchema = z.object({
   current_password: z.string().min(1),
-  new_password: z.string().min(1),
+  new_password: newPasswordSchema,
 });
 
 export type AccountType =

@@ -8,7 +8,7 @@ export const staffRoleSchema = z.enum([
 export const createStaffMemberSchema = z.object({
   account_id: z.coerce.number().int().positive(),
   full_name: z.string().trim().min(1),
-  email: z.string().trim().email().optional(),
+  email: z.string().trim().email().transform((value) => value.toLowerCase()).optional(),
   phone: z.string().trim().min(1).optional(),
   role: staffRoleSchema,
   babysitting_eligible: z.boolean().default(false),
@@ -17,7 +17,7 @@ export const createStaffMemberSchema = z.object({
 export const updateStaffMemberSchema = z
   .object({
     full_name: z.string().trim().min(1).optional(),
-    email: z.string().trim().email().nullable().optional(),
+    email: z.string().trim().email().transform((value) => value.toLowerCase()).nullable().optional(),
     phone: z.string().trim().min(1).nullable().optional(),
     role: staffRoleSchema.optional(),
     babysitting_eligible: z.boolean().optional(),

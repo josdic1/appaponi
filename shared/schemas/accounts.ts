@@ -2,18 +2,44 @@ import { z } from "zod";
 
 import {
   accountTypeSchema,
+  newPasswordSchema,
   type AccountType,
 } from "./auth.js";
 
+export const accountUsernameSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(64)
+  .transform((value) => value.toLowerCase())
+  .refine(
+    (value) =>
+      /^[a-z0-9]+(?:[.-][a-z0-9]+)*$/.test(value),
+    {
+      message:
+        "Username must use lowercase letters, numbers, periods, or hyphens only",
+    },
+  );
+
+export const accountDisplayNameSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(120);
+
 export const createAccountSchema = z.object({
-  username: z.string().trim().min(1),
-  password: z.string().min(1),
+  username: accountUsernameSchema,
+  display_name:
+    accountDisplayNameSchema.optional(),
+  password: newPasswordSchema,
   account_type: accountTypeSchema,
 });
 
 export const updateAccountSchema = z
   .object({
-    username: z.string().trim().min(1).optional(),
+    username: accountUsernameSchema.optional(),
+    display_name:
+      accountDisplayNameSchema.optional(),
   })
   .refine(
     (value) => Object.keys(value).length > 0,
@@ -21,7 +47,7 @@ export const updateAccountSchema = z
   );
 
 export const resetAccountPasswordSchema = z.object({
-  password: z.string().min(1),
+  password: newPasswordSchema,
 });
 
 export const accountIdParamsSchema = z.object({
@@ -34,6 +60,7 @@ export type CreateAccountInput =
 export type AccountRecord = {
   id: string;
   username: string;
+  display_name: string | null;
   account_type: AccountType;
   must_change_password: boolean;
   created_at: string;

@@ -30,8 +30,7 @@ cabinsRouter.get("/", async (_req, res) => {
         id,
         name,
         area_id,
-        map_x,
-        map_y,
+        map_slot_id,
         created_at,
         updated_at
       FROM cabins
@@ -67,24 +66,21 @@ cabinsRouter.post("/", async (req, res) => {
         INSERT INTO cabins (
           name,
           area_id,
-          map_x,
-          map_y
+          map_slot_id
         )
-        VALUES ($1, $2, $3, $4)
+        VALUES ($1, $2, $3)
         RETURNING
           id,
           name,
           area_id,
-          map_x,
-          map_y,
+          map_slot_id,
           created_at,
           updated_at
       `,
       [
         parsed.data.name,
         parsed.data.area_id ?? null,
-        parsed.data.map_x ?? null,
-        parsed.data.map_y ?? null,
+        parsed.data.map_slot_id ?? null,
       ],
     );
 
@@ -94,7 +90,11 @@ cabinsRouter.post("/", async (req, res) => {
   } catch (error: any) {
     if (error?.code === "23505") {
       res.status(409).json({
-        error: "Cabin already exists",
+        error:
+          error?.constraint ===
+          "cabins_map_slot_unique"
+            ? "That map cabin is already in use"
+            : "Cabin already exists",
       });
       return;
     }
@@ -138,21 +138,16 @@ cabinsRouter.patch("/:id", async (req, res) => {
             WHEN $3 THEN $4
             ELSE area_id
           END,
-          map_x = CASE
+          map_slot_id = CASE
             WHEN $5 THEN $6
-            ELSE map_x
-          END,
-          map_y = CASE
-            WHEN $7 THEN $8
-            ELSE map_y
+            ELSE map_slot_id
           END
         WHERE id = $1
         RETURNING
           id,
           name,
           area_id,
-          map_x,
-          map_y,
+          map_slot_id,
           created_at,
           updated_at
       `,
@@ -166,14 +161,9 @@ cabinsRouter.patch("/:id", async (req, res) => {
         body.data.area_id ?? null,
         Object.prototype.hasOwnProperty.call(
           body.data,
-          "map_x",
+          "map_slot_id",
         ),
-        body.data.map_x ?? null,
-        Object.prototype.hasOwnProperty.call(
-          body.data,
-          "map_y",
-        ),
-        body.data.map_y ?? null,
+        body.data.map_slot_id ?? null,
       ],
     );
 
@@ -190,7 +180,11 @@ cabinsRouter.patch("/:id", async (req, res) => {
   } catch (error: any) {
     if (error?.code === "23505") {
       res.status(409).json({
-        error: "Cabin already exists",
+        error:
+          error?.constraint ===
+          "cabins_map_slot_unique"
+            ? "That map cabin is already in use"
+            : "Cabin already exists",
       });
       return;
     }

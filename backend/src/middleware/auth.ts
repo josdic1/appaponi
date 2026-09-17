@@ -30,11 +30,11 @@ declare global {
   }
 }
 
-export function requireAuth(
+export async function requireAuth(
   req: Request,
   res: Response,
   next: NextFunction,
-): void {
+): Promise<void> {
   const token =
     req.cookies?.[
       SESSION_COOKIE_NAME
@@ -49,8 +49,37 @@ export function requireAuth(
   }
 
   try {
-    req.auth =
+    const auth =
       verifyAccessToken(token);
+
+    const result = await query<{
+      session_version: number;
+    }>(
+      `
+        SELECT session_version
+        FROM accounts
+        WHERE id = $1
+        LIMIT 1
+      `,
+      [auth.sub],
+    );
+
+    const account =
+      result.rows[0];
+
+    if (
+      !account ||
+      account.session_version !==
+        auth.session_version
+    ) {
+      res.status(401).json({
+        error:
+          "Invalid or expired session",
+      });
+      return;
+    }
+
+    req.auth = auth;
 
     runWithAuditActor(
       req.auth.sub,

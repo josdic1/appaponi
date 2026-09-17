@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { authRouter } from "./routes/auth.js";
+import { devRouter } from "./routes/dev.js";
 import { accountsRouter } from "./routes/accounts.js";
 import { householdMembersRouter } from "./routes/householdMembers.js";
 import { staffMembersRouter } from "./routes/staffMembers.js";
@@ -17,7 +18,7 @@ import { registrationsRouter } from "./routes/registrations.js";
 import { memberParticipationRouter } from "./routes/memberParticipation.js";
 import { staffDayRouter } from "./routes/staffDay.js";
 import { mealsRouter } from "./routes/meals.js";
-import { afterHoursRouter } from "./routes/afterHours.js";
+import { foodRouter } from "./routes/food.js";
 import { babysittingRouter } from "./routes/babysitting.js";
 import { notificationsRouter } from "./routes/notifications.js";
 
@@ -82,6 +83,7 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
+app.use("/api/dev", devRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/accounts", accountsRouter);
 app.use("/api/household-members", householdMembersRouter);
@@ -97,7 +99,7 @@ app.use("/api/registrations", registrationsRouter);
 app.use("/api/member", memberParticipationRouter);
 app.use("/api/staff-day", staffDayRouter);
 app.use("/api/meals", mealsRouter);
-app.use("/api/after-hours", afterHoursRouter);
+app.use("/api/food", foodRouter);
 app.use("/api/babysitting", babysittingRouter);
 app.use("/api/notifications", notificationsRouter);
 

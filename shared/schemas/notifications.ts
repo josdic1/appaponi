@@ -21,6 +21,20 @@ export const createNotificationSchema = z.object({
   scheduled_for: z.string().datetime().nullable().optional(),
 });
 
+
+export const createEventNotificationBroadcastSchema = z.object({
+  event_id: z.coerce.number().int().positive(),
+  kind: z.enum([
+    "activity",
+    "meal",
+    "special",
+    "general",
+  ]),
+  title: z.string().trim().min(1),
+  body: z.string().trim().min(1),
+  scheduled_for: z.string().datetime().nullable().optional(),
+});
+
 export const notificationIdParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
@@ -43,4 +57,6 @@ export type NotificationRecord = {
   scheduled_for: string | null;
   read_at: string | null;
   created_at: string;
+  source_type: "event_activity" | "event_meal" | null;
+  source_id: string | null;
 };

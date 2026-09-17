@@ -1,7 +1,9 @@
 import { z } from "zod";
 
-const mapCoordinateSchema =
-  z.number().min(0).max(1);
+import {
+  campCabinSlotIdSchema,
+  type CampCabinSlotId,
+} from "./campMap.js";
 
 export const createCabinSchema = z.object({
   name: z.string().trim().min(1),
@@ -11,8 +13,7 @@ export const createCabinSchema = z.object({
     .positive()
     .nullable()
     .optional(),
-  map_x: mapCoordinateSchema.nullable().optional(),
-  map_y: mapCoordinateSchema.nullable().optional(),
+  map_slot_id: campCabinSlotIdSchema.nullable().optional(),
 });
 
 export const updateCabinSchema = z
@@ -24,8 +25,7 @@ export const updateCabinSchema = z
       .positive()
       .nullable()
       .optional(),
-    map_x: mapCoordinateSchema.nullable().optional(),
-    map_y: mapCoordinateSchema.nullable().optional(),
+    map_slot_id: campCabinSlotIdSchema.nullable().optional(),
   })
   .refine(
     (value) => Object.keys(value).length > 0,
@@ -43,8 +43,7 @@ export type Cabin = {
   id: string;
   name: string;
   area_id: string | null;
-  map_x: number | null;
-  map_y: number | null;
+  map_slot_id: CampCabinSlotId | null;
   created_at: string;
   updated_at: string;
 };

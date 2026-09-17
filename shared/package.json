@@ -56,9 +56,9 @@
       "types": "./dist/schemas/meals.d.ts",
       "import": "./dist/schemas/meals.js"
     },
-    "./schemas/afterHours": {
-      "types": "./dist/schemas/afterHours.d.ts",
-      "import": "./dist/schemas/afterHours.js"
+    "./schemas/foodOrders": {
+      "types": "./dist/schemas/foodOrders.d.ts",
+      "import": "./dist/schemas/foodOrders.js"
     },
     "./schemas/babysitting": {
       "types": "./dist/schemas/babysitting.d.ts",
@@ -71,6 +71,10 @@
     "./schemas/cabins": {
       "types": "./dist/schemas/cabins.d.ts",
       "import": "./dist/schemas/cabins.js"
+    },
+    "./schemas/campMap": {
+      "types": "./dist/schemas/campMap.d.ts",
+      "import": "./dist/schemas/campMap.js"
     }
   },
   "scripts": {

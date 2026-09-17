@@ -14,6 +14,7 @@ export type AuthTokenPayload = {
   sub: string;
   username: string;
   account_type: AccountType;
+  session_version: number;
 };
 
 function getJwtSecret(): string {
@@ -92,6 +93,7 @@ export function createAccessToken(
     id: string | number;
     username: string;
     account_type: AccountType;
+    session_version: number;
   },
 ): string {
   return jwt.sign(
@@ -99,6 +101,8 @@ export function createAccessToken(
       username: account.username,
       account_type:
         account.account_type,
+      session_version:
+        account.session_version,
     },
     getJwtSecret(),
     {
@@ -129,6 +133,9 @@ export function verifyAccessToken(
   const accountType =
     String(payload.account_type);
 
+  const sessionVersion =
+    Number(payload.session_version);
+
   if (
     typeof payload.sub !== "string" ||
     typeof payload.username !==
@@ -137,7 +144,9 @@ export function verifyAccessToken(
       "member",
       "staff",
       "admin",
-    ].includes(accountType)
+    ].includes(accountType) ||
+    !Number.isInteger(sessionVersion) ||
+    sessionVersion < 1
   ) {
     throw new Error("Invalid token");
   }
@@ -147,5 +156,7 @@ export function verifyAccessToken(
     username: payload.username,
     account_type:
       accountType as AccountType,
+    session_version:
+      sessionVersion,
   };
 }

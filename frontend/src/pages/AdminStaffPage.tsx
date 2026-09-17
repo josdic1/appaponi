@@ -14,6 +14,10 @@ import type {
   StaffRole,
 } from "@appoponi/shared/schemas/staffMembers";
 
+import type {
+  StaffQualification,
+} from "@appoponi/shared/schemas/scheduling";
+
 import {
   createStaffMember,
   deleteStaffMember,
@@ -22,12 +26,21 @@ import {
   updateStaffMember,
 } from "../api/admin";
 
+import {
+  loadScheduling,
+} from "../api/scheduling";
+
 export default function AdminStaffPage() {
   const [accounts, setAccounts] =
     useState<AccountRecord[]>([]);
 
   const [staff, setStaff] =
     useState<StaffMember[]>([]);
+
+  const [
+    staffQualifications,
+    setStaffQualifications,
+  ] = useState<StaffQualification[]>([]);
 
   const [accountId, setAccountId] =
     useState("");
@@ -73,14 +86,21 @@ export default function AdminStaffPage() {
     useState<string | null>(null);
 
   async function refresh() {
-    const [nextAccounts, nextStaff] =
-      await Promise.all([
-        loadAccounts(),
-        loadStaffMembers(),
-      ]);
+    const [
+      nextAccounts,
+      nextStaff,
+      scheduling,
+    ] = await Promise.all([
+      loadAccounts(),
+      loadStaffMembers(),
+      loadScheduling(),
+    ]);
 
     setAccounts(nextAccounts);
     setStaff(nextStaff);
+    setStaffQualifications(
+      scheduling.staffQualifications,
+    );
   }
 
   useEffect(() => {
@@ -229,6 +249,36 @@ export default function AdminStaffPage() {
     }
   }
 
+  function initials(
+    name: string,
+  ) {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(
+        (part) =>
+          part[0]?.toUpperCase() ??
+          "",
+      )
+      .join("");
+  }
+
+  function qualificationsFor(
+    staffMemberId: string,
+  ) {
+    return staffQualifications
+      .filter(
+        (item) =>
+          item.staff_member_id ===
+          staffMemberId,
+      )
+      .map(
+        (item) =>
+          item.qualification_name,
+      );
+  }
+
   return (
     <section>
       <div className="admin-heading">
@@ -247,14 +297,21 @@ export default function AdminStaffPage() {
       </div>
 
       {error && (
-        <div className="admin-error">
+        <div className="app-alert app-alert-danger">
           {error}
         </div>
       )}
 
-      <div className="admin-grid">
-        <section className="admin-card">
-          <div className="admin-card-head">
+      <div
+        className={
+          availableAccounts.length
+            ? "admin-grid staff-admin-grid"
+            : "staff-admin-single"
+        }
+      >
+        {availableAccounts.length > 0 && (
+        <section className="app-card">
+          <div className="app-card-head">
             <div>
               <strong>Create staff profile</strong>
               <span>
@@ -272,9 +329,26 @@ export default function AdminStaffPage() {
 
               <select
                 value={accountId}
-                onChange={(event) =>
-                  setAccountId(event.target.value)
-                }
+                onChange={(event) => {
+                  const nextId =
+                    event.target.value;
+
+                  setAccountId(nextId);
+
+                  const account =
+                    availableAccounts.find(
+                      (item) =>
+                        item.id === nextId,
+                    );
+
+                  if (
+                    account?.display_name
+                  ) {
+                    setFullName(
+                      account.display_name,
+                    );
+                  }
+                }}
               >
                 <option value="">
                   Choose staff account
@@ -285,7 +359,8 @@ export default function AdminStaffPage() {
                     key={item.id}
                     value={item.id}
                   >
-                    {item.username}
+                    {item.display_name ??
+                      item.username}
                   </option>
                 ))}
               </select>
@@ -363,16 +438,17 @@ export default function AdminStaffPage() {
             </label>
 
             <button
-              className="admin-primary"
+              className="app-button app-button-primary"
               type="submit"
             >
               Create staff profile
             </button>
           </form>
         </section>
+        )}
 
-        <section className="admin-card admin-card-wide">
-          <div className="admin-card-head">
+        <section className="app-card staff-directory-card">
+          <div className="app-card-head">
             <div>
               <strong>Staff</strong>
               <span>{staff.length} total</span>
@@ -467,14 +543,14 @@ export default function AdminStaffPage() {
 
                     <div className="admin-row-actions">
                       <button
-                        className="admin-secondary-button"
+                        className="app-button"
                         type="submit"
                       >
                         Save
                       </button>
 
                       <button
-                        className="admin-edit-button"
+                        className="app-button"
                         type="button"
                         onClick={cancelEdit}
                       >
@@ -484,34 +560,77 @@ export default function AdminStaffPage() {
                   </form>
                 ) : (
                   <div
-                    className="admin-list-row profile-manage-row"
+                    className="staff-directory-row"
                     key={item.id}
                   >
-                    <div>
-                      <strong>
-                        {item.full_name}
-                      </strong>
+                    <div className="staff-directory-person">
+                      <span className="staff-directory-avatar">
+                        {initials(
+                          item.full_name,
+                        )}
+                      </span>
 
-                      <small>
-                        {item.username ??
-                          "No login account"}
-                        {item.email
-                          ? ` · ${item.email}`
-                          : ""}
-                        {item.phone
-                          ? ` · ${item.phone}`
-                          : ""}
-                        {item.babysitting_eligible
-                          ? " · Babysitting"
-                          : ""}
-                      </small>
+                      <div>
+                        <strong>
+                          {item.full_name}
+                        </strong>
+
+                        <small>
+                          {item.username
+                            ? `@${item.username}`
+                            : "No login account"}
+                        </small>
+                      </div>
                     </div>
 
-                    <div className="admin-row-actions">
-                      <b>{item.role}</b>
+                    <div className="staff-directory-chips">
+                      <span className="staff-directory-chip role">
+                        {item.role === "manager"
+                          ? "Manager"
+                          : "Staff"}
+                      </span>
 
+                      {item.babysitting_eligible && (
+                        <span className="staff-directory-chip">
+                          Babysitting
+                        </span>
+                      )}
+
+                      {qualificationsFor(
+                        item.id,
+                      ).map(
+                        (qualification) => (
+                          <span
+                            className="staff-directory-chip"
+                            key={
+                              qualification
+                            }
+                          >
+                            {
+                              qualification
+                            }
+                          </span>
+                        ),
+                      )}
+                    </div>
+
+                    <div className="staff-directory-contact">
+                      {item.email && (
+                        <span>
+                          {item.email}
+                        </span>
+                      )}
+
+                      {item.phone && (
+                        <span>
+                          {item.phone}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="admin-row-actions staff-directory-actions">
                       <button
-                        className="admin-edit-button"
+                        className="app-button"
                         type="button"
                         onClick={() =>
                           beginEdit(item)
@@ -521,7 +640,7 @@ export default function AdminStaffPage() {
                       </button>
 
                       <button
-                        className="admin-delete-button"
+                        className="app-button app-button-danger"
                         type="button"
                         onClick={() =>
                           void remove(item)
@@ -534,7 +653,7 @@ export default function AdminStaffPage() {
                 ),
               )
             ) : (
-              <div className="admin-empty">
+              <div className="app-empty">
                 No staff profiles yet.
               </div>
             )}

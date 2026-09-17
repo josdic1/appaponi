@@ -16,14 +16,16 @@ export async function createAccount(
     `
       INSERT INTO accounts (
         username,
+        display_name,
         password_hash,
         account_type,
         must_change_password
       )
-      VALUES ($1, $2, $3, TRUE)
+      VALUES ($1, $2, $3, $4, TRUE)
       RETURNING
         id,
         username,
+        display_name,
         account_type,
         must_change_password,
         created_at,
@@ -31,6 +33,7 @@ export async function createAccount(
     `,
     [
       input.username,
+      input.display_name ?? null,
       passwordHash,
       input.account_type,
     ],

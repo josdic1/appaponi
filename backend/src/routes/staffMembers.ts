@@ -20,11 +20,13 @@ export const staffMembersRouter = Router();
 staffMembersRouter.use(
   requireAuth,
   requirePasswordChanged,
-  requireAccountType("admin"),
 );
 
-staffMembersRouter.get("/", async (_req, res) => {
+staffMembersRouter.get("/", async (req, res) => {
   try {
+    const isAdmin =
+      req.auth!.account_type === "admin";
+
     const result = await query<StaffMember>(
       `
         SELECT
@@ -41,8 +43,16 @@ staffMembersRouter.get("/", async (_req, res) => {
         FROM staff_members sm
         LEFT JOIN accounts a
           ON a.id = sm.account_id
+        WHERE (
+          $1::boolean = TRUE
+          OR sm.account_id = $2
+        )
         ORDER BY sm.full_name, sm.id
       `,
+      [
+        isAdmin,
+        req.auth!.sub,
+      ],
     );
 
     res.json({
@@ -57,7 +67,10 @@ staffMembersRouter.get("/", async (_req, res) => {
   }
 });
 
-staffMembersRouter.post("/", async (req, res) => {
+staffMembersRouter.post(
+  "/",
+  requireAccountType("admin"),
+  async (req, res) => {
   const parsed =
     createStaffMemberSchema.safeParse(req.body);
 
@@ -140,6 +153,18 @@ staffMembersRouter.post("/", async (req, res) => {
       ],
     );
 
+    await query(
+      `
+        UPDATE accounts
+        SET display_name = $2
+        WHERE id = $1
+      `,
+      [
+        parsed.data.account_id,
+        parsed.data.full_name,
+      ],
+    );
+
     res.status(201).json({
       staff_member: result.rows[0],
     });
@@ -170,9 +195,13 @@ staffMembersRouter.post("/", async (req, res) => {
       error: "Could not create staff member",
     });
   }
-});
+  },
+);
 
-staffMembersRouter.patch("/:id", async (req, res) => {
+staffMembersRouter.patch(
+  "/:id",
+  requireAccountType("admin"),
+  async (req, res) => {
   const params =
     staffMemberIdParamsSchema.safeParse(req.params);
 
@@ -251,6 +280,20 @@ staffMembersRouter.patch("/:id", async (req, res) => {
       return;
     }
 
+    if (staffMember.account_id) {
+      await query(
+        `
+          UPDATE accounts
+          SET display_name = $2
+          WHERE id = $1
+        `,
+        [
+          staffMember.account_id,
+          staffMember.full_name,
+        ],
+      );
+    }
+
     res.json({
       staff_member: staffMember,
     });
@@ -261,9 +304,13 @@ staffMembersRouter.patch("/:id", async (req, res) => {
       error: "Could not update staff member",
     });
   }
-});
+  },
+);
 
-staffMembersRouter.delete("/:id", async (req, res) => {
+staffMembersRouter.delete(
+  "/:id",
+  requireAccountType("admin"),
+  async (req, res) => {
   const parsed =
     staffMemberIdParamsSchema.safeParse(req.params);
 
@@ -311,4 +358,5 @@ staffMembersRouter.delete("/:id", async (req, res) => {
       error: "Could not delete staff member",
     });
   }
-});
+  },
+);

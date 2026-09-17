@@ -203,9 +203,13 @@ import type {
   EventRegistration,
 } from "@appoponi/shared/schemas/registration";
 
-export async function loadRegistrations() {
+export async function loadRegistrations(eventId?: string) {
+  const query = eventId
+    ? `?event_id=${encodeURIComponent(eventId)}`
+    : "";
+
   const response = await fetch(
-    `${API_URL}/api/registrations`,
+    `${API_URL}/api/registrations${query}`,
     { credentials: "include" },
   );
 
@@ -266,6 +270,10 @@ import type {
 } from "@appoponi/shared/schemas/cabins";
 
 import type {
+  CampCabinSlotId,
+} from "@appoponi/shared/schemas/campMap";
+
+import type {
   Area,
 } from "@appoponi/shared/schemas/areas";
 
@@ -299,8 +307,7 @@ export async function createCabin(
   input: {
     name: string;
     area_id?: number | null;
-    map_x?: number | null;
-    map_y?: number | null;
+    map_slot_id?: CampCabinSlotId | null;
   },
 ) {
   const response = await fetch(
@@ -328,8 +335,7 @@ export async function updateCabin(
   input: {
     name?: string;
     area_id?: number | null;
-    map_x?: number | null;
-    map_y?: number | null;
+    map_slot_id?: CampCabinSlotId | null;
   },
 ) {
   const response = await fetch(
@@ -390,7 +396,10 @@ export async function assignRegistrationCabin(
 
 export async function updateAccount(
   id: string,
-  username: string,
+  input: {
+    username?: string;
+    display_name?: string;
+  },
 ) {
   const response = await fetch(
     `${API_URL}/api/accounts/${id}`,
@@ -400,7 +409,7 @@ export async function updateAccount(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username }),
+      body: JSON.stringify(input),
     },
   );
 

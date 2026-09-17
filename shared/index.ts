@@ -10,6 +10,6 @@ export * from "./schemas/scheduling.js";
 export * from "./schemas/registration.js";
 export * from "./schemas/staffDay.js";
 export * from "./schemas/meals.js";
-export * from "./schemas/afterHours.js";
+export * from "./schemas/foodOrders.js";
 export * from "./schemas/babysitting.js";
 export * from "./schemas/notifications.js";

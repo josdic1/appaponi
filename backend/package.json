@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
+    "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/scripts/migrate.ts",
     "check:family-camp": "tsx src/scripts/runFamilyCampCheck.ts",
-    "account:create": "tsx src/scripts/createAccount.ts"
+    "account:create": "tsx src/scripts/createAccount.ts",
+    "menu:seed": "tsx src/scripts/seedMenu.ts",
+    "check:browser": "tsx src/scripts/runBrowserCheck.ts"
   },
   "dependencies": {
     "@appoponi/shared": "file:../shared",
@@ -29,6 +32,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.0.0",
     "@types/pg": "^8.23.1",
+    "playwright-core": "^1.63.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   }

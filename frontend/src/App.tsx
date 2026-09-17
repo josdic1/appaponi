@@ -1,21 +1,16 @@
-import {
-  MataponiLoader,
-} from "./components/feedback/MataponiLoader";
+import AppErrorBoundary from "./components/AppErrorBoundary";
+import { MataponiLoader } from "./components/feedback/MataponiLoader";
 
 import AuthProvider from "./providers/AuthProvider";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import AdminPage from "./pages/AdminPage";
-import MemberPage from "./pages/MemberPage";
+import MemberHouseholdGate from "./pages/MemberHouseholdGate";
 import StaffPage from "./pages/StaffPage";
 import LoginPage from "./pages/LoginPage";
 import { useAuth } from "./hooks/useAuth";
 
 function AppContent() {
-  const {
-    account,
-    loading,
-    logout,
-  } = useAuth();
+  const { account, loading, logout } = useAuth();
 
   if (loading) {
     return <MataponiLoader />;
@@ -34,7 +29,7 @@ function AppContent() {
   }
 
   if (account.account_type === "member") {
-    return <MemberPage />;
+    return <MemberHouseholdGate />;
   }
 
   if (account.account_type === "staff") {
@@ -45,34 +40,23 @@ function AppContent() {
     <main className="login-page">
       <section className="login-card">
         <div className="login-brand">
-          <div className="brand-mark">
-            A
-          </div>
+          <div className="brand-mark">A</div>
 
           <div>
-            <div className="brand-name">
-              Appoponi
-            </div>
+            <div className="brand-name">Appoponi</div>
 
-            <div className="brand-sub">
-              {account.account_type}
-            </div>
+            <div className="brand-sub">{account.account_type}</div>
           </div>
         </div>
 
         <div className="login-heading">
-          <h1>
-            {account.username}
-          </h1>
+          <h1>{account.username}</h1>
 
-          <p>
-            Authenticated Appoponi
-            account.
-          </p>
+          <p>Authenticated Appoponi account.</p>
         </div>
 
         <button
-          className="login-submit"
+          className="app-button app-button-primary app-button-block"
           type="button"
           onClick={() => {
             void logout();
@@ -87,8 +71,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <AppErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </AppErrorBoundary>
   );
 }

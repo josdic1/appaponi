@@ -27,6 +27,7 @@ export const babysittingRequestIdParamsSchema = z.object({
 export type BabysittingRequest = {
   id: string;
   event_registration_id: string;
+  event_id: string;
   event_name: string;
   username: string;
   sitter_staff_member_id: string | null;

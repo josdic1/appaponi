@@ -27,14 +27,31 @@ babysittingRouter.get("/", async (req, res) => {
   const accountType =
     req.auth!.account_type;
 
+  const eventId =
+    typeof req.query.event_id === "string" && req.query.event_id
+      ? Number(req.query.event_id)
+      : null;
+
+  if (
+    eventId !== null &&
+    (!Number.isInteger(eventId) || eventId <= 0)
+  ) {
+    res.status(400).json({ error: "Invalid event id" });
+    return;
+  }
+
   const result =
     await query<BabysittingRequest>(
       `
         SELECT
           br.id,
           br.event_registration_id,
+          er.event_id,
           e.name AS event_name,
-          a.username,
+          COALESCE(
+            a.display_name,
+            a.username
+          ) AS username,
           br.sitter_staff_member_id,
           sm.full_name AS sitter_name,
           br.starts_at,
@@ -77,9 +94,15 @@ babysittingRouter.get("/", async (req, res) => {
             AND sm.account_id = $2
           )
         )
+          AND (
+            $3::bigint IS NULL
+            OR er.event_id = $3
+          )
         GROUP BY
           br.id,
+          er.event_id,
           e.name,
+          a.display_name,
           a.username,
           sm.full_name
         ORDER BY br.starts_at, br.id
@@ -87,6 +110,7 @@ babysittingRouter.get("/", async (req, res) => {
       [
         accountType,
         req.auth!.sub,
+        eventId,
       ],
     );
 
@@ -349,6 +373,47 @@ babysittingRouter.patch(
 
       throw error;
     }
+  },
+);
+
+babysittingRouter.patch(
+  "/:id/complete",
+  requireAccountType("staff"),
+  async (req, res) => {
+    const params =
+      babysittingRequestIdParamsSchema.safeParse(
+        req.params,
+      );
+
+    if (!params.success) {
+      res.status(400).json({
+        error: "Invalid babysitting request id",
+      });
+      return;
+    }
+
+    const result = await query<{ id: string }>(
+      `
+        UPDATE babysitting_requests br
+        SET status = 'completed'
+        FROM staff_members sm
+        WHERE br.id = $1
+          AND br.sitter_staff_member_id = sm.id
+          AND sm.account_id = $2
+          AND br.status = 'confirmed'
+        RETURNING br.id
+      `,
+      [params.data.id, req.auth!.sub],
+    );
+
+    if (!result.rows[0]) {
+      res.status(409).json({
+        error: "Assigned confirmed babysitting request does not exist",
+      });
+      return;
+    }
+
+    res.json({ ok: true });
   },
 );
 

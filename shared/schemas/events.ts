@@ -9,6 +9,11 @@ export const createEventSchema = z.object({
   other_reason: z.string().trim().min(1).optional(),
 });
 
+export const cloneEventSchema = z.object({
+  name: z.string().trim().min(1),
+  starts_at: z.string().datetime(),
+});
+
 export const updateEventSchema = z
   .object({
     name: z.string().trim().min(1).optional(),
@@ -44,6 +49,49 @@ export type EventRecord = {
   booked_at: string | null;
   other_value: string | null;
   other_reason: string | null;
+  meal_menu_id: string | null;
+  meal_menu_name: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type EventHqRegistration = {
+  id: string;
+  household_name: string;
+  spots_paid_for: number;
+  attendee_count: number;
+  cabin_name: string | null;
+};
+
+export type EventHqScheduleItem = {
+  id: string;
+  kind: "activity" | "meal";
+  title: string;
+  meta: string | null;
+  starts_at: string;
+  ends_at: string;
+  signup_count: number | null;
+  staff_names: string[];
+  food_item_count: number | null;
+};
+
+export type EventHqSummary = {
+  event: EventRecord;
+  metrics: {
+    households: number;
+    people: number;
+    paid_spots: number;
+    cabins_assigned: number;
+    activities: number;
+    signups: number;
+    unstaffed_activities: number;
+    meals: number;
+    food_services_unready: number;
+    active_babysitting: number;
+    pending_babysitting: number;
+    open_orders: number;
+    unread_notices: number;
+  };
+  registrations: EventHqRegistration[];
+  schedule: EventHqScheduleItem[];
 };

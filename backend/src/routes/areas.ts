@@ -29,8 +29,6 @@ areasRouter.get("/", async (_req, res) => {
       SELECT
         id,
         name,
-        map_x,
-        map_y,
         created_at,
         updated_at
       FROM areas
@@ -63,25 +61,15 @@ areasRouter.post("/", async (req, res) => {
   try {
     const result = await query<Area>(
       `
-        INSERT INTO areas (
-          name,
-          map_x,
-          map_y
-        )
-        VALUES ($1, $2, $3)
+        INSERT INTO areas (name)
+        VALUES ($1)
         RETURNING
           id,
           name,
-          map_x,
-          map_y,
           created_at,
           updated_at
       `,
-      [
-        parsed.data.name,
-        parsed.data.map_x ?? null,
-        parsed.data.map_y ?? null,
-      ],
+      [parsed.data.name],
     );
 
     res.status(201).json({
@@ -121,38 +109,17 @@ areasRouter.patch("/:id", async (req, res) => {
     const result = await query<Area>(
       `
         UPDATE areas
-        SET
-          name = COALESCE($2, name),
-          map_x = CASE
-            WHEN $3 THEN $4
-            ELSE map_x
-          END,
-          map_y = CASE
-            WHEN $5 THEN $6
-            ELSE map_y
-          END
+        SET name = COALESCE($2, name)
         WHERE id = $1
         RETURNING
           id,
           name,
-          map_x,
-          map_y,
           created_at,
           updated_at
       `,
       [
         params.data.id,
         body.data.name ?? null,
-        Object.prototype.hasOwnProperty.call(
-          body.data,
-          "map_x",
-        ),
-        body.data.map_x ?? null,
-        Object.prototype.hasOwnProperty.call(
-          body.data,
-          "map_y",
-        ),
-        body.data.map_y ?? null,
       ],
     );
 

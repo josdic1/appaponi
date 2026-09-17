@@ -4,7 +4,47 @@
   z-index: 1000;
   display: grid;
   place-items: center;
-  background: rgba(246, 245, 241, 0.94);
+  overflow: hidden;
+  background: var(--surface-glass);
+  animation: mataponi-loader-arrive 160ms ease-out both;
+}
+
+.loader-overlay--cursorless,
+.loader-overlay--cursorless * {
+  cursor: none;
+}
+
+.loader-overlay--interactive {
+  backdrop-filter: blur(3px);
+}
+
+.mataponi-loader-close {
+  width: 36px;
+  height: 36px;
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--pill-radius);
+  background: var(--surface-glass);
+  box-shadow: var(--shadow-float);
+  padding: 0;
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.mataponi-loader-close:hover {
+  background: var(--surface);
+}
+
+.mataponi-loader-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .mataponi-loader {
@@ -34,32 +74,100 @@
   position: absolute;
   inset: 0;
   transform-origin: 50% 24.8%;
-  animation: mataponi-swing 2.35s cubic-bezier(.45, 0, .55, 1) infinite;
+  animation: mataponi-swing var(--loader-swing-duration, 2.35s) cubic-bezier(.45, 0, .55, 1) infinite;
   will-change: transform;
 }
 
 .mataponi-loader__sign img {
   clip-path: inset(24% 0 0 0);
-  filter:
-    url("#mataponi-green")
-    drop-shadow(0 7px 8px rgba(0, 0, 0, 0.075));
+  filter: url("#mataponi-green") drop-shadow(0 7px 8px var(--overlay));
+}
+
+.mataponi-loader-controls {
+  width: min(430px, calc(100vw - 32px));
+  min-height: 48px;
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 16px;
+  transform: translate(-50%, 8px);
+  border: 1px solid var(--line);
+  border-radius: var(--pill-radius);
+  background: var(--surface-glass);
+  box-shadow: var(--shadow-float);
+  padding: 8px 10px 8px 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.mataponi-loader-controls.visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mataponi-loader-controls label {
+  display: grid;
+  grid-template-columns: auto minmax(72px, 1fr);
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.mataponi-loader-controls input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.mataponi-loader-controls button {
+  min-height: 30px;
+  border: 0;
+  border-radius: var(--pill-radius);
+  background: var(--accent-soft);
+  padding: 0 12px;
+  color: var(--accent-ink);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+@keyframes mataponi-loader-arrive {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes mataponi-swing {
   0% {
-    transform: rotate(-0.72deg) translate3d(-0.5px, 0, 0);
+    transform: rotate(var(--loader-arc-start, -0.72deg)) translate3d(-0.5px, 0, 0);
   }
 
   50% {
-    transform: rotate(0.72deg) translate3d(0.5px, 1px, 0);
+    transform: rotate(var(--loader-arc-end, 0.72deg)) translate3d(0.5px, 1px, 0);
   }
 
   100% {
-    transform: rotate(-0.72deg) translate3d(-0.5px, 0, 0);
+    transform: rotate(var(--loader-arc-start, -0.72deg)) translate3d(-0.5px, 0, 0);
+  }
+}
+
+@media (max-width: 620px) {
+  .mataponi-loader-controls {
+    grid-template-columns: 1fr;
+    border-radius: var(--radius);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .loader-overlay {
+    animation: none;
+  }
+
   .mataponi-loader__sign {
     animation: none;
     transform: none;

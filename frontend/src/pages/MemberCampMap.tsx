@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useMemo,
   useState,
   type KeyboardEvent,
@@ -8,16 +9,23 @@ import type {
   EventRegistration,
 } from "@appoponi/shared/schemas/registration";
 
+import type {
+  CampMapPlaceId,
+} from "@appoponi/shared/schemas/campMap";
+
 import CampMapBase, {
   CAMP_MAP_CABINS,
   CAMP_MAP_FEATURES,
+  CampCabinShape,
   CAMP_MAP_HEIGHT,
   CAMP_MAP_WIDTH,
+  findCampCabinSlotById,
   type CampMapFeature,
 } from "./CampMapBase";
 
 type Props = {
   registration: EventRegistration;
+  focusTarget?: CampMapPlaceId | null;
 };
 
 function keyActivates(
@@ -33,26 +41,6 @@ function keyActivates(
   }
 }
 
-function labelLines(name: string) {
-  if (name.length <= 12) {
-    return [name];
-  }
-
-  const words = name.split(" ");
-
-  if (words.length === 1) {
-    return [name];
-  }
-
-  const midpoint =
-    Math.ceil(words.length / 2);
-
-  return [
-    words.slice(0, midpoint).join(" "),
-    words.slice(midpoint).join(" "),
-  ];
-}
-
 function InteractiveFeature({
   feature,
   selected,
@@ -63,134 +51,130 @@ function InteractiveFeature({
   onSelect: () => void;
 }) {
   const centerX =
-    feature.x + feature.width / 2;
+    feature.x +
+    feature.width / 2;
 
   const centerY =
-    feature.y + feature.height / 2;
+    feature.y +
+    feature.height / 2;
 
-  const lines =
-    feature.kind === "cabin"
-      ? []
-      : labelLines(feature.name);
+  const featureTransform =
+    feature.rotate
+      ? `rotate(${feature.rotate} ${centerX} ${centerY})`
+      : undefined;
 
   return (
     <g
       className={`member-map-place member-map-place-${feature.kind} ${
-        selected ? "selected" : ""
+        selected
+          ? "selected"
+          : ""
       }`}
       role="button"
       tabIndex={0}
-      aria-label={feature.name}
+      aria-label={
+        feature.name
+      }
       onClick={onSelect}
-      onKeyDown={(event) =>
+      onKeyDown={(
+        event,
+      ) =>
         keyActivates(
           event,
           onSelect,
         )
       }
     >
-      <title>{feature.name}</title>
+      <title>
+        {feature.name}
+      </title>
 
-      {feature.shape === "ellipse" ? (
+      {feature.shape ===
+      "ellipse" ? (
         <ellipse
           cx={centerX}
           cy={centerY}
-          rx={feature.width / 2}
-          ry={feature.height / 2}
+          rx={
+            feature.width /
+            2
+          }
+          ry={
+            feature.height /
+            2
+          }
+          transform={featureTransform}
         />
       ) : (
         <rect
           x={feature.x}
           y={feature.y}
-          width={feature.width}
-          height={feature.height}
-          rx={
-            feature.kind === "cabin"
-              ? 5
-              : 10
+          width={
+            feature.width
           }
+          height={
+            feature.height
+          }
+          rx="10"
+          transform={featureTransform}
         />
       )}
 
-      {lines.map(
-        (line, index) => (
-          <text
-            key={line}
-            x={centerX}
-            y={
-              centerY +
-              (index -
-                (lines.length - 1) /
-                  2) *
-                15
-            }
-            className="member-map-place-label"
-          >
-            {line.toUpperCase()}
-          </text>
-        ),
-      )}
     </g>
   );
 }
 
 export default function MemberCampMap({
   registration,
+  focusTarget = null,
 }: Props) {
-  const [selectedId, setSelectedId] =
-    useState<string | null>(null);
+  const [
+    selectedId,
+    setSelectedId,
+  ] = useState<
+    CampMapPlaceId | null
+  >(null);
 
-  const allPlaces = useMemo(
-    () => [
-      ...CAMP_MAP_FEATURES,
-      ...CAMP_MAP_CABINS,
-    ],
-    [],
-  );
-
-  const selectedPlace =
-    allPlaces.find(
-      (item) =>
-        item.id === selectedId,
-    ) ?? null;
-
-  const cabinPoint = useMemo(() => {
-    const x =
-      registration.cabin_map_x;
-
-    const y =
-      registration.cabin_map_y;
-
-    if (
-      !registration.cabin_name ||
-      x === null ||
-      y === null
-    ) {
-      return null;
+  useEffect(() => {
+    if (!focusTarget) {
+      return;
     }
 
-    return {
-      x:
-        Math.max(
-          0,
-          Math.min(1, x),
-        ) * CAMP_MAP_WIDTH,
-      y:
-        Math.max(
-          0,
-          Math.min(1, y),
-        ) * CAMP_MAP_HEIGHT,
-    };
-  }, [registration]);
+    if (
+      focusTarget === "your-cabin" ||
+      CAMP_MAP_FEATURES.some((item) => item.id === focusTarget)
+    ) {
+      setSelectedId(focusTarget);
+    }
+  }, [focusTarget]);
+
+  const selectedPlace =
+    CAMP_MAP_FEATURES.find(
+      (item) =>
+        item.id ===
+        selectedId,
+    ) ?? null;
+
+  const assignedCabinSlot =
+    useMemo(
+      () =>
+        findCampCabinSlotById(
+          registration
+            .cabin_map_slot_id,
+        ),
+      [registration],
+    );
 
   const selectedName =
-    selectedId === "your-cabin"
-      ? registration.cabin_name
+    selectedId ===
+    "your-cabin"
+      ? registration
+          .cabin_name
       : selectedPlace?.name ??
         null;
 
   const selectedDescription =
-    selectedId === "your-cabin"
+    selectedId ===
+    "your-cabin"
       ? "Your assigned cabin"
       : selectedPlace?.kind ===
           "building"
@@ -198,19 +182,22 @@ export default function MemberCampMap({
         : selectedPlace?.kind ===
             "activity"
           ? "Activity area"
-          : selectedPlace?.kind ===
-              "cabin"
-            ? "Cabin"
-            : null;
+          : null;
 
   return (
-    <section className="member-card member-map-card">
-      <div className="member-card-head member-map-head">
+    <section className="app-card member-card member-map-card">
+      <div className="app-card-head member-map-head">
         <div>
-          <strong>Camp map</strong>
+          <strong>
+            Camp map
+          </strong>
 
           <span>
-            Tap a place for details.
+            {registration.cabin_name && assignedCabinSlot
+              ? `${registration.cabin_name} is highlighted. Use Map from your itinerary to locate meals and activities.`
+              : registration.cabin_name
+                ? `${registration.cabin_name} is assigned; its map location has not been set yet.`
+                : "Use Map from your itinerary to locate meals and activities."}
           </span>
         </div>
       </div>
@@ -224,12 +211,26 @@ export default function MemberCampMap({
         >
           <CampMapBase />
 
+          <g className="member-map-cabin-slots">
+            {CAMP_MAP_CABINS.map((slot) => (
+              <CampCabinShape
+                key={slot.id}
+                slot={slot}
+                className="member-map-cabin-slot"
+              />
+            ))}
+          </g>
+
           <g className="member-map-places">
-            {allPlaces.map(
+            {CAMP_MAP_FEATURES.map(
               (feature) => (
                 <InteractiveFeature
-                  key={feature.id}
-                  feature={feature}
+                  key={
+                    feature.id
+                  }
+                  feature={
+                    feature
+                  }
                   selected={
                     selectedId ===
                     feature.id
@@ -243,37 +244,59 @@ export default function MemberCampMap({
               ),
             )}
 
-            {cabinPoint && (
-              <g
-                className={`member-map-your-cabin ${
-                  selectedId ===
-                  "your-cabin"
-                    ? "selected"
-                    : ""
-                }`}
-                role="button"
-                tabIndex={0}
-                aria-label={`Your cabin: ${registration.cabin_name}`}
-                transform={`translate(${cabinPoint.x} ${cabinPoint.y})`}
-                onClick={() =>
-                  setSelectedId(
-                    "your-cabin",
-                  )
-                }
-                onKeyDown={(event) =>
-                  keyActivates(
+            {registration
+              .cabin_name &&
+              assignedCabinSlot && (
+                <g
+                  className={`member-map-assigned-cabin ${
+                    selectedId ===
+                    "your-cabin"
+                      ? "selected"
+                      : ""
+                  }`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Your cabin: ${registration.cabin_name}`}
+                  onClick={() =>
+                    setSelectedId(
+                      "your-cabin",
+                    )
+                  }
+                  onKeyDown={(
                     event,
-                    () =>
-                      setSelectedId(
-                        "your-cabin",
-                      ),
-                  )
-                }
-              >
-                <circle r="15" />
-                <circle r="5" />
-              </g>
-            )}
+                  ) =>
+                    keyActivates(
+                      event,
+                      () =>
+                        setSelectedId(
+                          "your-cabin",
+                        ),
+                    )
+                  }
+                >
+                  <CampCabinShape
+                    slot={assignedCabinSlot}
+                    className="member-map-assigned-cabin-shape"
+                  />
+
+                  <text
+                    x={
+                      assignedCabinSlot.x +
+                      assignedCabinSlot.width /
+                        2
+                    }
+                    y={
+                      assignedCabinSlot.y -
+                      12
+                    }
+                  >
+                    {
+                      registration
+                        .cabin_name
+                    }
+                  </text>
+                </g>
+              )}
           </g>
         </svg>
       </div>
@@ -294,16 +317,32 @@ export default function MemberCampMap({
               }
             </span>
           </>
-        ) : (
+        ) : registration
+            .cabin_name ? (
           <>
             <strong>
-              {registration.cabin_name
-                ? `Your cabin: ${registration.cabin_name}`
-                : "Camp Mataponi"}
+              Your cabin:{" "}
+              {
+                registration
+                  .cabin_name
+              }
             </strong>
 
             <span>
-              Tap a place for details.
+              {assignedCabinSlot
+                ? "Highlighted on the map."
+                : "Assigned to your household. An admin still needs to set its map location."}
+            </span>
+          </>
+        ) : (
+          <>
+            <strong>
+              Camp Mataponi
+            </strong>
+
+            <span>
+              Tap a place for
+              details.
             </span>
           </>
         )}

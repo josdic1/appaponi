@@ -39,6 +39,7 @@ accountsRouter.get("/", async (_req, res) => {
         SELECT
           id,
           username,
+          display_name,
           account_type,
           must_change_password,
           created_at,
@@ -50,7 +51,10 @@ accountsRouter.get("/", async (_req, res) => {
             WHEN 'staff' THEN 1
             ELSE 2
           END,
-          username,
+          COALESCE(
+            display_name,
+            username
+          ),
           id
       `,
     );
@@ -119,11 +123,14 @@ accountsRouter.patch("/:id", async (req, res) => {
     const result = await query<AccountRecord>(
       `
         UPDATE accounts
-        SET username = COALESCE($2, username)
+        SET
+          username = COALESCE($2, username),
+          display_name = COALESCE($3, display_name)
         WHERE id = $1
         RETURNING
           id,
           username,
+          display_name,
           account_type,
           must_change_password,
           created_at,
@@ -132,6 +139,7 @@ accountsRouter.patch("/:id", async (req, res) => {
       [
         params.data.id,
         body.data.username ?? null,
+        body.data.display_name ?? null,
       ],
     );
 
@@ -208,11 +216,14 @@ accountsRouter.post(
             UPDATE accounts
             SET
               password_hash = $2,
-              must_change_password = TRUE
+              must_change_password = TRUE,
+              session_version =
+                session_version + 1
             WHERE id = $1
             RETURNING
               id,
               username,
+              display_name,
               account_type,
               must_change_password,
               created_at,

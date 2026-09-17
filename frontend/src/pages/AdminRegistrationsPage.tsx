@@ -16,17 +16,11 @@ import type {
   EventRegistration,
 } from "@appoponi/shared/schemas/registration";
 
-import type {
-  Cabin,
-} from "@appoponi/shared/schemas/cabins";
-
 import AdminCabinsPanel from "./AdminCabinsPanel";
 
 import {
-  assignRegistrationCabin,
   createRegistration,
   loadAccounts,
-  loadCabins,
   loadRegistrations,
   updateRegistrationSpots,
 } from "../api/admin";
@@ -35,7 +29,13 @@ import {
   loadEvents,
 } from "../api/operations";
 
-export default function AdminRegistrationsPage() {
+type Props = {
+  activeEventId?: string;
+};
+
+export default function AdminRegistrationsPage({
+  activeEventId = "",
+}: Props) {
   const [accounts, setAccounts] =
     useState<AccountRecord[]>([]);
 
@@ -46,9 +46,6 @@ export default function AdminRegistrationsPage() {
     registrations,
     setRegistrations,
   ] = useState<EventRegistration[]>([]);
-
-  const [cabins, setCabins] =
-    useState<Cabin[]>([]);
 
   const [accountId, setAccountId] =
     useState("");
@@ -62,17 +59,18 @@ export default function AdminRegistrationsPage() {
   const [error, setError] =
     useState<string | null>(null);
 
+  const [showRegister, setShowRegister] =
+    useState(false);
+
   async function refresh() {
     const [
       nextAccounts,
       nextEvents,
       nextRegistrations,
-      nextCabins,
     ] = await Promise.all([
       loadAccounts(),
       loadEvents(),
-      loadRegistrations(),
-      loadCabins(),
+      loadRegistrations(activeEventId || undefined),
     ]);
 
     setAccounts(
@@ -87,7 +85,6 @@ export default function AdminRegistrationsPage() {
     setRegistrations(
       nextRegistrations,
     );
-    setCabins(nextCabins);
   }
 
   useEffect(() => {
@@ -98,7 +95,15 @@ export default function AdminRegistrationsPage() {
           : "Could not load registrations",
       ),
     );
-  }, []);
+  }, [activeEventId]);
+
+  useEffect(() => {
+    if (activeEventId) {
+      setEventId(activeEventId);
+    }
+  }, [activeEventId]);
+
+  const visibleRegistrations = registrations;
 
   async function run(
     action: () => Promise<unknown>,
@@ -117,294 +122,133 @@ export default function AdminRegistrationsPage() {
     }
   }
 
-  function submit(
-    event: FormEvent,
-  ) {
+  function submit(event: FormEvent) {
     event.preventDefault();
 
     if (!accountId || !eventId) {
-      setError(
-        "Choose a household and event.",
-      );
+      setError("Choose a household and event.");
       return;
     }
 
     void run(async () => {
       await createRegistration({
-        account_id:
-          Number(accountId),
-        event_id:
-          Number(eventId),
-        spots_paid_for:
-          Number(spots),
+        account_id: Number(accountId),
+        event_id: Number(eventId),
+        spots_paid_for: Number(spots),
       });
 
       setAccountId("");
-      setEventId("");
+      setEventId(activeEventId || "");
       setSpots("1");
+      setShowRegister(false);
     });
   }
 
   return (
-    <section>
-      <div className="admin-heading">
-        <div className="admin-eyebrow">
-          ADMIN
+    <section className="admin-workspace">
+      <div className="admin-heading admin-heading-split">
+        <div>
+          <div className="admin-eyebrow">ADMIN</div>
+          <h1>Guests + cabins</h1>
+          <p>
+            See who is coming, where each household is staying, and the physical cabin location together.
+          </p>
         </div>
 
-        <h1>Registrations</h1>
-
-        <p>
-          Register a household for an
-          event and record how many
-          attendee spots were purchased.
-        </p>
+        <button
+          className="app-button app-button-primary"
+          type="button"
+          onClick={() => setShowRegister((open) => !open)}
+        >
+          {showRegister ? "Close" : "Register household"}
+        </button>
       </div>
 
-      {error && (
-        <div className="admin-error">
-          {error}
-        </div>
+      {error && <div className="app-alert app-alert-danger">{error}</div>}
+
+      {showRegister && (
+        <form className="app-card admin-form app-action-panel" onSubmit={submit}>
+          <label>
+            <span>Household</span>
+            <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
+              <option value="">Choose household</option>
+              {accounts.map((item) => (
+                <option key={item.id} value={item.id}>{item.display_name ?? item.username}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Event</span>
+            <select value={eventId} onChange={(e) => setEventId(e.target.value)}>
+              <option value="">Choose event</option>
+              {events.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Paid spots</span>
+            <input type="number" min="1" value={spots} onChange={(e) => setSpots(e.target.value)} />
+          </label>
+          <div className="app-action-panel-actions">
+            <button className="app-button" type="button" onClick={() => setShowRegister(false)}>Cancel</button>
+            <button className="app-button app-button-primary" type="submit">Register</button>
+          </div>
+        </form>
       )}
 
-      <div className="admin-grid">
-        <section className="admin-card">
-          <div className="admin-card-head">
-            <div>
-              <strong>
-                Register household
-              </strong>
-
-              <span>
-                Event access starts here.
-              </span>
-            </div>
+      <section className="app-card registration-card registration-first">
+        <div className="app-card-head">
+          <div>
+            <strong>Registered households</strong>
+            <span>{visibleRegistrations.length} households</span>
           </div>
+        </div>
 
-          <form
-            className="admin-form"
-            onSubmit={submit}
-          >
-            <label>
-              <span>Household</span>
+        <div className="registration-list">
+          {visibleRegistrations.length ? (
+            visibleRegistrations.map((item) => (
+              <div className="registration-row" key={item.id}>
+                <div className="registration-account-row">
+                  <strong>{item.household_name ?? item.username}</strong>
+                  <span>
+                    {item.selected_attendees}/{item.spots_paid_for} attending · Lead: {item.household_lead_name ?? "Not chosen"}
+                  </span>
+                </div>
 
-              <select
-                value={accountId}
-                onChange={(e) =>
-                  setAccountId(
-                    e.target.value,
-                  )
-                }
-              >
-                <option value="">
-                  Choose member account
-                </option>
+                <label className="registration-compact-field">
+                  <small>Spots</small>
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.spots_paid_for}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      if (Number.isInteger(value) && value > 0) {
+                        void run(() => updateRegistrationSpots(item.id, value));
+                      }
+                    }}
+                  />
+                </label>
 
-                {accounts.map(
-                  (item) => (
-                    <option
-                      key={item.id}
-                      value={item.id}
-                    >
-                      {item.username}
-                    </option>
-                  ),
-                )}
-              </select>
-            </label>
+                <div className="registration-cabin-summary">
+                  <small>Cabin</small>
+                  <strong>{item.cabin_name ?? "Unassigned"}</strong>
+                </div>
 
-            <label>
-              <span>Event</span>
-
-              <select
-                value={eventId}
-                onChange={(e) =>
-                  setEventId(
-                    e.target.value,
-                  )
-                }
-              >
-                <option value="">
-                  Choose event
-                </option>
-
-                {events.map(
-                  (item) => (
-                    <option
-                      key={item.id}
-                      value={item.id}
-                    >
-                      {item.name}
-                    </option>
-                  ),
-                )}
-              </select>
-            </label>
-
-            <label>
-              <span>Paid spots</span>
-
-              <input
-                type="number"
-                min="1"
-                value={spots}
-                onChange={(e) =>
-                  setSpots(
-                    e.target.value,
-                  )
-                }
-              />
-            </label>
-
-            <button
-              className="admin-primary"
-              type="submit"
-            >
-              Register household
-            </button>
-          </form>
-        </section>
-
-        <AdminCabinsPanel
-          onChanged={() => {
-            void refresh();
-          }}
-        />
-
-        <section className="admin-card registration-card">
-          <div className="admin-card-head">
-            <div>
-              <strong>
-                Registered households
-              </strong>
-
-              <span>
-                {registrations.length} total
-              </span>
-            </div>
-          </div>
-
-          <div className="registration-list">
-            {registrations.length ? (
-              registrations.map(
-                (item) => (
-                  <div
-                    className="registration-row registration-account-row"
-                    key={item.id}
-                  >
-                    <div>
-                      <strong>
-                        {item.username}
-                      </strong>
-
-                      <span>
-                        {item.event_name}
-                      </span>
-                    </div>
-
-                    <label>
-                      <small>
-                        Spots
-                      </small>
-
-                      <input
-                        type="number"
-                        min="1"
-                        value={
-                          item.spots_paid_for
-                        }
-                        onChange={(e) => {
-                          const value =
-                            Number(
-                              e.target
-                                .value,
-                            );
-
-                          if (
-                            Number.isInteger(
-                              value,
-                            ) &&
-                            value > 0
-                          ) {
-                            void run(
-                              () =>
-                                updateRegistrationSpots(
-                                  item.id,
-                                  value,
-                                ),
-                            );
-                          }
-                        }}
-                      />
-                    </label>
-
-                    <label>
-                      <small>
-                        Cabin
-                      </small>
-
-                      <select
-                        value={
-                          item.cabin_id ??
-                          ""
-                        }
-                        onChange={(e) =>
-                          void run(() =>
-                            assignRegistrationCabin(
-                              item.id,
-                              e.target
-                                .value
-                                ? Number(
-                                    e
-                                      .target
-                                      .value,
-                                  )
-                                : null,
-                            ),
-                          )
-                        }
-                      >
-                        <option value="">
-                          Unassigned
-                        </option>
-
-                        {cabins.map(
-                          (cabin) => (
-                            <option
-                              key={
-                                cabin.id
-                              }
-                              value={
-                                cabin.id
-                              }
-                            >
-                              {
-                                cabin.name
-                              }
-                            </option>
-                          ),
-                        )}
-                      </select>
-                    </label>
-
-                    <b>
-                      {
-                        item.selected_attendees
-                      }{" "}
-                      selected
-                    </b>
-                  </div>
-                ),
-              )
-            ) : (
-              <div className="admin-empty">
-                No households registered
-                yet.
+                <span className="registration-map-state">
+                  {item.cabin_map_slot_id ? "On map" : item.cabin_id ? "Place cabin" : "No cabin"}
+                </span>
               </div>
-            )}
-          </div>
-        </section>
-      </div>
+            ))
+          ) : (
+            <div className="app-empty">No households registered yet.</div>
+          )}
+        </div>
+      </section>
+
+      <AdminCabinsPanel
+        activeEventId={activeEventId}
+        onChanged={() => void refresh()}
+      />
     </section>
   );
 }

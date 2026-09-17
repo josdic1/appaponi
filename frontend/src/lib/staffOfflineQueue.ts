@@ -4,7 +4,7 @@ import type {
 
 export type StaffOfflineAction = {
   signup_id: string;
-  action: "check-in" | "check-out";
+  action: "check-in";
   queued_at: string;
 };
 
@@ -45,12 +45,8 @@ export function readStaffOfflineQueue(
           item &&
             typeof item.signup_id ===
               "string" &&
-            (
-              item.action ===
-                "check-in" ||
-              item.action ===
-                "check-out"
-            ) &&
+            item.action ===
+              "check-in" &&
             typeof item.queued_at ===
               "string",
         ),
@@ -84,9 +80,6 @@ export function saveStaffOfflineQueue(
 export function enqueueStaffOfflineAction(
   username: string,
   signupId: string,
-  action:
-    | "check-in"
-    | "check-out",
 ) {
   const current =
     readStaffOfflineQueue(
@@ -97,7 +90,7 @@ export function enqueueStaffOfflineAction(
     ...current,
     {
       signup_id: signupId,
-      action,
+      action: "check-in" as const,
       queued_at:
         new Date().toISOString(),
     },
@@ -129,27 +122,8 @@ export function applyStaffOfflineActions(
           continue;
         }
 
-        if (
-          action.action ===
-          "check-in"
-        ) {
-          if (
-            !next.checked_out_at
-          ) {
-            next.checked_in_at =
-              next.checked_in_at ??
-              action.queued_at;
-          }
-
-          continue;
-        }
-
         next.checked_in_at =
           next.checked_in_at ??
-          action.queued_at;
-
-        next.checked_out_at =
-          next.checked_out_at ??
           action.queued_at;
       }
 

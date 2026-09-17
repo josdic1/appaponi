@@ -336,7 +336,20 @@ schedulingRouter.delete(
 
 schedulingRouter.get(
   "/event-activities",
-  async (_req, res) => {
+  async (req, res) => {
+    const eventId =
+      typeof req.query.event_id === "string" && req.query.event_id
+        ? Number(req.query.event_id)
+        : null;
+
+    if (
+      eventId !== null &&
+      (!Number.isInteger(eventId) || eventId <= 0)
+    ) {
+      res.status(400).json({ error: "Invalid event id" });
+      return;
+    }
+
     const result = await query<EventActivity>(`
       SELECT
         ea.id,
@@ -345,6 +358,7 @@ schedulingRouter.get(
         ea.activity_id,
         a.name AS activity_name,
         ar.name AS area_name,
+        a.map_place_id,
         ea.starts_at,
         ea.ends_at,
         ea.capacity
@@ -355,8 +369,12 @@ schedulingRouter.get(
         ON a.id = ea.activity_id
       JOIN areas ar
         ON ar.id = a.area_id
+      WHERE (
+        $1::bigint IS NULL
+        OR ea.event_id = $1
+      )
       ORDER BY ea.starts_at, a.name
-    `);
+    `, [eventId]);
 
     res.json({
       event_activities: result.rows,
@@ -398,6 +416,7 @@ schedulingRouter.post(
             i.activity_id,
             a.name AS activity_name,
             ar.name AS area_name,
+            a.map_place_id,
             i.starts_at,
             i.ends_at,
             i.capacity
@@ -473,7 +492,20 @@ schedulingRouter.delete(
 
 schedulingRouter.get(
   "/event-activity-staff",
-  async (_req, res) => {
+  async (req, res) => {
+    const eventId =
+      typeof req.query.event_id === "string" && req.query.event_id
+        ? Number(req.query.event_id)
+        : null;
+
+    if (
+      eventId !== null &&
+      (!Number.isInteger(eventId) || eventId <= 0)
+    ) {
+      res.status(400).json({ error: "Invalid event id" });
+      return;
+    }
+
     const result =
       await query<EventActivityStaff>(`
         SELECT
@@ -484,8 +516,14 @@ schedulingRouter.get(
         FROM event_activity_staff eas
         JOIN staff_members sm
           ON sm.id = eas.staff_member_id
+        JOIN event_activities ea
+          ON ea.id = eas.event_activity_id
+        WHERE (
+          $1::bigint IS NULL
+          OR ea.event_id = $1
+        )
         ORDER BY eas.event_activity_id, sm.full_name
-      `);
+      `, [eventId]);
 
     res.json({
       event_activity_staff: result.rows,

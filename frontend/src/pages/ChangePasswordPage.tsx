@@ -146,13 +146,13 @@ export default function ChangePasswordPage() {
         </label>
 
         {error && (
-          <div className="login-error">
+          <div className="app-alert app-alert-danger">
             {error}
           </div>
         )}
 
         <button
-          className="login-submit"
+          className="app-button app-button-primary app-button-block"
           type="submit"
           disabled={submitting}
         >
@@ -162,7 +162,7 @@ export default function ChangePasswordPage() {
         </button>
 
         <button
-          className="login-secondary"
+          className="app-button app-button-block"
           type="button"
           onClick={() => {
             void logout();

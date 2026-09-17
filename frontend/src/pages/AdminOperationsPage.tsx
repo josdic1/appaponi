@@ -14,6 +14,12 @@ import type {
   ActivitySetting,
 } from "@appoponi/shared/schemas/activities";
 
+import {
+  CAMP_MAP_PLACE_IDS,
+  CAMP_MAP_PLACE_LABELS,
+  type CampMapPlaceId,
+} from "@appoponi/shared/schemas/campMap";
+
 import type {
   EventRecord,
   EventType,
@@ -22,6 +28,7 @@ import type {
 import {
   createActivity,
   createArea,
+  cloneEvent,
   createEvent,
   deleteActivity,
   deleteArea,
@@ -76,6 +83,15 @@ export default function AdminOperationsPage() {
   const [view, setView] =
     useState<View>("events");
 
+  const [showEventCreate, setShowEventCreate] =
+    useState(false);
+
+  const [showAreaCreate, setShowAreaCreate] =
+    useState(false);
+
+  const [showActivityCreate, setShowActivityCreate] =
+    useState(false);
+
   const [areas, setAreas] =
     useState<Area[]>([]);
 
@@ -102,6 +118,9 @@ export default function AdminOperationsPage() {
 
   const [setting, setSetting] =
     useState<ActivitySetting>("outside");
+
+  const [activityMapPlaceId, setActivityMapPlaceId] =
+    useState<CampMapPlaceId | "">("");
 
   const [eventName, setEventName] =
     useState("");
@@ -147,6 +166,11 @@ export default function AdminOperationsPage() {
     setEditingActivitySetting,
   ] = useState<ActivitySetting>("outside");
 
+  const [
+    editingActivityMapPlaceId,
+    setEditingActivityMapPlaceId,
+  ] = useState<CampMapPlaceId | "">("");
+
   const [editingEventId, setEditingEventId] =
     useState<string | null>(null);
 
@@ -177,6 +201,17 @@ export default function AdminOperationsPage() {
     editingOtherReason,
     setEditingOtherReason,
   ] = useState("");
+
+  const [
+    cloningEventId,
+    setCloningEventId,
+  ] = useState<string | null>(null);
+
+  const [cloneEventName, setCloneEventName] =
+    useState("");
+
+  const [cloneStartsAt, setCloneStartsAt] =
+    useState("");
 
   async function refresh() {
     const [
@@ -240,6 +275,7 @@ export default function AdminOperationsPage() {
     try {
       await createArea(areaName);
       setAreaName("");
+      setShowAreaCreate(false);
       await refresh();
     } catch (err) {
       setError(
@@ -267,9 +303,12 @@ export default function AdminOperationsPage() {
         area_id:
           Number(activityAreaId),
         setting,
+        map_place_id: activityMapPlaceId || null,
       });
 
       setActivityName("");
+      setActivityMapPlaceId("");
+      setShowActivityCreate(false);
       await refresh();
     } catch (err) {
       setError(
@@ -328,6 +367,7 @@ export default function AdminOperationsPage() {
       setEndsAt("");
       setOtherValue("");
       setOtherReason("");
+      setShowEventCreate(false);
 
       await refresh();
     } catch (err) {
@@ -413,6 +453,9 @@ export default function AdminOperationsPage() {
     setEditingActivitySetting(
       activity.setting,
     );
+    setEditingActivityMapPlaceId(
+      activity.map_place_id ?? "",
+    );
     setError(null);
   }
 
@@ -437,6 +480,8 @@ export default function AdminOperationsPage() {
           ),
         setting:
           editingActivitySetting,
+        map_place_id:
+          editingActivityMapPlaceId || null,
       });
 
       setEditingActivityId(null);
@@ -485,10 +530,72 @@ export default function AdminOperationsPage() {
     }
   }
 
+  function nextCloneName(name: string) {
+    const matches = [...name.matchAll(/\b(20\d{2})\b/g)];
+    const last = matches.at(-1);
+
+    if (!last) {
+      return `${name} Copy`;
+    }
+
+    const year = Number(last[1]);
+    const index = last.index ?? 0;
+
+    return `${name.slice(0, index)}${year + 1}${name.slice(
+      index + last[1].length,
+    )}`;
+  }
+
+  function defaultCloneStart(value: string) {
+    const next = new Date(value);
+    next.setDate(next.getDate() + 364);
+    return editableDateTime(next.toISOString());
+  }
+
+  function beginEventClone(item: EventRecord) {
+    setCloningEventId(item.id);
+    setCloneEventName(nextCloneName(item.name));
+    setCloneStartsAt(defaultCloneStart(item.starts_at));
+    setEditingEventId(null);
+    setError(null);
+  }
+
+  async function submitEventClone(
+    event: FormEvent,
+    sourceId: string,
+  ) {
+    event.preventDefault();
+    setError(null);
+
+    if (!cloneStartsAt) {
+      setError("New start is required.");
+      return;
+    }
+
+    try {
+      await cloneEvent(sourceId, {
+        name: cloneEventName,
+        starts_at: humanDateTimeToIso(cloneStartsAt),
+      });
+
+      setCloningEventId(null);
+      setCloneEventName("");
+      setCloneStartsAt("");
+      await refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not clone event",
+      );
+    }
+  }
+
   function beginEventEdit(
     item: EventRecord,
   ) {
     setEditingEventId(item.id);
+    setCloningEventId(null);
     setEditingEventName(item.name);
     setEditingEventTypeId(
       item.event_type_id,
@@ -610,17 +717,15 @@ export default function AdminOperationsPage() {
             ADMIN
           </div>
 
-          <h1>Camp operations</h1>
+          <h1>Events & libraries</h1>
 
           <p>
-            Define the places, reusable
-            activities, and events that
-            Appoponi schedules.
+            Build events from reusable places and activities.
           </p>
         </div>
       </div>
 
-      <div className="operations-tabs">
+      <div className="app-tabs">
         <button
           type="button"
           className={
@@ -646,7 +751,7 @@ export default function AdminOperationsPage() {
             setView("areas")
           }
         >
-          Areas
+          Place library
         </button>
 
         <button
@@ -660,26 +765,66 @@ export default function AdminOperationsPage() {
             setView("activities")
           }
         >
-          Activities
+          Activity library
+        </button>
+      </div>
+
+      <div className="operations-section-bar">
+        <div>
+          <strong>
+            {view === "events"
+              ? "Events"
+              : view === "areas"
+                ? "Place library"
+                : "Activity library"}
+          </strong>
+          <span>
+            {view === "events"
+              ? `${events.length} persistent event${events.length === 1 ? "" : "s"}. Event categories are reusable.`
+              : view === "areas"
+                ? `${areas.length} reusable place${areas.length === 1 ? "" : "s"} available to every event.`
+                : `${activities.length} reusable activit${activities.length === 1 ? "y" : "ies"} available to every event.`}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          className="app-button app-button-primary"
+          onClick={() => {
+            if (view === "events") {
+              setShowEventCreate((current) => !current);
+            } else if (view === "areas") {
+              setShowAreaCreate((current) => !current);
+            } else {
+              setShowActivityCreate((current) => !current);
+            }
+          }}
+        >
+          {view === "events"
+            ? showEventCreate ? "Close" : "New event"
+            : view === "areas"
+              ? showAreaCreate ? "Close" : "New place"
+              : showActivityCreate ? "Close" : "New activity"}
         </button>
       </div>
 
       {error && (
-        <div className="admin-error">
+        <div className="app-alert app-alert-danger">
           {error}
         </div>
       )}
 
       {view === "areas" && (
-        <div className="admin-grid">
-          <section className="admin-card">
-            <div className="admin-card-head">
+        <div className="admin-grid operations-setup-grid">
+          {showAreaCreate && (
+          <section className="app-card">
+            <div className="app-card-head">
               <div>
                 <strong>
-                  Add area
+                  Add place
                 </strong>
                 <span>
-                  A real place at camp.
+                  Reusable physical location.
                 </span>
               </div>
             </div>
@@ -702,18 +847,19 @@ export default function AdminOperationsPage() {
               </label>
 
               <button
-                className="admin-primary"
+                className="app-button app-button-primary"
                 type="submit"
               >
-                Add area
+                Add place
               </button>
             </form>
           </section>
+          )}
 
-          <section className="admin-card">
-            <div className="admin-card-head">
+          <section className="app-card">
+            <div className="app-card-head">
               <div>
-                <strong>Areas</strong>
+                <strong>Place library</strong>
                 <span>
                   {areas.length} total
                 </span>
@@ -749,14 +895,14 @@ export default function AdminOperationsPage() {
 
                       <div className="admin-row-actions">
                         <button
-                          className="admin-secondary-button"
+                          className="app-button"
                           type="submit"
                         >
                           Save
                         </button>
 
                         <button
-                          className="admin-edit-button"
+                          className="app-button"
                           type="button"
                           onClick={() =>
                             setEditingAreaId(
@@ -781,7 +927,7 @@ export default function AdminOperationsPage() {
 
                       <div className="admin-row-actions">
                         <button
-                          className="admin-edit-button"
+                          className="app-button"
                           type="button"
                           onClick={() =>
                             beginAreaEdit(
@@ -793,7 +939,7 @@ export default function AdminOperationsPage() {
                         </button>
 
                         <button
-                          className="admin-delete-button"
+                          className="app-button app-button-danger"
                           type="button"
                           onClick={() =>
                             void removeArea(
@@ -808,7 +954,7 @@ export default function AdminOperationsPage() {
                   ),
                 )
               ) : (
-                <div className="admin-empty">
+                <div className="app-empty">
                   No areas yet.
                 </div>
               )}
@@ -818,15 +964,16 @@ export default function AdminOperationsPage() {
       )}
 
       {view === "activities" && (
-        <div className="admin-grid">
-          <section className="admin-card">
-            <div className="admin-card-head">
+        <div className="admin-grid operations-setup-grid">
+          {showActivityCreate && (
+          <section className="app-card">
+            <div className="app-card-head">
               <div>
                 <strong>
                   Add activity
                 </strong>
                 <span>
-                  Reusable camp activity.
+                  Reusable activity definition. Schedule it inside any event.
                 </span>
               </div>
             </div>
@@ -900,20 +1047,42 @@ export default function AdminOperationsPage() {
                 </select>
               </label>
 
+              <label>
+                <span>Map place</span>
+
+                <select
+                  value={activityMapPlaceId}
+                  onChange={(event) =>
+                    setActivityMapPlaceId(
+                      event.target.value as CampMapPlaceId | "",
+                    )
+                  }
+                >
+                  <option value="">Not on map</option>
+
+                  {CAMP_MAP_PLACE_IDS.map((placeId) => (
+                    <option key={placeId} value={placeId}>
+                      {CAMP_MAP_PLACE_LABELS[placeId]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
               <button
-                className="admin-primary"
+                className="app-button app-button-primary"
                 type="submit"
               >
                 Add activity
               </button>
             </form>
           </section>
+          )}
 
-          <section className="admin-card">
-            <div className="admin-card-head">
+          <section className="app-card">
+            <div className="app-card-head">
               <div>
                 <strong>
-                  Activities
+                  Activity library
                 </strong>
                 <span>
                   {activities.length} total
@@ -1005,18 +1174,35 @@ export default function AdminOperationsPage() {
                               Other
                             </option>
                           </select>
+                          <select
+                            aria-label="Activity map place"
+                            value={editingActivityMapPlaceId}
+                            onChange={(event) =>
+                              setEditingActivityMapPlaceId(
+                                event.target.value as CampMapPlaceId | "",
+                              )
+                            }
+                          >
+                            <option value="">Not on map</option>
+
+                            {CAMP_MAP_PLACE_IDS.map((placeId) => (
+                              <option key={placeId} value={placeId}>
+                                {CAMP_MAP_PLACE_LABELS[placeId]}
+                              </option>
+                            ))}
+                          </select>
                         </div>
 
                         <div className="admin-row-actions">
                           <button
-                            className="admin-secondary-button"
+                            className="app-button"
                             type="submit"
                           >
                             Save
                           </button>
 
                           <button
-                            className="admin-edit-button"
+                            className="app-button"
                             type="button"
                             onClick={() =>
                               setEditingActivityId(
@@ -1048,12 +1234,18 @@ export default function AdminOperationsPage() {
                             {
                               activity.setting
                             }
+                            {activity.map_place_id ? (
+                              <>
+                                {" · "}
+                                {CAMP_MAP_PLACE_LABELS[activity.map_place_id]}
+                              </>
+                            ) : null}
                           </small>
                         </span>
 
                         <div className="admin-row-actions">
                           <button
-                            className="admin-edit-button"
+                            className="app-button"
                             type="button"
                             onClick={() =>
                               beginActivityEdit(
@@ -1065,7 +1257,7 @@ export default function AdminOperationsPage() {
                           </button>
 
                           <button
-                            className="admin-delete-button"
+                            className="app-button app-button-danger"
                             type="button"
                             onClick={() =>
                               void removeActivity(
@@ -1080,7 +1272,7 @@ export default function AdminOperationsPage() {
                     ),
                 )
               ) : (
-                <div className="admin-empty">
+                <div className="app-empty">
                   No activities yet.
                 </div>
               )}
@@ -1090,9 +1282,10 @@ export default function AdminOperationsPage() {
       )}
 
       {view === "events" && (
-        <div className="admin-grid">
-          <section className="admin-card">
-            <div className="admin-card-head">
+        <div className="admin-grid operations-event-grid">
+          {showEventCreate && (
+          <section className="app-card">
+            <div className="app-card-head">
               <div>
                 <strong>
                   Create event
@@ -1123,7 +1316,7 @@ export default function AdminOperationsPage() {
               </label>
 
               <label>
-                <span>Event type</span>
+                <span>Event category</span>
 
                 <select
                   value={eventTypeId}
@@ -1148,6 +1341,9 @@ export default function AdminOperationsPage() {
                     ),
                   )}
                 </select>
+                <small className="operations-field-help">
+                  A category is reusable. Family Camp 2026 and Family Camp 2027 can both use Family Camp.
+                </small>
               </label>
 
               {selectedEventType?.name ===
@@ -1208,7 +1404,7 @@ export default function AdminOperationsPage() {
               </label>
 
               <button
-                className="admin-primary"
+                className="app-button app-button-primary"
                 type="submit"
               >
                 Create event
@@ -1216,8 +1412,10 @@ export default function AdminOperationsPage() {
             </form>
           </section>
 
-          <section className="admin-card">
-            <div className="admin-card-head">
+          )}
+
+          <section className="app-card">
+            <div className="app-card-head">
               <div>
                 <strong>Events</strong>
                 <span>
@@ -1258,7 +1456,7 @@ export default function AdminOperationsPage() {
                         />
 
                         <select
-                          aria-label="Event type"
+                          aria-label="Event category"
                           value={
                             editingEventTypeId
                           }
@@ -1353,19 +1551,73 @@ export default function AdminOperationsPage() {
 
                       <div className="admin-row-actions">
                         <button
-                          className="admin-secondary-button"
+                          className="app-button"
                           type="submit"
                         >
                           Save
                         </button>
 
                         <button
-                          className="admin-edit-button"
+                          className="app-button"
                           type="button"
                           onClick={() =>
                             setEditingEventId(
                               null,
                             )
+                          }
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : cloningEventId ===
+                    event.id ? (
+                    <form
+                      className="admin-list-row profile-edit-row operation-event-edit"
+                      key={event.id}
+                      onSubmit={(formEvent) =>
+                        void submitEventClone(
+                          formEvent,
+                          event.id,
+                        )
+                      }
+                    >
+                      <div className="operation-event-edit-fields">
+                        <label>
+                          <span>New event name</span>
+                          <input
+                            autoFocus
+                            value={cloneEventName}
+                            onChange={(inputEvent) =>
+                              setCloneEventName(
+                                inputEvent.target.value,
+                              )
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          <span>New start</span>
+                          <HumanDateTimeInput
+                            value={cloneStartsAt}
+                            onChange={setCloneStartsAt}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="admin-row-actions">
+                        <button
+                          className="app-button app-button-primary"
+                          type="submit"
+                        >
+                          Clone event
+                        </button>
+
+                        <button
+                          className="app-button"
+                          type="button"
+                          onClick={() =>
+                            setCloningEventId(null)
                           }
                         >
                           Cancel
@@ -1395,7 +1647,17 @@ export default function AdminOperationsPage() {
 
                       <div className="admin-row-actions">
                         <button
-                          className="admin-edit-button"
+                          className="app-button"
+                          type="button"
+                          onClick={() =>
+                            beginEventClone(event)
+                          }
+                        >
+                          Clone
+                        </button>
+
+                        <button
+                          className="app-button"
                           type="button"
                           onClick={() =>
                             beginEventEdit(
@@ -1407,7 +1669,7 @@ export default function AdminOperationsPage() {
                         </button>
 
                         <button
-                          className="admin-delete-button"
+                          className="app-button app-button-danger"
                           type="button"
                           onClick={() =>
                             void removeEvent(
@@ -1422,7 +1684,7 @@ export default function AdminOperationsPage() {
                   ),
                 )
               ) : (
-                <div className="admin-empty">
+                <div className="app-empty">
                   No events yet.
                 </div>
               )}
