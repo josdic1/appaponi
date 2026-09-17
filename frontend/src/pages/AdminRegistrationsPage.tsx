@@ -186,7 +186,7 @@ export default function AdminRegistrationsPage({
           </label>
           <label>
             <span>Paid spots</span>
-            <input type="number" min="1" value={spots} onChange={(e) => setSpots(e.target.value)} />
+            <input className="app-control-number" type="number" min="1" value={spots} onChange={(e) => setSpots(e.target.value)} />
           </label>
           <div className="app-action-panel-actions">
             <button className="app-button" type="button" onClick={() => setShowRegister(false)}>Cancel</button>
@@ -217,6 +217,7 @@ export default function AdminRegistrationsPage({
                 <label className="registration-compact-field">
                   <small>Spots</small>
                   <input
+                    className="app-control-number"
                     type="number"
                     min="1"
                     value={item.spots_paid_for}

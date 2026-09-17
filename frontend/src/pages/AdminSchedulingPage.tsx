@@ -417,6 +417,7 @@ export default function AdminSchedulingPage({
             <label>
               <span>Capacity</span>
               <input
+                className="app-control-number"
                 type="number"
                 min="1"
                 value={scheduleCapacity}
@@ -598,8 +599,8 @@ export default function AdminSchedulingPage({
         </summary>
 
         <div className="schedule-grid setup-grid">
-          <section className="app-card">
-            <div className="app-card-head">
+          <section className="setup-section">
+            <div className="setup-section-head">
               <div>
                 <strong>Qualification library</strong>
                 <span>{qualifications.length} reusable skill{qualifications.length === 1 ? "" : "s"}</span>
@@ -640,8 +641,8 @@ export default function AdminSchedulingPage({
             </div>
           </section>
 
-          <section className="app-card">
-            <div className="app-card-head">
+          <section className="setup-section">
+            <div className="setup-section-head">
               <div>
                 <strong>Staff → place assignments</strong>
                 <span>{staffAreas.length} current assignment{staffAreas.length === 1 ? "" : "s"}</span>
@@ -691,8 +692,8 @@ export default function AdminSchedulingPage({
             </div>
           </section>
 
-          <section className="app-card">
-            <div className="app-card-head">
+          <section className="setup-section">
+            <div className="setup-section-head">
               <div>
                 <strong>Staff → qualifications</strong>
                 <span>{staffQualifications.length} current assignment{staffQualifications.length === 1 ? "" : "s"}</span>
@@ -742,8 +743,8 @@ export default function AdminSchedulingPage({
             </div>
           </section>
 
-          <section className="app-card">
-            <div className="app-card-head">
+          <section className="setup-section">
+            <div className="setup-section-head">
               <div>
                 <strong>Activity requirement library</strong>
                 <span>{activityQualifications.length} reusable staffing rule{activityQualifications.length === 1 ? "" : "s"}</span>
@@ -772,6 +773,7 @@ export default function AdminSchedulingPage({
               <label>
                 <span>Required staff</span>
                 <input
+                  className="app-control-number"
                   type="number"
                   min="1"
                   value={requiredCount}

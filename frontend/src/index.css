@@ -366,11 +366,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 /* ---------- Shared controls ---------- */
 
-:where(.admin-page, .member-app) input,
+/* Text-like controls share one canonical field treatment. Native boolean/range
+   controls are deliberately excluded so they never inherit giant text-field
+   dimensions by accident. */
+:where(.admin-page, .member-app) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 :where(.admin-page, .member-app) select,
 :where(.admin-page, .member-app) textarea,
-.household-setup-form input {
+.household-setup-form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
   width: 100%;
+  max-width: 100%;
   min-height: var(--control-height);
   border: 1px solid var(--line-strong);
   border-radius: var(--control-radius);
@@ -388,12 +392,31 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   resize: vertical;
 }
 
-:where(.admin-page, .member-app) input:focus,
+:where(.admin-page, .member-app) input[type="checkbox"],
+:where(.admin-page, .member-app) input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  flex: 0 0 auto;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+:where(.admin-page, .member-app) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
 :where(.admin-page, .member-app) select:focus,
 :where(.admin-page, .member-app) textarea:focus,
-.household-setup-form input:focus {
+.household-setup-form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.app-control-compact {
+  min-height: var(--control-height-sm);
+}
+
+.app-control-number {
+  width: 96px;
+  max-width: 100%;
 }
 
 :where(.admin-form, .member-service-form, .service-wide-form,
@@ -414,6 +437,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 .app-button {
+  width: fit-content;
+  max-width: 100%;
   min-height: var(--control-height-sm);
   display: inline-flex;
   align-items: center;
@@ -426,6 +451,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   font: inherit;
   font-size: 12px;
   font-weight: 650;
+  line-height: 1.2;
   text-decoration: none;
 }
 
@@ -435,7 +461,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 .app-button-primary {
-  min-height: var(--control-height);
   border-color: var(--accent);
   background: var(--accent);
   padding-inline: 14px;
@@ -450,6 +475,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 .app-button-block {
   width: 100%;
+}
+
+.app-button-touch {
+  min-height: var(--control-height-lg);
 }
 
 .app-button-danger {
@@ -527,6 +556,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 .app-choice-button {
+  width: 100%;
   min-width: 0;
   min-height: var(--control-height);
 }
@@ -2240,6 +2270,25 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 .preference-list {
   padding: 6px 14px;
+}
+
+.preference-list label {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.preference-list label:last-child {
+  border-bottom: 0;
+}
+
+.preference-list label > span {
+  min-width: 0;
 }
 
 /* ---------- Service admin + kitchen ---------- */
@@ -3969,9 +4018,62 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .activity-requirement-row strong { font-size: 11px; line-height: 1.3; }
 .activity-requirement-row span { color: var(--muted); font-size: 10px; }
 
-.compact-form { padding: 14px; }
-.setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px; background: var(--surface-2); }
-.setup-grid > .app-card { background: var(--surface); }
+/* Reusable setup is one surface with internal sections — never card soup. */
+.compact-form {
+  gap: 9px;
+  padding: 12px 14px;
+}
+.compact-form :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select) {
+  min-height: var(--control-height-sm);
+}
+.compact-form > .app-button {
+  justify-self: start;
+}
+.compact-form .app-control-number {
+  width: 88px;
+}
+
+.setup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  padding: 0;
+  background: var(--surface);
+}
+.setup-section {
+  min-width: 0;
+  background: var(--surface);
+}
+.setup-section:nth-child(odd) {
+  border-right: 1px solid var(--line);
+}
+.setup-section:nth-child(n + 3) {
+  border-top: 1px solid var(--line);
+}
+.setup-section-head {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.setup-section-head > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.setup-section-head strong {
+  font-size: 12px;
+}
+.setup-section-head span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.setup-section .compact-list {
+  border-top: 1px solid var(--line);
+}
 
 /* Operations: existing things first; creation is an explicit action. */
 .operations-section-bar {
@@ -4264,6 +4366,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .admin-event-context { align-items: stretch; flex-direction: column; }
   .admin-event-context select { width: 100%; }
   .setup-grid { grid-template-columns: 1fr; }
+  .setup-section:nth-child(odd) { border-right: 0; }
+  .setup-section + .setup-section { border-top: 1px solid var(--line); }
   .operations-section-bar { align-items: stretch; flex-direction: column; }
   .operations-section-bar .app-button { width: 100%; }
   .registration-first .registration-row { grid-template-columns: minmax(0, 1fr) 78px; gap: 8px; }

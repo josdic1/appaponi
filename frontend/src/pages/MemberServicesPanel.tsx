@@ -734,7 +734,7 @@ export default function MemberServicesPanel({
 
               <label>
                 <span>Quantity</span>
-                <input type="number" min="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+                <input className="app-control-number" type="number" min="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
               </label>
 
               {selectedOfferingType === "AFTER_HOURS" && (
