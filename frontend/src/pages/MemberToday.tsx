@@ -1,3 +1,12 @@
+import {
+  Box,
+  Button,
+  Grid,
+  HStack,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
 import type { NotificationRecord } from "@appoponi/shared/schemas/notifications";
 import type {
   ActivitySignup,
@@ -195,106 +204,448 @@ export default function MemberToday({
     (unreadNotifications.length > 0 ? 1 : 0);
 
   return (
-    <section id="member-today" className="app-card member-today member-scroll-target">
-      <div className="app-card-head member-today-head">
-        <div>
-          <span className="member-today-kicker">TODAY</span>
-          <strong>{registration.event_name}</strong>
-          <span>
+    <Box
+      as="section"
+      id="member-today"
+      scrollMarginTop={{
+        base: "128px",
+        md: "84px",
+      }}
+      mb="18px"
+      overflow="hidden"
+      borderWidth="1px"
+      borderColor="#dddcd5"
+      borderRadius="12px"
+      bg="#ffffff"
+    >
+      <Box
+        minH="66px"
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        gap="14px"
+        px="4"
+        py="13px"
+        borderBottomWidth="1px"
+        borderColor="#dddcd5"
+      >
+        <Stack
+          minW="0"
+          gap="2px"
+        >
+          <Text
+            color="#6d7169"
+            fontSize="9px"
+            fontWeight="800"
+            letterSpacing="0.08em"
+            textTransform="uppercase"
+          >
+            TODAY
+          </Text>
+
+          <Text
+            fontSize="17px"
+            fontWeight="700"
+            letterSpacing="-0.02em"
+          >
+            {registration.event_name}
+          </Text>
+
+          <Text
+            color="#6d7169"
+            fontSize="11px"
+          >
             {dateRangeLabel(
               registration.event_starts_at,
               registration.event_ends_at,
             )}
-          </span>
-        </div>
+          </Text>
+        </Stack>
 
-        <button type="button" className="app-button" onClick={onOpenItinerary}>
-          Full itinerary
-        </button>
-      </div>
-
-      <div className="member-today-moments">
-        <div className="member-today-moment">
-          <span>NOW</span>
-          <strong>{nowTitle}</strong>
-          <small>{nowMeta}</small>
-        </div>
-
-        <button
+        <Button
           type="button"
-          className="member-today-moment member-today-moment-action"
+          size="sm"
+          variant="outline"
           onClick={onOpenItinerary}
-          disabled={!nextEntry}
         >
-          <span>NEXT</span>
-          <strong>{nextEntry ? entryTitle(nextEntry) : "Nothing else scheduled"}</strong>
-          <small>
+          Full itinerary
+        </Button>
+      </Box>
+
+      <Grid
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(2, minmax(0, 1fr))",
+        }}
+        borderBottomWidth="1px"
+        borderColor="#dddcd5"
+      >
+        <Stack
+          minW="0"
+          minH={{
+            base: "76px",
+            md: "92px",
+          }}
+          justifyContent="center"
+          alignItems="flex-start"
+          gap="1"
+          px="4"
+          py="14px"
+          borderRightWidth={{
+            base: "0",
+            md: "1px",
+          }}
+          borderBottomWidth={{
+            base: "1px",
+            md: "0",
+          }}
+          borderColor="#dddcd5"
+        >
+          <Text
+            color="#6d7169"
+            fontSize="9px"
+            fontWeight="800"
+            letterSpacing="0.08em"
+            textTransform="uppercase"
+          >
+            NOW
+          </Text>
+
+          <Text
+            maxW="full"
+            overflow="hidden"
+            fontWeight="700"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+          >
+            {nowTitle}
+          </Text>
+
+          <Text
+            color="#6d7169"
+            fontSize="10px"
+          >
+            {nowMeta}
+          </Text>
+        </Stack>
+
+        <Button
+          type="button"
+          variant="ghost"
+          borderRadius="0"
+          minW="0"
+          minH={{
+            base: "76px",
+            md: "92px",
+          }}
+          h="auto"
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          justifyContent="center"
+          gap="1"
+          px="4"
+          py="14px"
+          color="#171915"
+          textAlign="left"
+          disabled={!nextEntry}
+          onClick={onOpenItinerary}
+        >
+          <Text
+            color="#6d7169"
+            fontSize="9px"
+            fontWeight="800"
+            letterSpacing="0.08em"
+            textTransform="uppercase"
+          >
+            NEXT
+          </Text>
+
+          <Text
+            maxW="full"
+            overflow="hidden"
+            fontWeight="700"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+          >
+            {nextEntry
+              ? entryTitle(nextEntry)
+              : "Nothing else scheduled"}
+          </Text>
+
+          <Text
+            color="#6d7169"
+            fontSize="10px"
+          >
             {nextEntry
               ? `${dateLabel(nextEntry.starts_at)} · ${timeLabel(nextEntry.starts_at)}`
               : "Your schedule is clear."}
-          </small>
-        </button>
-      </div>
+          </Text>
+        </Button>
+      </Grid>
 
-      <div className="member-today-facts">
-        <button
+      <Grid
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(3, minmax(0, 1fr))",
+        }}
+      >
+        <Button
           type="button"
-          className="member-today-fact"
-          onClick={() => nextMeal && onOpenMeal(nextMeal)}
+          variant="ghost"
+          borderRadius="0"
+          minW="0"
+          minH={{
+            base: "64px",
+            md: "76px",
+          }}
+          h="auto"
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          justifyContent="center"
+          gap="3px"
+          px="14px"
+          py="11px"
+          borderRightWidth={{
+            base: "0",
+            md: "1px",
+          }}
+          borderBottomWidth={{
+            base: "1px",
+            md: "0",
+          }}
+          borderColor="#dddcd5"
+          color="#171915"
+          textAlign="left"
           disabled={!nextMeal}
+          onClick={() =>
+            nextMeal &&
+            onOpenMeal(nextMeal)
+          }
         >
-          <span>NEXT MEAL</span>
-          <strong>{nextMeal ? nextMeal.title ?? nextMeal.meal_type_name : "No upcoming meal"}</strong>
-          <small>
+          <Text
+            color="#6d7169"
+            fontSize="9px"
+            fontWeight="800"
+            letterSpacing="0.08em"
+            textTransform="uppercase"
+          >
+            NEXT MEAL
+          </Text>
+
+          <Text
+            maxW="full"
+            overflow="hidden"
+            fontWeight="700"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+          >
+            {nextMeal
+              ? nextMeal.title ??
+                nextMeal.meal_type_name
+              : "No upcoming meal"}
+          </Text>
+
+          <Text
+            color="#6d7169"
+            fontSize="10px"
+          >
             {nextMeal
               ? `${dateLabel(nextMeal.starts_at)} · ${timeLabel(nextMeal.starts_at)}`
               : "No more meals scheduled."}
-          </small>
-        </button>
+          </Text>
+        </Button>
 
-        <button type="button" className="member-today-fact" onClick={onOpenStay}>
-          <span>CABIN</span>
-          <strong>{registration.cabin_name ?? "Not assigned"}</strong>
-          <small>
-            {attendees.length}/{registration.spots_paid_for} attending
-          </small>
-        </button>
-
-        <button
+        <Button
           type="button"
-          className="member-today-fact"
-          onClick={onOpenNotices}
-          disabled={unreadNotifications.length === 0}
+          variant="ghost"
+          borderRadius="0"
+          minW="0"
+          minH={{
+            base: "64px",
+            md: "76px",
+          }}
+          h="auto"
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          justifyContent="center"
+          gap="3px"
+          px="14px"
+          py="11px"
+          borderRightWidth={{
+            base: "0",
+            md: "1px",
+          }}
+          borderBottomWidth={{
+            base: "1px",
+            md: "0",
+          }}
+          borderColor="#dddcd5"
+          color="#171915"
+          textAlign="left"
+          onClick={onOpenStay}
         >
-          <span>NOTICES</span>
-          <strong>
+          <Text
+            color="#6d7169"
+            fontSize="9px"
+            fontWeight="800"
+            letterSpacing="0.08em"
+            textTransform="uppercase"
+          >
+            CABIN
+          </Text>
+
+          <Text
+            maxW="full"
+            overflow="hidden"
+            fontWeight="700"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+          >
+            {registration.cabin_name ??
+              "Not assigned"}
+          </Text>
+
+          <Text
+            color="#6d7169"
+            fontSize="10px"
+          >
+            {attendees.length}/
+            {registration.spots_paid_for} attending
+          </Text>
+        </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          borderRadius="0"
+          minW="0"
+          minH={{
+            base: "64px",
+            md: "76px",
+          }}
+          h="auto"
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          justifyContent="center"
+          gap="3px"
+          px="14px"
+          py="11px"
+          color="#171915"
+          textAlign="left"
+          disabled={
+            unreadNotifications.length === 0
+          }
+          onClick={onOpenNotices}
+        >
+          <Text
+            color="#6d7169"
+            fontSize="9px"
+            fontWeight="800"
+            letterSpacing="0.08em"
+            textTransform="uppercase"
+          >
+            NOTICES
+          </Text>
+
+          <Text
+            maxW="full"
+            overflow="hidden"
+            fontWeight="700"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+          >
             {unreadNotifications.length
               ? `${unreadNotifications.length} unread`
               : "All caught up"}
-          </strong>
-          <small>
-            {unreadNotifications[0]?.title ?? "No unread notices."}
-          </small>
-        </button>
-      </div>
+          </Text>
 
-      <div className={`member-today-actions ${actionCount ? "has-actions" : ""}`}>
-        <strong>{actionCount ? "Needs your attention" : "You’re set"}</strong>
+          <Text
+            color="#6d7169"
+            fontSize="10px"
+          >
+            {unreadNotifications[0]?.title ??
+              "No unread notices."}
+          </Text>
+        </Button>
+      </Grid>
 
-        <div>
+      <Box
+        minH="48px"
+        display="flex"
+        flexDirection={{
+          base: "column",
+          md: "row",
+        }}
+        alignItems={{
+          base: "flex-start",
+          md: "center",
+        }}
+        justifyContent="space-between"
+        gap="3"
+        px={{
+          base: "4",
+          md: "4",
+        }}
+        py="2"
+        borderTopWidth="1px"
+        borderColor="#dddcd5"
+      >
+        <Text
+          fontSize="11px"
+          fontWeight="700"
+          color={
+            actionCount
+              ? "#6a5821"
+              : "#171915"
+          }
+        >
+          {actionCount
+            ? "Needs your attention"
+            : "You’re set"}
+        </Text>
+
+        <HStack
+          w={{
+            base: "full",
+            md: "auto",
+          }}
+          justifyContent={{
+            base: "flex-start",
+            md: "flex-end",
+          }}
+          gap="7px"
+          flexWrap="wrap"
+        >
           {attendingGap > 0 && (
-            <button type="button" className="app-button" onClick={onOpenStay}>
-              Choose {attendingGap} more {attendingGap === 1 ? "guest" : "guests"}
-            </button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={onOpenStay}
+            >
+              Choose {attendingGap} more{" "}
+              {attendingGap === 1
+                ? "guest"
+                : "guests"}
+            </Button>
           )}
 
           {unreadNotifications.length > 0 && (
-            <button type="button" className="app-button" onClick={onOpenNotices}>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={onOpenNotices}
+            >
               Read notices
-            </button>
+            </Button>
           )}
-        </div>
-      </div>
-    </section>
+        </HStack>
+      </Box>
+    </Box>
   );
 }
