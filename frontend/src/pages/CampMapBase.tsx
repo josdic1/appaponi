@@ -93,15 +93,57 @@ export function findCampCabinSlotById(id: CampCabinSlotId | null) {
   return CAMP_MAP_CABINS.find((slot) => slot.id === id) ?? null;
 }
 
+type CampCabinShapeState =
+  | "hidden"
+  | "placed"
+  | "assigned"
+  | "selected"
+  | "unavailable";
+
 export function CampCabinShape({
   slot,
   className = "",
+  state = "hidden",
 }: {
   slot: CampMapCabinFeature;
   className?: string;
+  state?: CampCabinShapeState;
 }) {
   const centerX = slot.x + slot.width / 2;
   const centerY = slot.y + slot.height / 2;
+
+  const appearance = {
+    hidden: {
+      fill: "transparent",
+      fillOpacity: 1,
+      stroke: "transparent",
+      strokeWidth: 1.5,
+    },
+    placed: {
+      fill: "#ffffff",
+      fillOpacity: 0.18,
+      stroke: "#63726a",
+      strokeWidth: 1.4,
+    },
+    assigned: {
+      fill: "#ffffff",
+      fillOpacity: 0.18,
+      stroke: "#007854",
+      strokeWidth: 1.8,
+    },
+    selected: {
+      fill: "#e7f3ef",
+      fillOpacity: 1,
+      stroke: "#007854",
+      strokeWidth: 2.1,
+    },
+    unavailable: {
+      fill: "#fbfaf7",
+      fillOpacity: 0.24,
+      stroke: "#aaaaaa",
+      strokeWidth: 1.5,
+    },
+  }[state];
 
   return (
     <g
@@ -115,9 +157,10 @@ export function CampCabinShape({
         width={slot.width}
         height={slot.height}
         rx={7}
-        fill="transparent"
-        stroke="transparent"
-        strokeWidth={1.5}
+        fill={appearance.fill}
+        fillOpacity={appearance.fillOpacity}
+        stroke={appearance.stroke}
+        strokeWidth={appearance.strokeWidth}
         vectorEffect="non-scaling-stroke"
       />
     </g>
