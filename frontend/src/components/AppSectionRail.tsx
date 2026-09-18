@@ -1,4 +1,9 @@
 import {
+  Box,
+  Button,
+  HStack,
+} from "@chakra-ui/react";
+import {
   useEffect,
   useMemo,
   useRef,
@@ -24,6 +29,7 @@ export default function AppSectionRail({
 }: Props) {
   const [observedActiveId, setObservedActiveId] =
     useState<string | null>(null);
+
   const frameRef = useRef<number | null>(null);
 
   const targetItems = useMemo(
@@ -98,11 +104,13 @@ export default function AppSectionRail({
     }
 
     scheduleUpdate();
+
     window.addEventListener(
       "scroll",
       scheduleUpdate,
       { passive: true },
     );
+
     window.addEventListener(
       "resize",
       scheduleUpdate,
@@ -113,6 +121,7 @@ export default function AppSectionRail({
         "scroll",
         scheduleUpdate,
       );
+
       window.removeEventListener(
         "resize",
         scheduleUpdate,
@@ -150,39 +159,57 @@ export default function AppSectionRail({
   }
 
   return (
-    <aside
-      className="app-section-rail"
+    <Box
+      as="aside"
       aria-label={label}
+      w="full"
+      overflowX="auto"
+      borderBottomWidth="1px"
+      borderColor="gray.200"
+      bg="white"
+      px={{ base: "3", md: "6" }}
+      py="2"
     >
-      {items.map((item) => {
-        const isActive =
-          item.active ??
-          (item.targetId
-            ? observedActiveId === item.id
-            : false);
+      <HStack
+        gap="1"
+        minW="max-content"
+      >
+        {items.map((item) => {
+          const isActive =
+            item.active ??
+            (item.targetId
+              ? observedActiveId === item.id
+              : false);
 
-        return (
-          <button
-            type="button"
-            key={item.id}
-            className={
-              isActive
-                ? "active"
-                : ""
-            }
-            aria-current={
-              isActive
-                ? "location"
-                : undefined
-            }
-            onClick={() =>
-              activate(item)
-            }
-          >
-            {item.label}
-          </button>
-        );
-      })}
-    </aside>
+          return (
+            <Button
+              key={item.id}
+              type="button"
+              size="sm"
+              variant={
+                isActive
+                  ? "solid"
+                  : "ghost"
+              }
+              colorPalette={
+                isActive
+                  ? "green"
+                  : "gray"
+              }
+              aria-current={
+                isActive
+                  ? "location"
+                  : undefined
+              }
+              onClick={() =>
+                activate(item)
+              }
+            >
+              {item.label}
+            </Button>
+          );
+        })}
+      </HStack>
+    </Box>
   );
 }
