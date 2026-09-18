@@ -4,6 +4,15 @@ import {
   useState,
 } from "react";
 
+import {
+  Box,
+  Button,
+  Grid,
+  HStack,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
 import type {
   ActivitySignup,
   MemberAttendee,
@@ -169,33 +178,111 @@ export default function FamilyItinerary({
 
   if (!entries.length) {
     return (
-      <section className="app-card member-card app-empty">
-        No itinerary has been scheduled
-        yet.
-      </section>
+      <Box
+        as="section"
+        mb="16px"
+        overflow="hidden"
+        borderWidth="1px"
+        borderColor="#dddcd5"
+        borderRadius="12px"
+        bg="#ffffff"
+        px="20px"
+        py="32px"
+        color="#6d7169"
+        textAlign="center"
+        fontSize="12px"
+      >
+        No itinerary has been scheduled yet.
+      </Box>
     );
   }
 
   return (
-    <section className="family-itinerary">
-      <div className="family-itinerary-heading">
-        <div>
-          <span className="family-itinerary-kicker">
+    <Box
+      as="section"
+      my="22px"
+    >
+      <Box
+        display="flex"
+        alignItems="flex-end"
+        justifyContent="space-between"
+        gap="12px"
+        mb="10px"
+      >
+        <Box>
+          <Text
+            mb="7px"
+            color="#005d41"
+            fontSize="10px"
+            fontWeight="800"
+            letterSpacing="0.08em"
+            textTransform="uppercase"
+          >
             FAMILY ITINERARY
-          </span>
-          <h2>Daily schedule</h2>
-          <p>
-            Meals, campwide events, and
-            your family&apos;s activity
-            signups in one place.
-          </p>
-        </div>
-      </div>
+          </Text>
 
-      <div className="family-itinerary-filter-wrap">
-        <nav
-          className="family-itinerary-day-filter"
+          <Text
+            as="h2"
+            m="0"
+            fontSize="23px"
+            lineHeight="1.1"
+            letterSpacing="-0.035em"
+            fontWeight="700"
+          >
+            Daily schedule
+          </Text>
+
+          <Text
+            mt="7px"
+            mb="0"
+            color="#6d7169"
+            fontSize="13px"
+            lineHeight="1.45"
+          >
+            Meals, campwide events, and your family&apos;s activity
+            signups in one place.
+          </Text>
+        </Box>
+      </Box>
+
+      <Box
+        position="sticky"
+        top="68px"
+        zIndex="9"
+        mb="10px"
+        py="6px"
+        bg="#f6f5f1"
+        css={{
+          "@media (max-width: 620px)": {
+            top: "64px",
+            marginInline: "-4px",
+          },
+        }}
+      >
+        <Box
+          as="nav"
           aria-label="Choose itinerary day"
+          w="fit-content"
+          maxW="100%"
+          display="flex"
+          alignItems="stretch"
+          mx="auto"
+          overflowX="auto"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="8px"
+          bg="#ffffff"
+          p="3px"
+          css={{
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
+            "@media (max-width: 620px)": {
+              width: "100%",
+              justifyContent: "flex-start",
+            },
+          }}
         >
           {dayGroups.map(([key, dayEntries]) => {
             const date = new Date(dayEntries[0].starts_at);
@@ -205,239 +292,482 @@ export default function FamilyItinerary({
             const dayNumber = date.toLocaleDateString([], {
               day: "numeric",
             });
+            const selected = key === selectedDayKey;
 
             return (
-              <button
+              <Button
                 type="button"
                 key={key}
-                className={key === selectedDayKey ? "active" : ""}
-                aria-pressed={key === selectedDayKey}
+                aria-pressed={selected}
+                minW="74px"
+                minH="42px"
+                h="auto"
+                display="grid"
+                gridTemplateColumns="auto auto"
+                placeContent="center"
+                gap="5px"
+                border="0"
+                borderRadius="6px"
+                bg={selected ? "#e7f3ef" : "transparent"}
+                color={selected ? "#005d41" : "#6d7169"}
+                px="12px"
+                py="0"
+                fontWeight="normal"
+                _hover={{
+                  bg: selected ? "#e7f3ef" : "#fbfaf7",
+                  color: selected ? "#005d41" : "#171915",
+                }}
+                css={{
+                  "@media (max-width: 620px)": {
+                    minWidth: "68px",
+                    flex: "1 0 68px",
+                  },
+                }}
                 onClick={() => {
                   setSelectedDayKey(key);
                   setEditingActivityId(null);
                 }}
               >
-                <span>{weekday}</span>
-                <strong>{dayNumber}</strong>
-              </button>
+                <Text
+                  as="span"
+                  fontSize="10px"
+                  fontWeight="700"
+                  textTransform="uppercase"
+                >
+                  {weekday}
+                </Text>
+
+                <Text
+                  as="strong"
+                  fontSize="11px"
+                  fontWeight="700"
+                >
+                  {dayNumber}
+                </Text>
+              </Button>
             );
           })}
-        </nav>
-      </div>
+        </Box>
+      </Box>
 
       {selectedDay && (
-        <div className="family-itinerary-days">
-          <section className="family-itinerary-day" key={selectedDay[0]}>
-            <header>
-              <strong>{dayLabel(selectedDay[1][0].starts_at)}</strong>
-              <span>{selectedDay[1].length} scheduled</span>
-            </header>
-              <div className="family-itinerary-list">
-                {selectedDay[1].map(
-                  (entry) => {
-                    if (
-                      entry.kind ===
-                      "meal"
-                    ) {
-                      const meal =
-                        entry.meal;
+        <Box>
+          <Box
+            as="section"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+          >
+            <Box
+              as="header"
+              minH="44px"
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap="10px"
+              px="14px"
+              py="9px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+              bg="#fbfaf7"
+            >
+              <Text
+                as="strong"
+                fontSize="13px"
+                fontWeight="700"
+              >
+                {dayLabel(selectedDay[1][0].starts_at)}
+              </Text>
 
-                      const mealTitle =
-                        meal.title ??
-                        meal.meal_type_name;
+              <Text
+                as="span"
+                color="#6d7169"
+                fontSize="10px"
+              >
+                {selectedDay[1].length} scheduled
+              </Text>
+            </Box>
 
-                      return (
-                        <article
-                          className="family-itinerary-row meal"
-                          key={`meal:${meal.id}`}
+            <Stack gap="0">
+              {selectedDay[1].map((entry) => {
+                if (entry.kind === "meal") {
+                  const meal = entry.meal;
+                  const mealTitle =
+                    meal.title ?? meal.meal_type_name;
+
+                  return (
+                    <Grid
+                      as="article"
+                      key={`meal:${meal.id}`}
+                      minH="72px"
+                      templateColumns="88px minmax(0, 1fr)"
+                      gap="12px"
+                      px="14px"
+                      py="11px"
+                      borderBottomWidth="1px"
+                      borderColor="#dddcd5"
+                      css={{
+                        "&:last-child": {
+                          borderBottomWidth: "0",
+                        },
+                        "@media (max-width: 620px)": {
+                          gridTemplateColumns:
+                            "72px minmax(0, 1fr)",
+                          gap: "10px",
+                          padding: "11px 12px",
+                        },
+                      }}
+                    >
+                      <Stack gap="2px">
+                        <Text
+                          as="strong"
+                          fontSize="12px"
+                          fontWeight="700"
                         >
-                          <div className="family-itinerary-time">
-                            <strong>
-                              {timeLabel(
-                                meal.starts_at,
-                              )}
-                            </strong>
-                            <span>
-                              to{" "}
-                              {timeLabel(
-                                meal.ends_at,
-                              )}
-                            </span>
-                          </div>
+                          {timeLabel(meal.starts_at)}
+                        </Text>
 
-                          <div className="family-itinerary-copy">
-                            <div className="family-itinerary-title-line">
-                              <span className="family-itinerary-type">
-                                Meal
-                              </span>
-                              <strong>{mealTitle}</strong>
+                        <Text
+                          as="span"
+                          color="#6d7169"
+                          fontSize="10px"
+                        >
+                          to {timeLabel(meal.ends_at)}
+                        </Text>
+                      </Stack>
 
-                              <button
-                                type="button"
-                                className="family-itinerary-action-link"
-                                onClick={() => onOpenMeal(meal)}
-                              >
-                                Menu
-                              </button>
-
-                              <button
-                                type="button"
-                                className="family-itinerary-action-link"
-                                onClick={() => onShowOnMap("dining-hall")}
-                              >
-                                Map
-                              </button>
-                            </div>
-
-                            <span className="family-itinerary-meta">
-                              Dining / Kitchen
-                            </span>
-                          </div>
-                        </article>
-                      );
-                    }
-
-                    const activity =
-                      entry.activity;
-
-                    const activitySignups =
-                      signups.filter(
-                        (signup) =>
-                          signup.event_activity_id ===
-                          activity.id,
-                      );
-
-                    const mapTarget =
-                      activity.map_place_id;
-
-                    return (
-                      <article
-                        className="family-itinerary-row activity"
-                        key={`activity:${activity.id}`}
+                      <Stack
+                        minW="0"
+                        gap="5px"
                       >
-                        <div className="family-itinerary-time">
-                          <strong>
-                            {timeLabel(
-                              activity.starts_at,
-                            )}
-                          </strong>
-                          <span>
-                            to{" "}
-                            {timeLabel(
-                              activity.ends_at,
-                            )}
-                          </span>
-                        </div>
+                        <HStack
+                          gap="7px"
+                          flexWrap="wrap"
+                        >
+                          <Box
+                            as="span"
+                            display="inline-flex"
+                            alignItems="center"
+                            w="fit-content"
+                            minH="22px"
+                            px="7px"
+                            borderWidth="1px"
+                            borderColor="#b7ddcf"
+                            borderRadius="999px"
+                            bg="#e7f3ef"
+                            color="#005d41"
+                            fontSize="9px"
+                            fontWeight="800"
+                            letterSpacing="0.03em"
+                          >
+                            Meal
+                          </Box>
 
-                        <div className="family-itinerary-copy">
-                          <div className="family-itinerary-title-line">
-                            <span className="family-itinerary-type">
-                              Activity
-                            </span>
-                            <strong>
-                              {
-                                activity.activity_name
-                              }
-                            </strong>
+                          <Text
+                            as="strong"
+                            fontSize="13px"
+                            fontWeight="700"
+                          >
+                            {mealTitle}
+                          </Text>
 
-                            {mapTarget && (
-                              <button
-                                type="button"
-                                className="family-itinerary-action-link"
-                                onClick={() => onShowOnMap(mapTarget)}
-                              >
-                                Map
-                              </button>
-                            )}
+                          <Button
+                            type="button"
+                            minH="24px"
+                            h="24px"
+                            border="0"
+                            borderRadius="8px"
+                            bg="#e7f3ef"
+                            px="7px"
+                            color="#005d41"
+                            fontSize="9px"
+                            fontWeight="800"
+                            _hover={{
+                              bg: "#cce5dc",
+                            }}
+                            onClick={() => onOpenMeal(meal)}
+                          >
+                            Menu
+                          </Button>
 
-                            {activity.capacity && (
-                              <small>
-                                {
-                                  activity.signup_count
-                                }
-                                /
-                                {
-                                  activity.capacity
-                                }
-                              </small>
-                            )}
-                          </div>
-
-                          <span className="family-itinerary-meta">
-                            {
-                              activity.area_name
+                          <Button
+                            type="button"
+                            minH="24px"
+                            h="24px"
+                            border="0"
+                            borderRadius="8px"
+                            bg="#e7f3ef"
+                            px="7px"
+                            color="#005d41"
+                            fontSize="9px"
+                            fontWeight="800"
+                            _hover={{
+                              bg: "#cce5dc",
+                            }}
+                            onClick={() =>
+                              onShowOnMap("dining-hall")
                             }
-                          </span>
+                          >
+                            Map
+                          </Button>
+                        </HStack>
 
-                          {attendees.length > 0 && (
-                            <div className="family-itinerary-attendance">
-                              <div className="family-itinerary-attendance-summary">
-                                <span>
-                                  {activitySignups.length
-                                    ? activitySignups
-                                        .map((signup) => signup.member_name)
-                                        .join(", ")
-                                    : "No one from your family signed up"}
-                                </span>
-                                <button
-                                  type="button"
-                                  className="family-itinerary-edit-family"
-                                  onClick={() =>
-                                    setEditingActivityId(
-                                      editingActivityId === activity.id
-                                        ? null
-                                        : activity.id,
+                        <Text
+                          as="span"
+                          color="#6d7169"
+                          fontSize="11px"
+                        >
+                          Dining / Kitchen
+                        </Text>
+                      </Stack>
+                    </Grid>
+                  );
+                }
+
+                const activity = entry.activity;
+
+                const activitySignups = signups.filter(
+                  (signup) =>
+                    signup.event_activity_id === activity.id,
+                );
+
+                const mapTarget = activity.map_place_id;
+
+                return (
+                  <Grid
+                    as="article"
+                    key={`activity:${activity.id}`}
+                    minH="72px"
+                    templateColumns="88px minmax(0, 1fr)"
+                    gap="12px"
+                    px="14px"
+                    py="11px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    css={{
+                      "&:last-child": {
+                        borderBottomWidth: "0",
+                      },
+                      "@media (max-width: 620px)": {
+                        gridTemplateColumns:
+                          "72px minmax(0, 1fr)",
+                        gap: "10px",
+                        padding: "11px 12px",
+                      },
+                    }}
+                  >
+                    <Stack gap="2px">
+                      <Text
+                        as="strong"
+                        fontSize="12px"
+                        fontWeight="700"
+                      >
+                        {timeLabel(activity.starts_at)}
+                      </Text>
+
+                      <Text
+                        as="span"
+                        color="#6d7169"
+                        fontSize="10px"
+                      >
+                        to {timeLabel(activity.ends_at)}
+                      </Text>
+                    </Stack>
+
+                    <Stack
+                      minW="0"
+                      gap="5px"
+                    >
+                      <HStack
+                        gap="7px"
+                        flexWrap="wrap"
+                      >
+                        <Box
+                          as="span"
+                          display="inline-flex"
+                          alignItems="center"
+                          w="fit-content"
+                          minH="22px"
+                          px="7px"
+                          borderWidth="1px"
+                          borderColor="#dddcd5"
+                          borderRadius="999px"
+                          bg="#fbfaf7"
+                          color="#6d7169"
+                          fontSize="9px"
+                          fontWeight="800"
+                          letterSpacing="0.03em"
+                        >
+                          Activity
+                        </Box>
+
+                        <Text
+                          as="strong"
+                          fontSize="13px"
+                          fontWeight="700"
+                        >
+                          {activity.activity_name}
+                        </Text>
+
+                        {mapTarget && (
+                          <Button
+                            type="button"
+                            minH="24px"
+                            h="24px"
+                            border="0"
+                            borderRadius="8px"
+                            bg="#e7f3ef"
+                            px="7px"
+                            color="#005d41"
+                            fontSize="9px"
+                            fontWeight="800"
+                            _hover={{
+                              bg: "#cce5dc",
+                            }}
+                            onClick={() =>
+                              onShowOnMap(mapTarget)
+                            }
+                          >
+                            Map
+                          </Button>
+                        )}
+
+                        {activity.capacity && (
+                          <Text as="small">
+                            {activity.signup_count}/
+                            {activity.capacity}
+                          </Text>
+                        )}
+                      </HStack>
+
+                      <Text
+                        as="span"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {activity.area_name}
+                      </Text>
+
+                      {attendees.length > 0 && (
+                        <Stack gap="7px">
+                          <HStack
+                            alignItems="center"
+                            justifyContent="space-between"
+                            gap="10px"
+                            color="#6d7169"
+                            fontSize="10px"
+                          >
+                            <Text as="span">
+                              {activitySignups.length
+                                ? activitySignups
+                                    .map(
+                                      (signup) =>
+                                        signup.member_name,
                                     )
-                                  }
-                                >
-                                  {editingActivityId === activity.id
-                                    ? "Done"
-                                    : "Edit family"}
-                                </button>
-                              </div>
+                                    .join(", ")
+                                : "No one from your family signed up"}
+                            </Text>
 
-                              {editingActivityId === activity.id && (
-                                <div className="family-itinerary-signups">
-                                  {attendees.map((attendee) => {
-                                    const signup =
-                                      activitySignups.find(
-                                        (item) =>
-                                          item.member_attendee_id === attendee.id,
-                                      ) ?? null;
+                            <Button
+                              type="button"
+                              minH="26px"
+                              h="26px"
+                              flex="0 0 auto"
+                              border="0"
+                              borderRadius="8px"
+                              bg="#fbfaf7"
+                              px="8px"
+                              color="#005d41"
+                              fontSize="10px"
+                              fontWeight="750"
+                              onClick={() =>
+                                setEditingActivityId(
+                                  editingActivityId ===
+                                    activity.id
+                                    ? null
+                                    : activity.id,
+                                )
+                              }
+                            >
+                              {editingActivityId === activity.id
+                                ? "Done"
+                                : "Edit family"}
+                            </Button>
+                          </HStack>
 
-                                    return (
-                                      <button
-                                        type="button"
-                                        key={attendee.id}
-                                        className={signup ? "selected" : ""}
-                                        disabled={changesUnavailable}
-                                        onClick={() =>
-                                          onToggleSignup(
-                                            activity,
-                                            attendee,
-                                            signup,
-                                          )
-                                        }
-                                      >
-                                        {attendee.full_name}
-                                        <span>{signup ? "✓" : "+"}</span>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                            </div>
+                          {editingActivityId === activity.id && (
+                            <HStack
+                              pt="2px"
+                              gap="7px"
+                              flexWrap="wrap"
+                            >
+                              {attendees.map((attendee) => {
+                                const signup =
+                                  activitySignups.find(
+                                    (item) =>
+                                      item.member_attendee_id ===
+                                      attendee.id,
+                                  ) ?? null;
+
+                                return (
+                                  <Button
+                                    type="button"
+                                    key={attendee.id}
+                                    disabled={changesUnavailable}
+                                    minH="27px"
+                                    h="27px"
+                                    display="inline-flex"
+                                    alignItems="center"
+                                    gap="6px"
+                                    borderWidth="1px"
+                                    borderColor={
+                                      signup
+                                        ? "#b7ddcf"
+                                        : "#dddcd5"
+                                    }
+                                    borderRadius="999px"
+                                    bg={
+                                      signup
+                                        ? "#e7f3ef"
+                                        : "#ffffff"
+                                    }
+                                    px="8px"
+                                    color={
+                                      signup
+                                        ? "#005d41"
+                                        : "#171915"
+                                    }
+                                    fontSize="10px"
+                                    fontWeight="700"
+                                    onClick={() =>
+                                      onToggleSignup(
+                                        activity,
+                                        attendee,
+                                        signup,
+                                      )
+                                    }
+                                  >
+                                    {attendee.full_name}
+                                    <Text as="span">
+                                      {signup ? "✓" : "+"}
+                                    </Text>
+                                  </Button>
+                                );
+                              })}
+                            </HStack>
                           )}
-                        </div>
-                      </article>
-                    );
-                  },
-                )}
-              </div>
-          </section>
-        </div>
+                        </Stack>
+                      )}
+                    </Stack>
+                  </Grid>
+                );
+              })}
+            </Stack>
+          </Box>
+        </Box>
       )}
-
-    </section>
+    </Box>
   );
 }
