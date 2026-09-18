@@ -1,4 +1,19 @@
 import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Field,
+  Grid,
+  Heading,
+  HStack,
+  Input,
+  NativeSelect,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
+import {
   useEffect,
   useState,
   type FormEvent,
@@ -145,111 +160,353 @@ export default function AdminRegistrationsPage({
   }
 
   return (
-    <section className="admin-workspace">
-      <div className="admin-heading admin-heading-split">
-        <div>
-          <div className="admin-eyebrow">ADMIN</div>
-          <h1>Guests + cabins</h1>
-          <p>
-            See who is coming, where each household is staying, and the physical cabin location together.
-          </p>
-        </div>
-
-        <button
-          className="app-button app-button-primary"
-          type="button"
-          onClick={() => setShowRegister((open) => !open)}
+    <Box
+      as="section"
+      px={{ base: "4", md: "6" }}
+      py="6"
+      maxW="1400px"
+      mx="auto"
+      w="full"
+    >
+      <Stack gap="6">
+        <Box
+          display="flex"
+          flexDirection={{
+            base: "column",
+            md: "row",
+          }}
+          alignItems={{
+            base: "stretch",
+            md: "flex-start",
+          }}
+          justifyContent="space-between"
+          gap="4"
         >
-          {showRegister ? "Close" : "Register household"}
-        </button>
-      </div>
+          <Stack gap="1">
+            <Text
+              fontSize="xs"
+              fontWeight="700"
+              color="green.700"
+              letterSpacing="wide"
+              textTransform="uppercase"
+            >
+              Admin
+            </Text>
 
-      {error && <div className="app-alert app-alert-danger">{error}</div>}
+            <Heading as="h1" size="2xl">
+              Guests + cabins
+            </Heading>
 
-      {showRegister && (
-        <form className="app-card admin-form app-action-panel" onSubmit={submit}>
-          <label>
-            <span>Household</span>
-            <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
-              <option value="">Choose household</option>
-              {accounts.map((item) => (
-                <option key={item.id} value={item.id}>{item.display_name ?? item.username}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span>Event</span>
-            <select value={eventId} onChange={(e) => setEventId(e.target.value)}>
-              <option value="">Choose event</option>
-              {events.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>Paid spots</span>
-            <input className="app-control-number" type="number" min="1" value={spots} onChange={(e) => setSpots(e.target.value)} />
-          </label>
-          <div className="app-action-panel-actions">
-            <button className="app-button" type="button" onClick={() => setShowRegister(false)}>Cancel</button>
-            <button className="app-button app-button-primary" type="submit">Register</button>
-          </div>
-        </form>
-      )}
+            <Text color="gray.600">
+              See who is coming, where each household is staying, and the physical cabin location together.
+            </Text>
+          </Stack>
 
-      <section className="app-card registration-card registration-first">
-        <div className="app-card-head">
-          <div>
-            <strong>Registered households</strong>
-            <span>{visibleRegistrations.length} households</span>
-          </div>
-        </div>
+          <Button
+            type="button"
+            colorPalette="green"
+            onClick={() =>
+              setShowRegister(
+                (open) => !open,
+              )
+            }
+          >
+            {showRegister
+              ? "Close"
+              : "Register household"}
+          </Button>
+        </Box>
 
-        <div className="registration-list">
+        {error && (
+          <Alert.Root status="error">
+            <Alert.Indicator />
+
+            <Alert.Content>
+              <Alert.Description>
+                {error}
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+        )}
+
+        {showRegister && (
+          <Box
+            as="form"
+            onSubmit={submit}
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="xl"
+            bg="white"
+            p={{ base: "4", md: "5" }}
+          >
+            <Grid
+              templateColumns={{
+                base: "1fr",
+                md: "minmax(0, 1fr) minmax(0, 1fr) 110px",
+              }}
+              gap="4"
+              alignItems="end"
+            >
+              <Field.Root>
+                <Field.Label>
+                  Household
+                </Field.Label>
+
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    value={accountId}
+                    onChange={(event) =>
+                      setAccountId(
+                        event.target.value,
+                      )
+                    }
+                  >
+                    <option value="">
+                      Choose household
+                    </option>
+
+                    {accounts.map(
+                      (item) => (
+                        <option
+                          key={item.id}
+                          value={item.id}
+                        >
+                          {item.display_name ??
+                            item.username}
+                        </option>
+                      ),
+                    )}
+                  </NativeSelect.Field>
+
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
+
+              <Field.Root>
+                <Field.Label>
+                  Event
+                </Field.Label>
+
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    value={eventId}
+                    onChange={(event) =>
+                      setEventId(
+                        event.target.value,
+                      )
+                    }
+                  >
+                    <option value="">
+                      Choose event
+                    </option>
+
+                    {events.map(
+                      (item) => (
+                        <option
+                          key={item.id}
+                          value={item.id}
+                        >
+                          {item.name}
+                        </option>
+                      ),
+                    )}
+                  </NativeSelect.Field>
+
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
+
+              <Field.Root>
+                <Field.Label>
+                  Paid spots
+                </Field.Label>
+
+                <Input
+                  type="number"
+                  min="1"
+                  value={spots}
+                  onChange={(event) =>
+                    setSpots(
+                      event.target.value,
+                    )
+                  }
+                />
+              </Field.Root>
+            </Grid>
+
+            <HStack mt="4">
+              <Button
+                type="submit"
+                colorPalette="green"
+              >
+                Register
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setShowRegister(false)
+                }
+              >
+                Cancel
+              </Button>
+            </HStack>
+          </Box>
+        )}
+
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="xl"
+          bg="white"
+          overflow="hidden"
+        >
+          <Box
+            px="5"
+            py="4"
+            borderBottomWidth="1px"
+            borderColor="gray.200"
+          >
+            <Text fontWeight="700">
+              Registered households
+            </Text>
+
+            <Text
+              fontSize="sm"
+              color="gray.500"
+            >
+              {visibleRegistrations.length} households
+            </Text>
+          </Box>
+
           {visibleRegistrations.length ? (
-            visibleRegistrations.map((item) => (
-              <div className="registration-row" key={item.id}>
-                <div className="registration-account-row">
-                  <strong>{item.household_name ?? item.username}</strong>
-                  <span>
-                    {item.selected_attendees}/{item.spots_paid_for} attending · Lead: {item.household_lead_name ?? "Not chosen"}
-                  </span>
-                </div>
+            <Stack gap="0">
+              {visibleRegistrations.map(
+                (item) => (
+                  <Box
+                    key={item.id}
+                    px="5"
+                    py="4"
+                    borderBottomWidth="1px"
+                    borderColor="gray.100"
+                  >
+                    <Grid
+                      templateColumns={{
+                        base: "1fr",
+                        lg: "minmax(0, 1.6fr) 92px minmax(140px, 0.7fr) auto",
+                      }}
+                      gap="4"
+                      alignItems="center"
+                    >
+                      <Stack gap="0">
+                        <Text fontWeight="700">
+                          {item.household_name ??
+                            item.username}
+                        </Text>
 
-                <label className="registration-compact-field">
-                  <small>Spots</small>
-                  <input
-                    className="app-control-number"
-                    type="number"
-                    min="1"
-                    value={item.spots_paid_for}
-                    onChange={(e) => {
-                      const value = Number(e.target.value);
-                      if (Number.isInteger(value) && value > 0) {
-                        void run(() => updateRegistrationSpots(item.id, value));
-                      }
-                    }}
-                  />
-                </label>
+                        <Text
+                          fontSize="sm"
+                          color="gray.500"
+                        >
+                          {item.selected_attendees}/
+                          {item.spots_paid_for} attending · Lead:{" "}
+                          {item.household_lead_name ??
+                            "Not chosen"}
+                        </Text>
+                      </Stack>
 
-                <div className="registration-cabin-summary">
-                  <small>Cabin</small>
-                  <strong>{item.cabin_name ?? "Unassigned"}</strong>
-                </div>
+                      <Field.Root>
+                        <Field.Label
+                          fontSize="xs"
+                          color="gray.500"
+                        >
+                          Spots
+                        </Field.Label>
 
-                <span className="registration-map-state">
-                  {item.cabin_map_slot_id ? "On map" : item.cabin_id ? "Place cabin" : "No cabin"}
-                </span>
-              </div>
-            ))
+                        <Input
+                          type="number"
+                          min="1"
+                          value={
+                            item.spots_paid_for
+                          }
+                          onChange={(event) => {
+                            const value =
+                              Number(
+                                event.target
+                                  .value,
+                              );
+
+                            if (
+                              Number.isInteger(
+                                value,
+                              ) &&
+                              value > 0
+                            ) {
+                              void run(() =>
+                                updateRegistrationSpots(
+                                  item.id,
+                                  value,
+                                ),
+                              );
+                            }
+                          }}
+                        />
+                      </Field.Root>
+
+                      <Stack gap="0">
+                        <Text
+                          fontSize="xs"
+                          color="gray.500"
+                        >
+                          Cabin
+                        </Text>
+
+                        <Text fontWeight="700">
+                          {item.cabin_name ??
+                            "Unassigned"}
+                        </Text>
+                      </Stack>
+
+                      <Badge
+                        colorPalette={
+                          item.cabin_map_slot_id
+                            ? "green"
+                            : item.cabin_id
+                              ? "orange"
+                              : "gray"
+                        }
+                      >
+                        {item.cabin_map_slot_id
+                          ? "On map"
+                          : item.cabin_id
+                            ? "Place cabin"
+                            : "No cabin"}
+                      </Badge>
+                    </Grid>
+                  </Box>
+                ),
+              )}
+            </Stack>
           ) : (
-            <div className="app-empty">No households registered yet.</div>
+            <Box
+              p="8"
+              textAlign="center"
+            >
+              <Text color="gray.500">
+                No households registered yet.
+              </Text>
+            </Box>
           )}
-        </div>
-      </section>
+        </Box>
 
-      <AdminCabinsPanel
-        activeEventId={activeEventId}
-        onChanged={() => void refresh()}
-      />
-    </section>
+        <AdminCabinsPanel
+          activeEventId={activeEventId}
+          onChanged={() =>
+            void refresh()
+          }
+        />
+      </Stack>
+    </Box>
   );
 }
