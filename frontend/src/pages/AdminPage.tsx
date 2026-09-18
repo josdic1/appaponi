@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   HStack,
+  NativeSelect,
   Stack,
   Text,
 } from "@chakra-ui/react";
@@ -697,25 +698,68 @@ export default function AdminPage() {
           ["scheduling", "registrations", "meals", "services"].includes(
             section,
           ) && (
-            <div className="admin-event-context">
-              <div>
-                <span>Current event</span>
-                <strong>{activeEvent.name}</strong>
-              </div>
-              {events.length > 1 && (
-                <select
-                  aria-label="Current event"
-                  value={activeEventId}
-                  onChange={(event) => setActiveEventId(event.target.value)}
+            <Box
+              display="flex"
+              alignItems={{
+                base: "stretch",
+                md: "center",
+              }}
+              justifyContent="space-between"
+              flexDirection={{
+                base: "column",
+                md: "row",
+              }}
+              gap="3"
+              px={{ base: "4", md: "6" }}
+              py="3"
+              bg="gray.50"
+              borderBottomWidth="1px"
+              borderColor="gray.200"
+            >
+              <Stack gap="0">
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                  fontWeight="600"
+                  textTransform="uppercase"
+                  letterSpacing="wide"
                 >
-                  {events.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
+                  Current event
+                </Text>
+
+                <Text fontWeight="700">
+                  {activeEvent.name}
+                </Text>
+              </Stack>
+
+              {events.length > 1 && (
+                <NativeSelect.Root
+                  size="sm"
+                  w={{ base: "full", md: "280px" }}
+                >
+                  <NativeSelect.Field
+                    aria-label="Current event"
+                    value={activeEventId}
+                    onChange={(event) =>
+                      setActiveEventId(
+                        event.target.value,
+                      )
+                    }
+                  >
+                    {events.map((item) => (
+                      <option
+                        key={item.id}
+                        value={item.id}
+                      >
+                        {item.name}
+                      </option>
+                    ))}
+                  </NativeSelect.Field>
+
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
               )}
-            </div>
+            </Box>
           )}
 
         {section === "event" ? (
