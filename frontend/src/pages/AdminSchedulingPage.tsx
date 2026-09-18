@@ -1,4 +1,19 @@
 import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Field,
+  Grid,
+  Heading,
+  HStack,
+  Input,
+  NativeSelect,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
+import {
   useEffect,
   useState,
   type FormEvent,
@@ -344,474 +359,1305 @@ export default function AdminSchedulingPage({
   }
 
   return (
-    <section className="admin-workspace">
-      <div className="admin-heading admin-heading-split">
-        <div>
-          <div className="admin-eyebrow">ADMIN</div>
-          <h1>Schedule</h1>
-          <p>
-            See the event first. Add activities or change staffing only when you need to.
-          </p>
-        </div>
-
-        <div className="action-disclosure schedule-add-control">
-          <button
-            className="app-button app-button-primary"
-            type="button"
-            aria-expanded={isAddingActivity}
-            onClick={() => setIsAddingActivity((open) => !open)}
-          >
-            Add activity
-          </button>
-          {isAddingActivity && (
-          <form
-            className="admin-form action-disclosure-panel"
-            onSubmit={submitSchedule}
-          >
-            <select
-              value={scheduleEvent}
-              onChange={(e) => setScheduleEvent(e.target.value)}
+    <Box
+      as="section"
+      px={{ base: "4", md: "6" }}
+      py="6"
+      maxW="1400px"
+      mx="auto"
+      w="full"
+    >
+      <Stack gap="6">
+        <Box
+          display="flex"
+          flexDirection={{
+            base: "column",
+            lg: "row",
+          }}
+          alignItems={{
+            base: "stretch",
+            lg: "flex-start",
+          }}
+          justifyContent="space-between"
+          gap="5"
+        >
+          <Stack gap="1">
+            <Text
+              fontSize="xs"
+              fontWeight="700"
+              color="green.700"
+              letterSpacing="wide"
+              textTransform="uppercase"
             >
-              <option value="">Choose event</option>
-              {events.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
+              Admin
+            </Text>
 
-            <select
-              value={scheduleActivity}
-              onChange={(e) => setScheduleActivity(e.target.value)}
+            <Heading as="h1" size="2xl">
+              Schedule
+            </Heading>
+
+            <Text color="gray.600">
+              See the event first. Add activities or change staffing only when you need to.
+            </Text>
+          </Stack>
+
+          <Stack
+            gap="3"
+            w={{
+              base: "full",
+              lg: "400px",
+            }}
+            flexShrink="0"
+          >
+            <Button
+              type="button"
+              colorPalette="green"
+              alignSelf={{
+                base: "stretch",
+                lg: "flex-end",
+              }}
+              aria-expanded={isAddingActivity}
+              onClick={() =>
+                setIsAddingActivity(
+                  (open) => !open,
+                )
+              }
             >
-              <option value="">Choose activity</option>
-              {activities.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
+              {isAddingActivity
+                ? "Close"
+                : "Add activity"}
+            </Button>
 
-            <label>
-              <span>Starts</span>
-              <HumanDateTimeInput
-                value={scheduleStart}
-                onChange={setScheduleStart}
-                defaultDate={
-                  events.find((item) => item.id === scheduleEvent)?.starts_at
-                }
-              />
-            </label>
-
-            <label>
-              <span>Ends</span>
-              <HumanDateTimeInput
-                value={scheduleEnd}
-                onChange={setScheduleEnd}
-                defaultDate={
-                  events.find((item) => item.id === scheduleEvent)?.starts_at
-                }
-              />
-            </label>
-
-            <label>
-              <span>Capacity</span>
-              <input
-                className="app-control-number"
-                type="number"
-                min="1"
-                value={scheduleCapacity}
-                onChange={(e) => setScheduleCapacity(e.target.value)}
-                placeholder="Optional"
-              />
-            </label>
-
-            <div className="schedule-add-actions">
-              <button
-                className="app-button"
-                type="button"
-                onClick={() => setIsAddingActivity(false)}
+            {isAddingActivity && (
+              <Box
+                as="form"
+                onSubmit={submitSchedule}
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                p="4"
               >
-                Cancel
-              </button>
-              <button className="app-button app-button-primary" type="submit">
-                Add to schedule
-              </button>
-            </div>
-          </form>
-          )}
-        </div>
-      </div>
+                <Stack gap="4">
+                  <Field.Root>
+                    <Field.Label>
+                      Event
+                    </Field.Label>
 
-      {error && <div className="app-alert app-alert-danger">{error}</div>}
+                    <NativeSelect.Root>
+                      <NativeSelect.Field
+                        value={scheduleEvent}
+                        onChange={(event) =>
+                          setScheduleEvent(
+                            event.target.value,
+                          )
+                        }
+                      >
+                        <option value="">
+                          Choose event
+                        </option>
 
-      <section className="app-card schedule-main-card schedule-first">
-        <div className="app-card-head">
-          <div>
-            <strong>Activity schedule</strong>
-            <span>{visibleEventActivities.length} scheduled activities</span>
-          </div>
-        </div>
-
-        <div className="schedule-list schedule-list-primary">
-          {scheduleByDay.length ? (
-            scheduleByDay.map(([dayKey, dayActivities]) => (
-              <section className="schedule-day-group" key={dayKey}>
-                <div className="schedule-day-heading">
-                  <strong>{scheduleDayLabel(dayActivities[0].starts_at)}</strong>
-                  <span>{dayActivities.length} activities</span>
-                </div>
-
-                {dayActivities.map((item) => {
-                  const assigned = eventActivityStaff.filter(
-                    (staffAssignment) =>
-                      staffAssignment.event_activity_id === item.id,
-                  );
-                  const isEditing = editingActivityId === item.id;
-
-                  return (
-                    <div className="schedule-activity-record" key={item.id}>
-                      <div className="schedule-row">
-                        <div className="schedule-row-time">
-                          <strong>{scheduleTimeLabel(item.starts_at)}</strong>
-                          <span>{scheduleTimeLabel(item.ends_at)}</span>
-                        </div>
-
-                        <div className="schedule-row-main">
-                          <strong>{item.activity_name}</strong>
-                          <span>{item.area_name}</span>
-                          <small
-                            className={assigned.length ? "schedule-staff-summary" : "schedule-unassigned"}
+                        {events.map((item) => (
+                          <option
+                            key={item.id}
+                            value={item.id}
                           >
-                            {assigned.length
-                              ? `Staff · ${assigned.map((person) => person.staff_name).join(", ")}`
-                              : "Unstaffed"}
-                          </small>
-                        </div>
+                            {item.name}
+                          </option>
+                        ))}
+                      </NativeSelect.Field>
 
-                        <button
-                          className="app-button schedule-row-edit"
-                          type="button"
-                          aria-expanded={isEditing}
-                          onClick={() => {
-                            setEditingActivityId(isEditing ? null : item.id);
-                            setEditingStaffId("");
-                          }}
-                        >
-                          {isEditing ? "Done" : "Edit"}
-                        </button>
-                      </div>
+                      <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                  </Field.Root>
 
-                      {isEditing && (
-                        <div className="schedule-row-editor">
-                          <div className="schedule-row-editor-main">
-                            <strong>Staff</strong>
-                            <div className="schedule-editor-staff-list">
-                              {assigned.length ? (
-                                assigned.map((person) => (
-                                  <span className="schedule-assigned-person" key={person.id}>
-                                    {person.staff_name}
-                                    <button
-                                      type="button"
-                                      aria-label={`Remove ${person.staff_name}`}
-                                      onClick={() =>
-                                        confirmRemove(
-                                          `${person.staff_name} from ${item.activity_name}`,
-                                          () => removeEventActivityStaff(person.id),
+                  <Field.Root>
+                    <Field.Label>
+                      Activity
+                    </Field.Label>
+
+                    <NativeSelect.Root>
+                      <NativeSelect.Field
+                        value={
+                          scheduleActivity
+                        }
+                        onChange={(event) =>
+                          setScheduleActivity(
+                            event.target.value,
+                          )
+                        }
+                      >
+                        <option value="">
+                          Choose activity
+                        </option>
+
+                        {activities.map(
+                          (item) => (
+                            <option
+                              key={item.id}
+                              value={item.id}
+                            >
+                              {item.name}
+                            </option>
+                          ),
+                        )}
+                      </NativeSelect.Field>
+
+                      <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                  </Field.Root>
+
+                  <Field.Root>
+                    <Field.Label>
+                      Starts
+                    </Field.Label>
+
+                    <HumanDateTimeInput
+                      value={scheduleStart}
+                      onChange={
+                        setScheduleStart
+                      }
+                      defaultDate={
+                        events.find(
+                          (item) =>
+                            item.id ===
+                            scheduleEvent,
+                        )?.starts_at
+                      }
+                    />
+                  </Field.Root>
+
+                  <Field.Root>
+                    <Field.Label>
+                      Ends
+                    </Field.Label>
+
+                    <HumanDateTimeInput
+                      value={scheduleEnd}
+                      onChange={
+                        setScheduleEnd
+                      }
+                      defaultDate={
+                        events.find(
+                          (item) =>
+                            item.id ===
+                            scheduleEvent,
+                        )?.starts_at
+                      }
+                    />
+                  </Field.Root>
+
+                  <Field.Root>
+                    <Field.Label>
+                      Capacity
+                    </Field.Label>
+
+                    <Input
+                      type="number"
+                      min="1"
+                      value={
+                        scheduleCapacity
+                      }
+                      onChange={(event) =>
+                        setScheduleCapacity(
+                          event.target.value,
+                        )
+                      }
+                      placeholder="Optional"
+                    />
+                  </Field.Root>
+
+                  <HStack>
+                    <Button
+                      type="submit"
+                      colorPalette="green"
+                    >
+                      Add to schedule
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        setIsAddingActivity(
+                          false,
+                        )
+                      }
+                    >
+                      Cancel
+                    </Button>
+                  </HStack>
+                </Stack>
+              </Box>
+            )}
+          </Stack>
+        </Box>
+
+        {error && (
+          <Alert.Root status="error">
+            <Alert.Indicator />
+
+            <Alert.Content>
+              <Alert.Description>
+                {error}
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+        )}
+
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="xl"
+          bg="white"
+          overflow="hidden"
+        >
+          <Box
+            px="5"
+            py="4"
+            borderBottomWidth="1px"
+            borderColor="gray.200"
+          >
+            <Text fontWeight="700">
+              Activity schedule
+            </Text>
+
+            <Text
+              fontSize="sm"
+              color="gray.500"
+            >
+              {visibleEventActivities.length} scheduled activities
+            </Text>
+          </Box>
+
+          {scheduleByDay.length ? (
+            <Stack gap="0">
+              {scheduleByDay.map(
+                ([
+                  dayKey,
+                  dayActivities,
+                ]) => (
+                  <Box key={dayKey}>
+                    <Box
+                      px="5"
+                      py="3"
+                      bg="gray.50"
+                      borderBottomWidth="1px"
+                      borderColor="gray.200"
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      gap="3"
+                    >
+                      <Text fontWeight="700">
+                        {scheduleDayLabel(
+                          dayActivities[0]
+                            .starts_at,
+                        )}
+                      </Text>
+
+                      <Text
+                        fontSize="sm"
+                        color="gray.500"
+                      >
+                        {dayActivities.length} activities
+                      </Text>
+                    </Box>
+
+                    {dayActivities.map(
+                      (item) => {
+                        const assigned =
+                          eventActivityStaff.filter(
+                            (
+                              staffAssignment,
+                            ) =>
+                              staffAssignment.event_activity_id ===
+                              item.id,
+                          );
+
+                        const isEditing =
+                          editingActivityId ===
+                          item.id;
+
+                        return (
+                          <Box
+                            key={item.id}
+                            px="5"
+                            py="4"
+                            borderBottomWidth="1px"
+                            borderColor="gray.100"
+                          >
+                            <Stack gap="4">
+                              <Box
+                                display="grid"
+                                gridTemplateColumns={{
+                                  base: "1fr",
+                                  md: "110px minmax(0, 1fr) auto",
+                                }}
+                                alignItems="center"
+                                gap="4"
+                              >
+                                <Stack gap="0">
+                                  <Text fontWeight="700">
+                                    {scheduleTimeLabel(
+                                      item.starts_at,
+                                    )}
+                                  </Text>
+
+                                  <Text
+                                    fontSize="sm"
+                                    color="gray.500"
+                                  >
+                                    {scheduleTimeLabel(
+                                      item.ends_at,
+                                    )}
+                                  </Text>
+                                </Stack>
+
+                                <Stack gap="0">
+                                  <Text fontWeight="700">
+                                    {
+                                      item.activity_name
+                                    }
+                                  </Text>
+
+                                  <Text
+                                    fontSize="sm"
+                                    color="gray.500"
+                                  >
+                                    {
+                                      item.area_name
+                                    }
+                                  </Text>
+
+                                  <Text
+                                    fontSize="sm"
+                                    color={
+                                      assigned.length
+                                        ? "gray.600"
+                                        : "orange.600"
+                                    }
+                                  >
+                                    {assigned.length
+                                      ? `Staff · ${assigned
+                                          .map(
+                                            (
+                                              person,
+                                            ) =>
+                                              person.staff_name,
+                                          )
+                                          .join(
+                                            ", ",
+                                          )}`
+                                      : "Unstaffed"}
+                                  </Text>
+                                </Stack>
+
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  aria-expanded={
+                                    isEditing
+                                  }
+                                  onClick={() => {
+                                    setEditingActivityId(
+                                      isEditing
+                                        ? null
+                                        : item.id,
+                                    );
+                                    setEditingStaffId(
+                                      "",
+                                    );
+                                  }}
+                                >
+                                  {isEditing
+                                    ? "Done"
+                                    : "Edit"}
+                                </Button>
+                              </Box>
+
+                              {isEditing && (
+                                <Box
+                                  bg="gray.50"
+                                  borderWidth="1px"
+                                  borderColor="gray.200"
+                                  borderRadius="lg"
+                                  p="4"
+                                >
+                                  <Stack gap="4">
+                                    <Stack gap="2">
+                                      <Text fontWeight="700">
+                                        Staff
+                                      </Text>
+
+                                      {assigned.length ? (
+                                        <HStack
+                                          gap="2"
+                                          flexWrap="wrap"
+                                        >
+                                          {assigned.map(
+                                            (
+                                              person,
+                                            ) => (
+                                              <Badge
+                                                key={
+                                                  person.id
+                                                }
+                                                colorPalette="green"
+                                                display="inline-flex"
+                                                alignItems="center"
+                                                gap="1"
+                                                px="2"
+                                                py="1"
+                                              >
+                                                {
+                                                  person.staff_name
+                                                }
+
+                                                <Button
+                                                  type="button"
+                                                  size="xs"
+                                                  variant="ghost"
+                                                  minW="auto"
+                                                  h="5"
+                                                  px="1"
+                                                  aria-label={`Remove ${person.staff_name}`}
+                                                  onClick={() =>
+                                                    confirmRemove(
+                                                      `${person.staff_name} from ${item.activity_name}`,
+                                                      () =>
+                                                        removeEventActivityStaff(
+                                                          person.id,
+                                                        ),
+                                                    )
+                                                  }
+                                                >
+                                                  ×
+                                                </Button>
+                                              </Badge>
+                                            ),
+                                          )}
+                                        </HStack>
+                                      ) : (
+                                        <Text
+                                          fontSize="sm"
+                                          color="gray.500"
+                                        >
+                                          No staff assigned
+                                        </Text>
+                                      )}
+                                    </Stack>
+
+                                    <Box
+                                      as="form"
+                                      onSubmit={(
+                                        event,
+                                      ) =>
+                                        submitActivityStaff(
+                                          event,
+                                          item.id,
                                         )
                                       }
                                     >
-                                      ×
-                                    </button>
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="schedule-unassigned">No staff assigned</span>
-                              )}
-                            </div>
+                                      <HStack
+                                        alignItems="stretch"
+                                        flexDirection={{
+                                          base: "column",
+                                          sm: "row",
+                                        }}
+                                      >
+                                        <NativeSelect.Root flex="1">
+                                          <NativeSelect.Field
+                                            aria-label={`Add staff to ${item.activity_name}`}
+                                            value={
+                                              editingStaffId
+                                            }
+                                            onChange={(
+                                              event,
+                                            ) =>
+                                              setEditingStaffId(
+                                                event
+                                                  .target
+                                                  .value,
+                                              )
+                                            }
+                                          >
+                                            <option value="">
+                                              Add staff…
+                                            </option>
 
-                            <form
-                              className="schedule-inline-staff-form"
-                              onSubmit={(event) => submitActivityStaff(event, item.id)}
+                                            {staff
+                                              .filter(
+                                                (
+                                                  person,
+                                                ) =>
+                                                  !assigned.some(
+                                                    (
+                                                      assignment,
+                                                    ) =>
+                                                      assignment.staff_member_id ===
+                                                      person.id,
+                                                  ),
+                                              )
+                                              .map(
+                                                (
+                                                  person,
+                                                ) => (
+                                                  <option
+                                                    key={
+                                                      person.id
+                                                    }
+                                                    value={
+                                                      person.id
+                                                    }
+                                                  >
+                                                    {
+                                                      person.full_name
+                                                    }
+                                                  </option>
+                                                ),
+                                              )}
+                                          </NativeSelect.Field>
+
+                                          <NativeSelect.Indicator />
+                                        </NativeSelect.Root>
+
+                                        <Button
+                                          type="submit"
+                                          colorPalette="green"
+                                          disabled={
+                                            !editingStaffId
+                                          }
+                                        >
+                                          Add staff
+                                        </Button>
+                                      </HStack>
+                                    </Box>
+
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="outline"
+                                      colorPalette="red"
+                                      alignSelf="flex-start"
+                                      onClick={() =>
+                                        confirmRemove(
+                                          `scheduled ${item.activity_name}`,
+                                          () =>
+                                            removeEventActivity(
+                                              item.id,
+                                            ),
+                                        )
+                                      }
+                                    >
+                                      Remove activity
+                                    </Button>
+                                  </Stack>
+                                </Box>
+                              )}
+                            </Stack>
+                          </Box>
+                        );
+                      },
+                    )}
+                  </Box>
+                ),
+              )}
+            </Stack>
+          ) : (
+            <Box
+              p="8"
+              textAlign="center"
+            >
+              <Text color="gray.500">
+                No scheduled activities yet.
+              </Text>
+            </Box>
+          )}
+        </Box>
+
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="xl"
+          bg="white"
+          overflow="hidden"
+        >
+          <details open>
+            <Box
+              as="summary"
+              cursor="pointer"
+              px="5"
+              py="4"
+            >
+              <Box
+                display="flex"
+                flexDirection={{
+                  base: "column",
+                  sm: "row",
+                }}
+                justifyContent="space-between"
+                alignItems={{
+                  base: "flex-start",
+                  sm: "center",
+                }}
+                gap="3"
+              >
+                <Stack gap="0">
+                  <Text fontWeight="700">
+                    Scheduling libraries
+                  </Text>
+
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                  >
+                    Reusable qualifications and activity staffing rules stay when events are cleared.
+                  </Text>
+                </Stack>
+
+                <Badge colorPalette="green">
+                  Reusable setup
+                </Badge>
+              </Box>
+            </Box>
+
+            <Box
+              borderTopWidth="1px"
+              borderColor="gray.200"
+              p={{ base: "4", md: "5" }}
+            >
+              <Grid
+                templateColumns={{
+                  base: "1fr",
+                  xl: "repeat(2, minmax(0, 1fr))",
+                }}
+                gap="5"
+                alignItems="start"
+              >
+                <Stack gap="5">
+                  <Box
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    p="4"
+                  >
+                    <Stack gap="4">
+                      <Box>
+                        <Text fontWeight="700">
+                          Qualification library
+                        </Text>
+
+                        <Text
+                          fontSize="sm"
+                          color="gray.500"
+                        >
+                          {qualifications.length} reusable skill{qualifications.length === 1 ? "" : "s"}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        as="form"
+                        onSubmit={
+                          submitQualification
+                        }
+                      >
+                        <HStack
+                          alignItems="end"
+                          flexDirection={{
+                            base: "column",
+                            sm: "row",
+                          }}
+                        >
+                          <Field.Root flex="1">
+                            <Field.Label>
+                              Name
+                            </Field.Label>
+
+                            <Input
+                              value={
+                                qualificationName
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setQualificationName(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            />
+                          </Field.Root>
+
+                          <Button
+                            type="submit"
+                            colorPalette="green"
+                          >
+                            Add
+                          </Button>
+                        </HStack>
+                      </Box>
+
+                      <Stack gap="2">
+                        {qualifications.map(
+                          (item) => (
+                            <Box
+                              key={item.id}
+                              display="flex"
+                              justifyContent="space-between"
+                              alignItems="center"
+                              gap="3"
+                              py="2"
+                              borderTopWidth="1px"
+                              borderColor="gray.100"
                             >
-                              <select
-                                aria-label={`Add staff to ${item.activity_name}`}
-                                value={editingStaffId}
-                                onChange={(event) => setEditingStaffId(event.target.value)}
-                              >
-                                <option value="">Add staff…</option>
-                                {staff
-                                  .filter(
-                                    (person) =>
-                                      !assigned.some(
-                                        (assignment) =>
-                                          assignment.staff_member_id === person.id,
+                              <Text>
+                                {item.name}
+                              </Text>
+
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                colorPalette="red"
+                                onClick={() =>
+                                  confirmRemove(
+                                    `qualification "${item.name}"`,
+                                    () =>
+                                      removeQualification(
+                                        item.id,
                                       ),
                                   )
-                                  .map((person) => (
-                                    <option key={person.id} value={person.id}>
-                                      {person.full_name}
-                                    </option>
-                                  ))}
-                              </select>
-                              <button
-                                className="app-button app-button-primary"
-                                type="submit"
-                                disabled={!editingStaffId}
+                                }
                               >
-                                Add staff
-                              </button>
-                            </form>
-                          </div>
+                                Remove
+                              </Button>
+                            </Box>
+                          ),
+                        )}
+                      </Stack>
+                    </Stack>
+                  </Box>
 
-                          <button
-                            className="app-button app-button-danger schedule-delete-activity"
-                            type="button"
-                            onClick={() =>
-                              confirmRemove(
-                                `scheduled ${item.activity_name}`,
-                                () => removeEventActivity(item.id),
-                              )
-                            }
+                  <Box
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    p="4"
+                  >
+                    <Stack gap="4">
+                      <Box>
+                        <Text fontWeight="700">
+                          Staff → qualifications
+                        </Text>
+
+                        <Text
+                          fontSize="sm"
+                          color="gray.500"
+                        >
+                          {staffQualifications.length} current assignment{staffQualifications.length === 1 ? "" : "s"}
+                        </Text>
+                      </Box>
+
+                      <Box
+                        as="form"
+                        onSubmit={
+                          submitStaffQualification
+                        }
+                      >
+                        <Grid
+                          templateColumns={{
+                            base: "1fr",
+                            md: "minmax(0, 1fr) minmax(0, 1fr) auto",
+                          }}
+                          gap="3"
+                          alignItems="end"
+                        >
+                          <NativeSelect.Root>
+                            <NativeSelect.Field
+                              value={
+                                staffQualStaff
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setStaffQualStaff(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            >
+                              <option value="">
+                                Choose staff
+                              </option>
+
+                              {staff.map(
+                                (item) => (
+                                  <option
+                                    key={
+                                      item.id
+                                    }
+                                    value={
+                                      item.id
+                                    }
+                                  >
+                                    {
+                                      item.full_name
+                                    }
+                                  </option>
+                                ),
+                              )}
+                            </NativeSelect.Field>
+
+                            <NativeSelect.Indicator />
+                          </NativeSelect.Root>
+
+                          <NativeSelect.Root>
+                            <NativeSelect.Field
+                              value={
+                                staffQualQual
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setStaffQualQual(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            >
+                              <option value="">
+                                Choose qualification
+                              </option>
+
+                              {qualifications.map(
+                                (item) => (
+                                  <option
+                                    key={
+                                      item.id
+                                    }
+                                    value={
+                                      item.id
+                                    }
+                                  >
+                                    {item.name}
+                                  </option>
+                                ),
+                              )}
+                            </NativeSelect.Field>
+
+                            <NativeSelect.Indicator />
+                          </NativeSelect.Root>
+
+                          <Button
+                            type="submit"
+                            colorPalette="green"
                           >
-                            Remove activity
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </section>
-            ))
-          ) : (
-            <div className="app-empty">No scheduled activities yet.</div>
-          )}
-        </div>
-      </section>
+                            Assign
+                          </Button>
+                        </Grid>
+                      </Box>
 
-      <details className="admin-setup-disclosure" open>
-        <summary>
-          <div className="setup-disclosure-copy">
-            <strong>Scheduling libraries</strong>
-            <span>Reusable qualifications and activity staffing rules stay when events are cleared.</span>
-          </div>
-          <span className="setup-disclosure-badge">Reusable setup</span>
-        </summary>
+                      <Stack gap="2">
+                        {staffQualifications.map(
+                          (item) => (
+                            <Box
+                              key={item.id}
+                              display="flex"
+                              justifyContent="space-between"
+                              alignItems="center"
+                              gap="3"
+                              py="2"
+                              borderTopWidth="1px"
+                              borderColor="gray.100"
+                            >
+                              <Text>
+                                {item.staff_name} → {item.qualification_name}
+                              </Text>
 
-        <div className="setup-grid">
-          <div className="setup-column">
-          <section className="setup-section">
-            <div className="setup-section-head">
-              <div>
-                <strong>Qualification library</strong>
-                <span>{qualifications.length} reusable skill{qualifications.length === 1 ? "" : "s"}</span>
-              </div>
-            </div>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                colorPalette="red"
+                                onClick={() =>
+                                  confirmRemove(
+                                    `${item.qualification_name} from ${item.staff_name}`,
+                                    () =>
+                                      removeStaffQualification(
+                                        item.id,
+                                      ),
+                                  )
+                                }
+                              >
+                                Remove
+                              </Button>
+                            </Box>
+                          ),
+                        )}
+                      </Stack>
+                    </Stack>
+                  </Box>
+                </Stack>
 
-            <form className="admin-form compact-form compact-form-one" onSubmit={submitQualification}>
-              <label>
-                <span>Name</span>
-                <input
-                  value={qualificationName}
-                  onChange={(e) => setQualificationName(e.target.value)}
-                />
-              </label>
-              <button className="app-button app-button-primary" type="submit">
-                Add
-              </button>
-            </form>
-
-            <div className="compact-list">
-              {qualifications.map((item) => (
-                <div className="admin-inline-record" key={item.id}>
-                  <span>{item.name}</span>
-                  <button
-                    className="app-button app-button-danger"
-                    type="button"
-                    onClick={() =>
-                      confirmRemove(
-                        `qualification "${item.name}"`,
-                        () => removeQualification(item.id),
-                      )
-                    }
+                <Stack gap="5">
+                  <Box
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    p="4"
                   >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
+                    <Stack gap="4">
+                      <Box>
+                        <Text fontWeight="700">
+                          Staff → place assignments
+                        </Text>
 
-          <section className="setup-section">
-            <div className="setup-section-head">
-              <div>
-                <strong>Staff → qualifications</strong>
-                <span>{staffQualifications.length} current assignment{staffQualifications.length === 1 ? "" : "s"}</span>
-              </div>
-            </div>
+                        <Text
+                          fontSize="sm"
+                          color="gray.500"
+                        >
+                          {staffAreas.length} current assignment{staffAreas.length === 1 ? "" : "s"}
+                        </Text>
+                      </Box>
 
-            <form className="admin-form compact-form compact-form-two" onSubmit={submitStaffQualification}>
-              <select
-                value={staffQualStaff}
-                onChange={(e) => setStaffQualStaff(e.target.value)}
-              >
-                <option value="">Choose staff</option>
-                {staff.map((item) => (
-                  <option key={item.id} value={item.id}>{item.full_name}</option>
-                ))}
-              </select>
-              <select
-                value={staffQualQual}
-                onChange={(e) => setStaffQualQual(e.target.value)}
-              >
-                <option value="">Choose qualification</option>
-                {qualifications.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
-                ))}
-              </select>
-              <button className="app-button app-button-primary" type="submit">Assign</button>
-            </form>
+                      <Box
+                        as="form"
+                        onSubmit={
+                          submitStaffArea
+                        }
+                      >
+                        <Grid
+                          templateColumns={{
+                            base: "1fr",
+                            md: "minmax(0, 1fr) minmax(0, 1fr) auto",
+                          }}
+                          gap="3"
+                          alignItems="end"
+                        >
+                          <NativeSelect.Root>
+                            <NativeSelect.Field
+                              value={
+                                staffAreaStaff
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setStaffAreaStaff(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            >
+                              <option value="">
+                                Choose staff
+                              </option>
 
-            <div className="compact-list">
-              {staffQualifications.map((item) => (
-                <div className="admin-inline-record" key={item.id}>
-                  <span>{item.staff_name} → {item.qualification_name}</span>
-                  <button
-                    className="app-button app-button-danger"
-                    type="button"
-                    onClick={() =>
-                      confirmRemove(
-                        `${item.qualification_name} from ${item.staff_name}`,
-                        () => removeStaffQualification(item.id),
-                      )
-                    }
+                              {staff.map(
+                                (item) => (
+                                  <option
+                                    key={
+                                      item.id
+                                    }
+                                    value={
+                                      item.id
+                                    }
+                                  >
+                                    {
+                                      item.full_name
+                                    }
+                                  </option>
+                                ),
+                              )}
+                            </NativeSelect.Field>
+
+                            <NativeSelect.Indicator />
+                          </NativeSelect.Root>
+
+                          <NativeSelect.Root>
+                            <NativeSelect.Field
+                              value={
+                                staffAreaArea
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setStaffAreaArea(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            >
+                              <option value="">
+                                Choose area
+                              </option>
+
+                              {areas.map(
+                                (item) => (
+                                  <option
+                                    key={
+                                      item.id
+                                    }
+                                    value={
+                                      item.id
+                                    }
+                                  >
+                                    {item.name}
+                                  </option>
+                                ),
+                              )}
+                            </NativeSelect.Field>
+
+                            <NativeSelect.Indicator />
+                          </NativeSelect.Root>
+
+                          <Button
+                            type="submit"
+                            colorPalette="green"
+                          >
+                            Assign
+                          </Button>
+                        </Grid>
+                      </Box>
+
+                      <Stack gap="2">
+                        {staffAreas.map(
+                          (item) => (
+                            <Box
+                              key={item.id}
+                              display="flex"
+                              justifyContent="space-between"
+                              alignItems="center"
+                              gap="3"
+                              py="2"
+                              borderTopWidth="1px"
+                              borderColor="gray.100"
+                            >
+                              <Text>
+                                {item.staff_name} → {item.area_name}
+                              </Text>
+
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                colorPalette="red"
+                                onClick={() =>
+                                  confirmRemove(
+                                    `${item.staff_name} from ${item.area_name}`,
+                                    () =>
+                                      removeStaffArea(
+                                        item.id,
+                                      ),
+                                  )
+                                }
+                              >
+                                Remove
+                              </Button>
+                            </Box>
+                          ),
+                        )}
+                      </Stack>
+                    </Stack>
+                  </Box>
+
+                  <Box
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    p="4"
                   >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
-          </div>
+                    <Stack gap="4">
+                      <Box>
+                        <Text fontWeight="700">
+                          Activity requirement library
+                        </Text>
 
-          <div className="setup-column">
-          <section className="setup-section">
-            <div className="setup-section-head">
-              <div>
-                <strong>Staff → place assignments</strong>
-                <span>{staffAreas.length} current assignment{staffAreas.length === 1 ? "" : "s"}</span>
-              </div>
-            </div>
+                        <Text
+                          fontSize="sm"
+                          color="gray.500"
+                        >
+                          {activityQualifications.length} reusable staffing rule{activityQualifications.length === 1 ? "" : "s"}
+                        </Text>
+                      </Box>
 
-            <form className="admin-form compact-form compact-form-two" onSubmit={submitStaffArea}>
-              <select
-                value={staffAreaStaff}
-                onChange={(e) => setStaffAreaStaff(e.target.value)}
-              >
-                <option value="">Choose staff</option>
-                {staff.map((item) => (
-                  <option key={item.id} value={item.id}>{item.full_name}</option>
-                ))}
-              </select>
-              <select
-                value={staffAreaArea}
-                onChange={(e) => setStaffAreaArea(e.target.value)}
-              >
-                <option value="">Choose area</option>
-                {areas.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
-                ))}
-              </select>
-              <button className="app-button app-button-primary" type="submit">Assign</button>
-            </form>
+                      <Box
+                        as="form"
+                        onSubmit={
+                          submitActivityQualification
+                        }
+                      >
+                        <Grid
+                          templateColumns={{
+                            base: "1fr",
+                            md: "minmax(0, 1fr) minmax(0, 1fr) 88px auto",
+                          }}
+                          gap="3"
+                          alignItems="end"
+                        >
+                          <NativeSelect.Root>
+                            <NativeSelect.Field
+                              value={
+                                activityQualActivity
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setActivityQualActivity(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            >
+                              <option value="">
+                                Choose activity
+                              </option>
 
-            <div className="compact-list">
-              {staffAreas.map((item) => (
-                <div className="admin-inline-record" key={item.id}>
-                  <span>{item.staff_name} → {item.area_name}</span>
-                  <button
-                    className="app-button app-button-danger"
-                    type="button"
-                    onClick={() =>
-                      confirmRemove(
-                        `${item.staff_name} from ${item.area_name}`,
-                        () => removeStaffArea(item.id),
-                      )
-                    }
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
+                              {activities.map(
+                                (item) => (
+                                  <option
+                                    key={
+                                      item.id
+                                    }
+                                    value={
+                                      item.id
+                                    }
+                                  >
+                                    {item.name}
+                                  </option>
+                                ),
+                              )}
+                            </NativeSelect.Field>
 
-          <section className="setup-section">
-            <div className="setup-section-head">
-              <div>
-                <strong>Activity requirement library</strong>
-                <span>{activityQualifications.length} reusable staffing rule{activityQualifications.length === 1 ? "" : "s"}</span>
-              </div>
-            </div>
+                            <NativeSelect.Indicator />
+                          </NativeSelect.Root>
 
-            <form className="admin-form compact-form compact-form-rule" onSubmit={submitActivityQualification}>
-              <select
-                value={activityQualActivity}
-                onChange={(e) => setActivityQualActivity(e.target.value)}
-              >
-                <option value="">Choose activity</option>
-                {activities.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
-                ))}
-              </select>
-              <select
-                value={activityQualQual}
-                onChange={(e) => setActivityQualQual(e.target.value)}
-              >
-                <option value="">Choose qualification</option>
-                {qualifications.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
-                ))}
-              </select>
-              <label className="compact-number-field">
-                <span>Required staff</span>
-                <input
-                  className="app-control-number"
-                  type="number"
-                  min="1"
-                  value={requiredCount}
-                  onChange={(e) => setRequiredCount(e.target.value)}
-                />
-              </label>
-              <button className="app-button app-button-primary" type="submit">Add rule</button>
-            </form>
+                          <NativeSelect.Root>
+                            <NativeSelect.Field
+                              value={
+                                activityQualQual
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setActivityQualQual(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            >
+                              <option value="">
+                                Choose qualification
+                              </option>
 
-            <div className="compact-list">
-              {activityQualifications.map((item) => (
-                <div className="admin-inline-record activity-requirement-row" key={item.id}>
-                  <div>
-                    <strong>{item.activity_name}</strong>
-                    <span>{item.required_staff_count} × {item.qualification_name}</span>
-                  </div>
-                  <button
-                    className="app-button app-button-danger"
-                    type="button"
-                    onClick={() =>
-                      confirmRemove(
-                        `${item.qualification_name} requirement from ${item.activity_name}`,
-                        () => removeActivityQualification(item.id),
-                      )
-                    }
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
-          </div>
-        </div>
-      </details>
-    </section>
+                              {qualifications.map(
+                                (item) => (
+                                  <option
+                                    key={
+                                      item.id
+                                    }
+                                    value={
+                                      item.id
+                                    }
+                                  >
+                                    {item.name}
+                                  </option>
+                                ),
+                              )}
+                            </NativeSelect.Field>
+
+                            <NativeSelect.Indicator />
+                          </NativeSelect.Root>
+
+                          <Field.Root>
+                            <Field.Label>
+                              Required
+                            </Field.Label>
+
+                            <Input
+                              type="number"
+                              min="1"
+                              value={
+                                requiredCount
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setRequiredCount(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            />
+                          </Field.Root>
+
+                          <Button
+                            type="submit"
+                            colorPalette="green"
+                          >
+                            Add rule
+                          </Button>
+                        </Grid>
+                      </Box>
+
+                      <Stack gap="2">
+                        {activityQualifications.map(
+                          (item) => (
+                            <Box
+                              key={item.id}
+                              display="flex"
+                              justifyContent="space-between"
+                              alignItems="center"
+                              gap="3"
+                              py="2"
+                              borderTopWidth="1px"
+                              borderColor="gray.100"
+                            >
+                              <Stack gap="0">
+                                <Text fontWeight="700">
+                                  {
+                                    item.activity_name
+                                  }
+                                </Text>
+
+                                <Text
+                                  fontSize="sm"
+                                  color="gray.500"
+                                >
+                                  {item.required_staff_count} × {item.qualification_name}
+                                </Text>
+                              </Stack>
+
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                colorPalette="red"
+                                onClick={() =>
+                                  confirmRemove(
+                                    `${item.qualification_name} requirement from ${item.activity_name}`,
+                                    () =>
+                                      removeActivityQualification(
+                                        item.id,
+                                      ),
+                                  )
+                                }
+                              >
+                                Remove
+                              </Button>
+                            </Box>
+                          ),
+                        )}
+                      </Stack>
+                    </Stack>
+                  </Box>
+                </Stack>
+              </Grid>
+            </Box>
+          </details>
+        </Box>
+      </Stack>
+    </Box>
   );
 }
