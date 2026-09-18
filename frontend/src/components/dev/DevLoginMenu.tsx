@@ -1,4 +1,10 @@
 import {
+  Box,
+  Button,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import {
   useEffect,
   useState,
 } from "react";
@@ -90,104 +96,149 @@ export default function DevLoginMenu() {
   }
 
   return (
-    <div className="dev-login-menu">
-      <button
+    <Box
+      position="fixed"
+      right="4"
+      bottom="4"
+      zIndex="10"
+    >
+      {open && (
+        <Box
+          mb="2"
+          w="320px"
+          maxW="calc(100vw - 32px)"
+          maxH="420px"
+          overflowY="auto"
+          bg="white"
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="lg"
+          p="4"
+          boxShadow="lg"
+        >
+          {loading ? (
+            <Text
+              fontSize="sm"
+              color="gray.600"
+            >
+              Loading users…
+            </Text>
+          ) : error ? (
+            <Text
+              fontSize="sm"
+              color="red.600"
+            >
+              {error}
+            </Text>
+          ) : (
+            <Stack gap="5">
+              {categories.map(
+                (category) => {
+                  const rows =
+                    accounts.filter(
+                      (account) =>
+                        account.account_type ===
+                        category.type,
+                    );
+
+                  if (!rows.length) {
+                    return null;
+                  }
+
+                  return (
+                    <Stack
+                      gap="2"
+                      key={category.type}
+                    >
+                      <Text
+                        fontSize="xs"
+                        fontWeight="700"
+                        color="gray.500"
+                        textTransform="uppercase"
+                        letterSpacing="wide"
+                      >
+                        {category.label}
+                      </Text>
+
+                      <Stack gap="1">
+                        {rows.map(
+                          (account) => (
+                            <Button
+                              key={account.id}
+                              type="button"
+                              variant="ghost"
+                              justifyContent="space-between"
+                              h="auto"
+                              py="2"
+                              px="3"
+                              disabled={
+                                switching !==
+                                null
+                              }
+                              onClick={() =>
+                                void switchAccount(
+                                  account,
+                                )
+                              }
+                            >
+                              <Box
+                                textAlign="left"
+                                minW="0"
+                              >
+                                <Text
+                                  fontWeight="600"
+                                  truncate
+                                >
+                                  {account.display_name ??
+                                    account.username}
+                                </Text>
+
+                                <Text
+                                  fontSize="xs"
+                                  color="gray.500"
+                                  fontWeight="400"
+                                >
+                                  @{account.username}
+                                </Text>
+                              </Box>
+
+                              <Text
+                                fontSize="xs"
+                                color="gray.500"
+                              >
+                                {switching ===
+                                account.id
+                                  ? "…"
+                                  : account.must_change_password
+                                    ? "setup"
+                                    : ""}
+                              </Text>
+                            </Button>
+                          ),
+                        )}
+                      </Stack>
+                    </Stack>
+                  );
+                },
+              )}
+            </Stack>
+          )}
+        </Box>
+      )}
+
+      <Button
         type="button"
-        className="dev-login-trigger"
+        size="sm"
+        variant="outline"
+        bg="white"
         onClick={() =>
           setOpen(
             (current) => !current,
           )
         }
       >
-        DEV LOGIN
-        <span>{open ? "×" : "↓"}</span>
-      </button>
-
-      {open && (
-        <div className="dev-login-panel">
-          {loading ? (
-            <div className="dev-login-loading">
-              Loading users…
-            </div>
-          ) : error ? (
-            <div className="dev-login-error">
-              {error}
-            </div>
-          ) : (
-            categories.map(
-              (category) => {
-                const rows =
-                  accounts.filter(
-                    (account) =>
-                      account.account_type ===
-                      category.type,
-                  );
-
-                if (!rows.length) {
-                  return null;
-                }
-
-                return (
-                  <div
-                    className="dev-login-category"
-                    key={category.type}
-                  >
-                    <div className="dev-login-category-label">
-                      {category.label}
-                    </div>
-
-                    <div className="dev-login-user-list">
-                      {rows.map(
-                        (account) => (
-                          <button
-                            type="button"
-                            className="dev-login-user"
-                            key={account.id}
-                            disabled={
-                              switching !==
-                              null
-                            }
-                            onClick={() =>
-                              void switchAccount(
-                                account,
-                              )
-                            }
-                          >
-                            <span className="dev-login-user-name">
-                              <strong>
-                                {account.display_name ??
-                                  account.username}
-                              </strong>
-
-                              <small>
-                                @{account.username}
-                              </small>
-                            </span>
-
-                            {account.must_change_password && (
-                              <small>
-                                setup
-                              </small>
-                            )}
-
-                            {switching ===
-                              account.id && (
-                              <span className="dev-login-switching">
-                                …
-                              </span>
-                            )}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  </div>
-                );
-              },
-            )
-          )}
-        </div>
-      )}
-    </div>
+        DEV LOGIN {open ? "×" : "↓"}
+      </Button>
+    </Box>
   );
 }

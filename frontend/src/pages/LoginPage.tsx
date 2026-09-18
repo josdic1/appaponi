@@ -1,13 +1,20 @@
 import {
+  Alert,
+  Box,
+  Button,
+  Field,
+  Heading,
+  Input,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import {
   useState,
   type FormEvent,
 } from "react";
 
 import DevLoginMenu from "../components/dev/DevLoginMenu";
-
-import {
-  useAuth,
-} from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -48,80 +55,136 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="login-page">
+    <Box
+      minH="100vh"
+      bg="gray.50"
+      display="grid"
+      placeItems="center"
+      px="4"
+      py="10"
+    >
       <DevLoginMenu />
 
-      <form
-        className="login-card login-form"
+      <Box
+        as="form"
         onSubmit={submit}
+        w="full"
+        maxW="420px"
+        bg="white"
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="xl"
+        p={{ base: "6", md: "8" }}
       >
-        <div className="login-brand">
-          <div className="brand-mark">
-            A
-          </div>
+        <Stack gap="7">
+          <Stack gap="1">
+            <Box
+              w="10"
+              h="10"
+              display="grid"
+              placeItems="center"
+              borderRadius="md"
+              bg="green.700"
+              color="white"
+              fontWeight="700"
+              fontSize="lg"
+            >
+              A
+            </Box>
 
-          <div>
-            <div className="brand-name">
-              Appaponi
-            </div>
+            <Box pt="2">
+              <Text
+                fontWeight="700"
+                fontSize="lg"
+                lineHeight="1.2"
+              >
+                Appaponi
+              </Text>
 
-            <div className="brand-sub">
-              Camp App
-            </div>
-          </div>
-        </div>
+              <Text
+                color="gray.500"
+                fontSize="sm"
+              >
+                Camp App
+              </Text>
+            </Box>
+          </Stack>
 
-        <div className="login-heading">
-          <h1>Sign in</h1>
-          <p>
-            Enter your Appaponi
-            account.
-          </p>
-        </div>
+          <Stack gap="1">
+            <Heading
+              as="h1"
+              size="2xl"
+              letterSpacing="-0.02em"
+            >
+              Sign in
+            </Heading>
 
-        <label>
-          <span>Username</span>
-          <input
-            autoComplete="username"
-            value={username}
-            onChange={(event) =>
-              setUsername(
-                event.target.value,
-              )
-            }
-          />
-        </label>
+            <Text color="gray.600">
+              Enter your Appaponi account.
+            </Text>
+          </Stack>
 
-        <label>
-          <span>Password</span>
-          <input
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) =>
-              setPassword(
-                event.target.value,
-              )
-            }
-          />
-        </label>
+          <Stack gap="5">
+            <Field.Root>
+              <Field.Label>
+                Username
+              </Field.Label>
 
-        {error && (
-          <div className="app-alert app-alert-danger">
-            {error}
-          </div>
-        )}
+              <Input
+                autoComplete="username"
+                value={username}
+                onChange={(event) =>
+                  setUsername(
+                    event.target.value,
+                  )
+                }
+                size="lg"
+              />
+            </Field.Root>
 
-        <button
-          className="app-button app-button-primary app-button-block"
-          type="submit"
-          disabled={submitting}
-        >
-          {submitting
-            ? "Signing in…"
-            : "Sign in"}
-        </button>
-      </form>
-    </main>
+            <Field.Root>
+              <Field.Label>
+                Password
+              </Field.Label>
+
+              <Input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) =>
+                  setPassword(
+                    event.target.value,
+                  )
+                }
+                size="lg"
+              />
+            </Field.Root>
+
+            {error && (
+              <Alert.Root status="error">
+                <Alert.Indicator />
+
+                <Alert.Content>
+                  <Alert.Description>
+                    {error}
+                  </Alert.Description>
+                </Alert.Content>
+              </Alert.Root>
+            )}
+
+            <Button
+              type="submit"
+              colorPalette="green"
+              size="lg"
+              w="full"
+              loading={submitting}
+              loadingText="Signing in…"
+            >
+              Sign in
+            </Button>
+          </Stack>
+        </Stack>
+      </Box>
+    </Box>
   );
 }
