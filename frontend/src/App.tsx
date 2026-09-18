@@ -1,3 +1,5 @@
+import { Box, Button, Heading, Stack, Text } from "@chakra-ui/react";
+
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import { MataponiLoader } from "./components/feedback/MataponiLoader";
 
@@ -37,35 +39,80 @@ function AppContent() {
   }
 
   return (
-    <main className="login-page">
-      <section className="login-card">
-        <div className="login-brand">
-          <div className="brand-mark">A</div>
+    <Box
+      minH="100vh"
+      bg="gray.50"
+      display="grid"
+      placeItems="center"
+      px="4"
+      py="10"
+    >
+      <Box
+        w="full"
+        maxW="420px"
+        bg="white"
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="xl"
+        p={{ base: "6", md: "8" }}
+      >
+        <Stack gap="7">
+          <Stack gap="1">
+            <Box
+              w="10"
+              h="10"
+              display="grid"
+              placeItems="center"
+              borderRadius="md"
+              bg="green.700"
+              color="white"
+              fontWeight="700"
+              fontSize="lg"
+            >
+              A
+            </Box>
 
-          <div>
-            <div className="brand-name">Appaponi</div>
+            <Box pt="2">
+              <Text
+                fontWeight="700"
+                fontSize="lg"
+              >
+                Appaponi
+              </Text>
 
-            <div className="brand-sub">{account.account_type}</div>
-          </div>
-        </div>
+              <Text
+                color="gray.500"
+                fontSize="sm"
+              >
+                {account.account_type}
+              </Text>
+            </Box>
+          </Stack>
 
-        <div className="login-heading">
-          <h1>{account.username}</h1>
+          <Stack gap="1">
+            <Heading as="h1" size="2xl">
+              {account.username}
+            </Heading>
 
-          <p>Authenticated Appaponi account.</p>
-        </div>
+            <Text color="gray.600">
+              Authenticated Appaponi account.
+            </Text>
+          </Stack>
 
-        <button
-          className="app-button app-button-primary app-button-block"
-          type="button"
-          onClick={() => {
-            void logout();
-          }}
-        >
-          Sign out
-        </button>
-      </section>
-    </main>
+          <Button
+            type="button"
+            colorPalette="green"
+            size="lg"
+            w="full"
+            onClick={() => {
+              void logout();
+            }}
+          >
+            Sign out
+          </Button>
+        </Stack>
+      </Box>
+    </Box>
   );
 }
 
