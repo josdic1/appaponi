@@ -1,3 +1,5 @@
+import { Box } from "@chakra-ui/react";
+
 import AppSectionRail, {
   type AppSectionRailItem,
 } from "./AppSectionRail";
@@ -13,13 +15,16 @@ export default function AppSectionStack({
   label,
 }: Props) {
   return (
-    <div className="app-section-stack">
+    <Box
+      w="full"
+      bg="white"
+    >
       <AppSectionRail
         items={items}
         label={label}
       />
 
       <MataponiLoaderEasterEgg />
-    </div>
+    </Box>
   );
 }
