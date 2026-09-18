@@ -333,6 +333,13 @@ export default function AdminCabinsPanel({
                   <CampCabinShape
                     slot={slot}
                     className="cabin-overview-glyph"
+                    state={
+                      assignment
+                        ? "assigned"
+                        : owner
+                          ? "placed"
+                          : "hidden"
+                    }
                   />
                   {owner && (
                     <text x={centerX} y={slot.y - 8}>
@@ -576,6 +583,13 @@ export default function AdminCabinsPanel({
                     <CampCabinShape
                       slot={slot}
                       className="cabin-picker-glyph"
+                      state={
+                        unavailable
+                          ? "unavailable"
+                          : isSelected
+                            ? "selected"
+                            : "hidden"
+                      }
                     />
                     {(owner || isSelected) && (
                       <text x={centerX} y={slot.y - 8}>
