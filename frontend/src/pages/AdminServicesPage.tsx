@@ -4,6 +4,20 @@ import {
   type FormEvent,
 } from "react";
 
+import {
+  Alert,
+  Box,
+  Button,
+  Field,
+  Grid,
+  HStack,
+  Input,
+  NativeSelect,
+  Stack,
+  Text,
+  Textarea,
+} from "@chakra-ui/react";
+
 import type { AccountRecord } from "@appoponi/shared/schemas/accounts";
 import type { EventRecord } from "@appoponi/shared/schemas/events";
 import type { StaffMember } from "@appoponi/shared/schemas/staffMembers";
@@ -156,208 +170,730 @@ export default function AdminServicesPage({ activeEventId = "" }: Props) {
   }
 
   return (
-    <section>
-      <div className="admin-heading">
-        <div className="admin-eyebrow">ADMIN</div>
-        <h1>Services</h1>
-        <p>Manage guest requests and communication. Food planning lives in Meal planning.</p>
-      </div>
+    <Box as="section" minW="0">
+      <Box mb="4">
+        <Text
+          fontSize="xs"
+          fontWeight="800"
+          letterSpacing="0.08em"
+          color="#6d7169"
+        >
+          ADMIN
+        </Text>
 
-      <div className="app-tabs" role="tablist" aria-label="Services">
-        <button type="button" className={view === "orders" ? "active" : ""} onClick={() => setView("orders")}>Food requests</button>
-        <button type="button" className={view === "babysitting" ? "active" : ""} onClick={() => setView("babysitting")}>Babysitting</button>
-        <button type="button" className={view === "notifications" ? "active" : ""} onClick={() => setView("notifications")}>Notices</button>
-      </div>
+        <Text
+          as="h1"
+          fontSize="2xl"
+          fontWeight="700"
+        >
+          Services
+        </Text>
 
-      {error && <div className="app-alert app-alert-danger">{error}</div>}
+        <Text color="#6d7169">
+          Manage guest requests and communication. Food planning lives in Meal planning.
+        </Text>
+      </Box>
+
+      <HStack
+        role="tablist"
+        aria-label="Services"
+        gap="2"
+        mb="18px"
+        overflowX="auto"
+        scrollbarWidth="none"
+      >
+        {([
+          ["orders", "Food requests"],
+          ["babysitting", "Babysitting"],
+          ["notifications", "Notices"],
+        ] as const).map(([value, label]) => {
+          const active = view === value;
+
+          return (
+            <Button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              size="sm"
+              variant="outline"
+              flex="0 0 auto"
+              minH="34px"
+              px="3"
+              borderRadius="8px"
+              borderColor={
+                active
+                  ? "#b7ddcf"
+                  : "#dddcd5"
+              }
+              bg={
+                active
+                  ? "#e7f3ef"
+                  : "#ffffff"
+              }
+              color={
+                active
+                  ? "#005d41"
+                  : "#6d7169"
+              }
+              onClick={() =>
+                setView(value)
+              }
+            >
+              {label}
+            </Button>
+          );
+        })}
+      </HStack>
+
+      {error && (
+        <Alert.Root
+          status="error"
+          mb="3"
+        >
+          <Alert.Indicator />
+
+          <Alert.Content>
+            <Alert.Description>
+              {error}
+            </Alert.Description>
+          </Alert.Content>
+        </Alert.Root>
+      )}
 
       {view === "orders" && (
-        <section className="app-card service-focus-card">
-          <div className="app-card-head">
-            <div>
-              <strong>Food requests</strong>
-              <span>{activeEvent ? activeEvent.name : "All events"} · {visibleOrders.filter((order) => order.status === "open").length} open</span>
-            </div>
-          </div>
+        <Box
+          as="section"
+          mt="3"
+          overflow="hidden"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="#ffffff"
+        >
+          <Box
+            minH="58px"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap="14px"
+            px="4"
+            py="13px"
+            borderBottomWidth="1px"
+            borderColor="#dddcd5"
+          >
+            <Stack
+              minW="0"
+              gap="3px"
+            >
+              <Text fontWeight="700">
+                Food requests
+              </Text>
 
-          <div className="service-record-list">
-            {visibleOrders.length ? visibleOrders.map((order) => (
-              <div className="service-record service-record-controls" key={order.id}>
-                <div>
-                  <strong>{order.username}{order.requested_by_name ? ` · ${order.requested_by_name}` : ""}</strong>
-                  <span>{order.offering_type === "SNACK" ? "Snack" : "After-hours"} · {order.items.map((item) => `${item.quantity}× ${item.item_name}`).join(" · ")}</span>
-                  <small>{order.fulfillment}{order.delivery_location ? ` · ${order.delivery_location}` : ""}</small>
-                </div>
+              <Text
+                fontSize="11px"
+                color="#6d7169"
+              >
+                {activeEvent
+                  ? activeEvent.name
+                  : "All events"}{" "}
+                ·{" "}
+                {
+                  visibleOrders.filter(
+                    (order) =>
+                      order.status === "open",
+                  ).length
+                }{" "}
+                open
+              </Text>
+            </Stack>
+          </Box>
 
-                <select
-                  aria-label={`Assign ${order.username} order`}
-                  value={order.assigned_staff_member_id ?? ""}
-                  onChange={(event) => void run(() => updateFoodOrder(order.id, {
-                    assigned_staff_member_id: event.target.value ? Number(event.target.value) : null,
-                  }))}
+          <Stack gap="0">
+            {visibleOrders.length ? (
+              visibleOrders.map((order) => (
+                <Grid
+                  key={order.id}
+                  templateColumns="minmax(0, 1fr) minmax(150px, 200px) minmax(120px, 160px)"
+                  alignItems="center"
+                  gap="2"
+                  minH="58px"
+                  px="14px"
+                  py="10px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                  css={{
+                    "@media (max-width: 760px)": {
+                      gridTemplateColumns:
+                        "1fr",
+                      alignItems:
+                        "stretch",
+                    },
+                  }}
                 >
-                  <option value="">Unassigned</option>
-                  {staff.map((person) => <option key={person.id} value={person.id}>{person.full_name}</option>)}
-                </select>
+                  <Stack
+                    minW="0"
+                    gap="3px"
+                  >
+                    <Text fontWeight="700">
+                      {order.username}
+                      {order.requested_by_name
+                        ? ` · ${order.requested_by_name}`
+                        : ""}
+                    </Text>
 
-                <select
-                  aria-label={`Status for ${order.username} order`}
-                  value={order.status}
-                  onChange={(event) => void run(() => updateFoodOrder(order.id, {
-                    status: event.target.value as "open" | "fulfilled" | "cancelled",
-                  }))}
+                    <Text
+                      fontSize="11px"
+                      color="#6d7169"
+                    >
+                      {order.offering_type ===
+                      "SNACK"
+                        ? "Snack"
+                        : "After-hours"}{" "}
+                      ·{" "}
+                      {order.items
+                        .map(
+                          (item) =>
+                            `${item.quantity}× ${item.item_name}`,
+                        )
+                        .join(" · ")}
+                    </Text>
+
+                    <Text
+                      fontSize="11px"
+                      color="#6d7169"
+                    >
+                      {order.fulfillment}
+                      {order.delivery_location
+                        ? ` · ${order.delivery_location}`
+                        : ""}
+                    </Text>
+                  </Stack>
+
+                  <NativeSelect.Root>
+                    <NativeSelect.Field
+                      aria-label={`Assign ${order.username} order`}
+                      value={
+                        order.assigned_staff_member_id ??
+                        ""
+                      }
+                      onChange={(event) =>
+                        void run(() =>
+                          updateFoodOrder(
+                            order.id,
+                            {
+                              assigned_staff_member_id:
+                                event.target.value
+                                  ? Number(
+                                      event.target
+                                        .value,
+                                    )
+                                  : null,
+                            },
+                          ),
+                        )
+                      }
+                    >
+                      <option value="">
+                        Unassigned
+                      </option>
+
+                      {staff.map((person) => (
+                        <option
+                          key={person.id}
+                          value={person.id}
+                        >
+                          {person.full_name}
+                        </option>
+                      ))}
+                    </NativeSelect.Field>
+
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+
+                  <NativeSelect.Root>
+                    <NativeSelect.Field
+                      aria-label={`Status for ${order.username} order`}
+                      value={order.status}
+                      onChange={(event) =>
+                        void run(() =>
+                          updateFoodOrder(
+                            order.id,
+                            {
+                              status:
+                                event.target
+                                  .value as
+                                  | "open"
+                                  | "fulfilled"
+                                  | "cancelled",
+                            },
+                          ),
+                        )
+                      }
+                    >
+                      <option value="open">
+                        Open
+                      </option>
+                      <option value="fulfilled">
+                        Fulfilled
+                      </option>
+                      <option value="cancelled">
+                        Cancelled
+                      </option>
+                    </NativeSelect.Field>
+
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                </Grid>
+              ))
+            ) : (
+              <Box
+                px="5"
+                py="8"
+                textAlign="center"
+              >
+                <Text
+                  fontSize="12px"
+                  color="#6d7169"
                 >
-                  <option value="open">Open</option>
-                  <option value="fulfilled">Fulfilled</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-            )) : <div className="app-empty">No food requests.</div>}
-          </div>
-        </section>
+                  No food requests.
+                </Text>
+              </Box>
+            )}
+          </Stack>
+        </Box>
       )}
 
       {view === "babysitting" && (
-        <section className="app-card service-focus-card">
-          <div className="app-card-head">
-            <div>
-              <strong>Babysitting requests</strong>
-              <span>Assign eligible staff and confirm requests.</span>
-            </div>
-          </div>
+        <Box
+          as="section"
+          mt="3"
+          overflow="hidden"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="#ffffff"
+        >
+          <Box
+            minH="58px"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap="14px"
+            px="4"
+            py="13px"
+            borderBottomWidth="1px"
+            borderColor="#dddcd5"
+          >
+            <Stack
+              minW="0"
+              gap="3px"
+            >
+              <Text fontWeight="700">
+                Babysitting requests
+              </Text>
 
-          <div className="service-record-list">
-            {visibleBabysitting.length ? visibleBabysitting.map((request) => (
-              <div className="service-record service-record-controls" key={request.id}>
-                <div>
-                  <strong>{request.username} · {request.member_names.join(", ")}</strong>
-                  <span>{new Date(request.starts_at).toLocaleString()} → {new Date(request.ends_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
-                </div>
+              <Text
+                fontSize="11px"
+                color="#6d7169"
+              >
+                Assign eligible staff and confirm requests.
+              </Text>
+            </Stack>
+          </Box>
 
-                <select
-                  value={request.sitter_staff_member_id ?? ""}
-                  onChange={(event) => void run(() => updateBabysittingRequest(request.id, {
-                    sitter_staff_member_id: event.target.value ? Number(event.target.value) : null,
-                  }))}
+          <Stack gap="0">
+            {visibleBabysitting.length ? (
+              visibleBabysitting.map(
+                (request) => (
+                  <Grid
+                    key={request.id}
+                    templateColumns="minmax(0, 1fr) minmax(150px, 200px) minmax(120px, 160px)"
+                    alignItems="center"
+                    gap="2"
+                    minH="58px"
+                    px="14px"
+                    py="10px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    css={{
+                      "@media (max-width: 760px)":
+                        {
+                          gridTemplateColumns:
+                            "1fr",
+                          alignItems:
+                            "stretch",
+                        },
+                    }}
+                  >
+                    <Stack
+                      minW="0"
+                      gap="3px"
+                    >
+                      <Text fontWeight="700">
+                        {request.username} ·{" "}
+                        {request.member_names.join(
+                          ", ",
+                        )}
+                      </Text>
+
+                      <Text
+                        fontSize="11px"
+                        color="#6d7169"
+                      >
+                        {new Date(
+                          request.starts_at,
+                        ).toLocaleString()}{" "}
+                        →{" "}
+                        {new Date(
+                          request.ends_at,
+                        ).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "numeric",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </Text>
+                    </Stack>
+
+                    <NativeSelect.Root>
+                      <NativeSelect.Field
+                        aria-label={`Sitter for ${request.username}`}
+                        value={
+                          request.sitter_staff_member_id ??
+                          ""
+                        }
+                        onChange={(event) =>
+                          void run(() =>
+                            updateBabysittingRequest(
+                              request.id,
+                              {
+                                sitter_staff_member_id:
+                                  event.target
+                                    .value
+                                    ? Number(
+                                        event.target
+                                          .value,
+                                      )
+                                    : null,
+                              },
+                            ),
+                          )
+                        }
+                      >
+                        <option value="">
+                          No sitter
+                        </option>
+
+                        {babysittingStaff.map(
+                          (person) => (
+                            <option
+                              key={person.id}
+                              value={person.id}
+                            >
+                              {person.full_name}
+                            </option>
+                          ),
+                        )}
+                      </NativeSelect.Field>
+
+                      <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+
+                    <NativeSelect.Root>
+                      <NativeSelect.Field
+                        aria-label={`Status for ${request.username} babysitting request`}
+                        value={request.status}
+                        onChange={(event) =>
+                          void run(() =>
+                            updateBabysittingRequest(
+                              request.id,
+                              {
+                                status:
+                                  event.target
+                                    .value as
+                                    | "pending"
+                                    | "confirmed"
+                                    | "completed"
+                                    | "cancelled",
+                              },
+                            ),
+                          )
+                        }
+                      >
+                        <option value="pending">
+                          Pending
+                        </option>
+                        <option value="confirmed">
+                          Confirmed
+                        </option>
+                        <option value="completed">
+                          Completed
+                        </option>
+                        <option value="cancelled">
+                          Cancelled
+                        </option>
+                      </NativeSelect.Field>
+
+                      <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                  </Grid>
+                ),
+              )
+            ) : (
+              <Box
+                px="5"
+                py="8"
+                textAlign="center"
+              >
+                <Text
+                  fontSize="12px"
+                  color="#6d7169"
                 >
-                  <option value="">No sitter</option>
-                  {babysittingStaff.map((person) => <option key={person.id} value={person.id}>{person.full_name}</option>)}
-                </select>
-
-                <select
-                  value={request.status}
-                  onChange={(event) => void run(() => updateBabysittingRequest(request.id, {
-                    status: event.target.value as "pending" | "confirmed" | "completed" | "cancelled",
-                  }))}
-                >
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-            )) : <div className="app-empty">No babysitting requests.</div>}
-          </div>
-        </section>
+                  No babysitting requests.
+                </Text>
+              </Box>
+            )}
+          </Stack>
+        </Box>
       )}
 
       {view === "notifications" && (
-        <section className="app-card service-focus-card">
-          <div className="app-card-head">
-            <div>
-              <strong>Send notice</strong>
-              <span>Send now or schedule it. Event notices go to every registered household.</span>
-            </div>
-          </div>
+        <Box
+          as="section"
+          mt="3"
+          overflow="hidden"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="#ffffff"
+        >
+          <Box
+            minH="58px"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap="14px"
+            px="4"
+            py="13px"
+            borderBottomWidth="1px"
+            borderColor="#dddcd5"
+          >
+            <Stack
+              minW="0"
+              gap="3px"
+            >
+              <Text fontWeight="700">
+                Send notice
+              </Text>
+
+              <Text
+                fontSize="11px"
+                color="#6d7169"
+              >
+                Send now or schedule it. Event notices go to every registered household.
+              </Text>
+            </Stack>
+          </Box>
 
           {notificationMessage && (
-            <div className="app-alert app-alert-success">{notificationMessage}</div>
+            <Box p="4" pb="0">
+              <Alert.Root status="success">
+                <Alert.Indicator />
+
+                <Alert.Content>
+                  <Alert.Description>
+                    {notificationMessage}
+                  </Alert.Description>
+                </Alert.Content>
+              </Alert.Root>
+            </Box>
           )}
 
-          <form className="service-notification-form" onSubmit={submitNotification}>
-            <select
-              aria-label="Notice audience"
-              value={notificationAudience}
-              onChange={(event) => {
-                setNotificationAudience(event.target.value as "event" | "account");
-                setNotificationMessage("");
-              }}
-            >
-              <option value="event">All registered households</option>
-              <option value="account">One account</option>
-            </select>
-
-            {notificationAudience === "account" && (
-              <select
-                aria-label="Notice recipient"
-                value={notificationAccountId}
-                onChange={(event) => setNotificationAccountId(event.target.value)}
-                required
+          <Grid
+            as="form"
+            onSubmit={submitNotification}
+            templateColumns="repeat(2, minmax(0, 1fr))"
+            gap="3"
+            p="4"
+            css={{
+              "@media (max-width: 900px)": {
+                gridTemplateColumns:
+                  "1fr",
+              },
+            }}
+          >
+            <NativeSelect.Root>
+              <NativeSelect.Field
+                aria-label="Notice audience"
+                value={notificationAudience}
+                onChange={(event) => {
+                  setNotificationAudience(
+                    event.target.value as
+                      | "event"
+                      | "account",
+                  );
+                  setNotificationMessage("");
+                }}
               >
-                <option value="">Recipient</option>
-                {accounts.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.display_name ?? item.username}
+                <option value="event">
+                  All registered households
+                </option>
+                <option value="account">
+                  One account
+                </option>
+              </NativeSelect.Field>
+
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+
+            {notificationAudience ===
+              "account" && (
+              <NativeSelect.Root>
+                <NativeSelect.Field
+                  aria-label="Notice recipient"
+                  value={notificationAccountId}
+                  onChange={(event) =>
+                    setNotificationAccountId(
+                      event.target.value,
+                    )
+                  }
+                >
+                  <option value="">
+                    Recipient
                   </option>
-                ))}
-              </select>
+
+                  {accounts.map((item) => (
+                    <option
+                      key={item.id}
+                      value={item.id}
+                    >
+                      {item.display_name ??
+                        item.username}
+                    </option>
+                  ))}
+                </NativeSelect.Field>
+
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
             )}
 
-            <select
-              aria-label="Notice event"
-              value={notificationEventId}
-              onChange={(event) => setNotificationEventId(event.target.value)}
-              required={notificationAudience === "event"}
-            >
-              <option value="">
-                {notificationAudience === "event" ? "Event" : "No event"}
-              </option>
-              {events.map((item) => (
-                <option key={item.id} value={item.id}>{item.name}</option>
-              ))}
-            </select>
+            <NativeSelect.Root>
+              <NativeSelect.Field
+                aria-label="Notice event"
+                value={notificationEventId}
+                onChange={(event) =>
+                  setNotificationEventId(
+                    event.target.value,
+                  )
+                }
+              >
+                <option value="">
+                  {notificationAudience ===
+                  "event"
+                    ? "Event"
+                    : "No event"}
+                </option>
 
-            <select
-              aria-label="Notice type"
-              value={notificationKind}
-              onChange={(event) => setNotificationKind(event.target.value as typeof notificationKind)}
-            >
-              <option value="general">General</option>
-              <option value="activity">Activity</option>
-              <option value="meal">Meal</option>
-              <option value="special">Special</option>
-            </select>
+                {events.map((item) => (
+                  <option
+                    key={item.id}
+                    value={item.id}
+                  >
+                    {item.name}
+                  </option>
+                ))}
+              </NativeSelect.Field>
 
-            <input
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+
+            <NativeSelect.Root>
+              <NativeSelect.Field
+                aria-label="Notice type"
+                value={notificationKind}
+                onChange={(event) =>
+                  setNotificationKind(
+                    event.target
+                      .value as typeof notificationKind,
+                  )
+                }
+              >
+                <option value="general">
+                  General
+                </option>
+                <option value="activity">
+                  Activity
+                </option>
+                <option value="meal">
+                  Meal
+                </option>
+                <option value="special">
+                  Special
+                </option>
+              </NativeSelect.Field>
+
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+
+            <Input
               placeholder="Title"
               value={notificationTitle}
-              onChange={(event) => setNotificationTitle(event.target.value)}
+              onChange={(event) =>
+                setNotificationTitle(
+                  event.target.value,
+                )
+              }
               required
             />
 
-            <textarea
+            <Textarea
               placeholder="Message"
               value={notificationBody}
-              onChange={(event) => setNotificationBody(event.target.value)}
+              onChange={(event) =>
+                setNotificationBody(
+                  event.target.value,
+                )
+              }
               required
             />
 
-            <label>
-              <span>Send later</span>
+            <Field.Root>
+              <Field.Label>
+                Send later
+              </Field.Label>
+
               <HumanDateTimeInput
                 value={notificationSchedule}
-                onChange={setNotificationSchedule}
-                defaultDate={notificationEvent?.starts_at}
+                onChange={
+                  setNotificationSchedule
+                }
+                defaultDate={
+                  notificationEvent?.starts_at
+                }
                 placeholder="Leave blank for now"
               />
-            </label>
+            </Field.Root>
 
-            <button className="app-button app-button-primary" type="submit">
-              {notificationSchedule.trim() ? "Schedule notice" : "Send notice"}
-            </button>
-          </form>
-        </section>
+            <HStack
+              gridColumn={{
+                lg: "1 / -1",
+              }}
+              justifyContent="flex-end"
+            >
+              <Button
+                type="submit"
+                colorPalette="green"
+              >
+                {notificationSchedule.trim()
+                  ? "Schedule notice"
+                  : "Send notice"}
+              </Button>
+            </HStack>
+          </Grid>
+        </Box>
       )}
-    </section>
+    </Box>
   );
 }
