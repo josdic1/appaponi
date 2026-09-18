@@ -1,4 +1,14 @@
 import {
+  Alert,
+  Box,
+  Button,
+  Field,
+  Heading,
+  Input,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import {
   useState,
   type FormEvent,
 } from "react";
@@ -70,107 +80,165 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <main className="login-page">
-      <form
-        className="login-card login-form"
+    <Box
+      minH="100vh"
+      bg="gray.50"
+      display="grid"
+      placeItems="center"
+      px="4"
+      py="10"
+    >
+      <Box
+        as="form"
         onSubmit={submit}
+        w="full"
+        maxW="420px"
+        bg="white"
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="xl"
+        p={{ base: "6", md: "8" }}
       >
-        <div className="login-brand">
-          <div className="brand-mark">
-            A
-          </div>
+        <Stack gap="7">
+          <Stack gap="1">
+            <Box
+              w="10"
+              h="10"
+              display="grid"
+              placeItems="center"
+              borderRadius="md"
+              bg="green.700"
+              color="white"
+              fontWeight="700"
+              fontSize="lg"
+            >
+              A
+            </Box>
 
-          <div>
-            <div className="brand-name">
-              Appaponi
-            </div>
+            <Box pt="2">
+              <Text
+                fontWeight="700"
+                fontSize="lg"
+                lineHeight="1.2"
+              >
+                Appaponi
+              </Text>
 
-            <div className="brand-sub">
-              Camp App
-            </div>
-          </div>
-        </div>
+              <Text
+                color="gray.500"
+                fontSize="sm"
+              >
+                Camp App
+              </Text>
+            </Box>
+          </Stack>
 
-        <div className="login-heading">
-          <h1>Set your password</h1>
+          <Stack gap="1">
+            <Heading
+              as="h1"
+              size="2xl"
+              letterSpacing="-0.02em"
+            >
+              Set your password
+            </Heading>
 
-          <p>
-            Replace the temporary password
-            before continuing.
-          </p>
-        </div>
+            <Text color="gray.600">
+              Replace the temporary password before continuing.
+            </Text>
+          </Stack>
 
-        <label>
-          <span>Temporary password</span>
+          <Stack gap="5">
+            <Field.Root>
+              <Field.Label>
+                Temporary password
+              </Field.Label>
 
-          <input
-            type="password"
-            autoComplete="current-password"
-            value={currentPassword}
-            onChange={(event) =>
-              setCurrentPassword(
-                event.target.value,
-              )
-            }
-          />
-        </label>
+              <Input
+                type="password"
+                autoComplete="current-password"
+                value={currentPassword}
+                onChange={(event) =>
+                  setCurrentPassword(
+                    event.target.value,
+                  )
+                }
+                size="lg"
+              />
+            </Field.Root>
 
-        <label>
-          <span>New password</span>
+            <Field.Root>
+              <Field.Label>
+                New password
+              </Field.Label>
 
-          <input
-            type="password"
-            autoComplete="new-password"
-            value={newPassword}
-            onChange={(event) =>
-              setNewPassword(
-                event.target.value,
-              )
-            }
-          />
-        </label>
+              <Input
+                type="password"
+                autoComplete="new-password"
+                value={newPassword}
+                onChange={(event) =>
+                  setNewPassword(
+                    event.target.value,
+                  )
+                }
+                size="lg"
+              />
+            </Field.Root>
 
-        <label>
-          <span>Confirm new password</span>
+            <Field.Root>
+              <Field.Label>
+                Confirm new password
+              </Field.Label>
 
-          <input
-            type="password"
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={(event) =>
-              setConfirmPassword(
-                event.target.value,
-              )
-            }
-          />
-        </label>
+              <Input
+                type="password"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(event) =>
+                  setConfirmPassword(
+                    event.target.value,
+                  )
+                }
+                size="lg"
+              />
+            </Field.Root>
 
-        {error && (
-          <div className="app-alert app-alert-danger">
-            {error}
-          </div>
-        )}
+            {error && (
+              <Alert.Root status="error">
+                <Alert.Indicator />
 
-        <button
-          className="app-button app-button-primary app-button-block"
-          type="submit"
-          disabled={submitting}
-        >
-          {submitting
-            ? "Saving…"
-            : "Set password"}
-        </button>
+                <Alert.Content>
+                  <Alert.Description>
+                    {error}
+                  </Alert.Description>
+                </Alert.Content>
+              </Alert.Root>
+            )}
 
-        <button
-          className="app-button app-button-block"
-          type="button"
-          onClick={() => {
-            void logout();
-          }}
-        >
-          Sign out
-        </button>
-      </form>
-    </main>
+            <Button
+              type="submit"
+              colorPalette="green"
+              size="lg"
+              w="full"
+              loading={submitting}
+              loadingText="Saving…"
+            >
+              Set password
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              w="full"
+              onClick={() => {
+                void logout();
+              }}
+            >
+              Sign out
+            </Button>
+          </Stack>
+        </Stack>
+      </Box>
+    </Box>
   );
 }
