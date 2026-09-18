@@ -1,4 +1,18 @@
 import {
+  Alert,
+  Box,
+  Button,
+  Field,
+  Grid,
+  Heading,
+  HStack,
+  Input,
+  NativeSelect,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
+import {
   useEffect,
   useMemo,
   useState,
@@ -710,428 +724,479 @@ export default function AdminOperationsPage() {
   }
 
   return (
-    <section>
-      <div className="admin-heading">
-        <div>
-          <div className="admin-eyebrow">
-            ADMIN
-          </div>
+    <Box
+      as="section"
+      px={{ base: "4", md: "6" }}
+      py="6"
+      maxW="1400px"
+      mx="auto"
+      w="full"
+    >
+      <Stack gap="6">
+        <Stack gap="1">
+          <Text
+            fontSize="xs"
+            fontWeight="700"
+            color="green.700"
+            letterSpacing="wide"
+            textTransform="uppercase"
+          >
+            Admin
+          </Text>
 
-          <h1>Events & libraries</h1>
+          <Heading as="h1" size="2xl">
+            Events & libraries
+          </Heading>
 
-          <p>
+          <Text color="gray.600">
             Build events from reusable places and activities.
-          </p>
-        </div>
-      </div>
+          </Text>
+        </Stack>
 
-      <div className="app-tabs">
-        <button
-          type="button"
-          className={
-            view === "events"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            setView("events")
-          }
+        <HStack
+          gap="2"
+          flexWrap="wrap"
         >
-          Events
-        </button>
-
-        <button
-          type="button"
-          className={
-            view === "areas"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            setView("areas")
-          }
-        >
-          Place library
-        </button>
-
-        <button
-          type="button"
-          className={
-            view === "activities"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            setView("activities")
-          }
-        >
-          Activity library
-        </button>
-      </div>
-
-      <div className="operations-section-bar">
-        <div>
-          <strong>
-            {view === "events"
-              ? "Events"
-              : view === "areas"
-                ? "Place library"
-                : "Activity library"}
-          </strong>
-          <span>
-            {view === "events"
-              ? `${events.length} persistent event${events.length === 1 ? "" : "s"}. Event categories are reusable.`
-              : view === "areas"
-                ? `${areas.length} reusable place${areas.length === 1 ? "" : "s"} available to every event.`
-                : `${activities.length} reusable activit${activities.length === 1 ? "y" : "ies"} available to every event.`}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          className="app-button app-button-primary"
-          onClick={() => {
-            if (view === "events") {
-              setShowEventCreate((current) => !current);
-            } else if (view === "areas") {
-              setShowAreaCreate((current) => !current);
-            } else {
-              setShowActivityCreate((current) => !current);
+          <Button
+            type="button"
+            size="sm"
+            colorPalette="green"
+            variant={
+              view === "events"
+                ? "solid"
+                : "outline"
             }
+            onClick={() =>
+              setView("events")
+            }
+          >
+            Events
+          </Button>
+
+          <Button
+            type="button"
+            size="sm"
+            colorPalette="green"
+            variant={
+              view === "areas"
+                ? "solid"
+                : "outline"
+            }
+            onClick={() =>
+              setView("areas")
+            }
+          >
+            Place library
+          </Button>
+
+          <Button
+            type="button"
+            size="sm"
+            colorPalette="green"
+            variant={
+              view === "activities"
+                ? "solid"
+                : "outline"
+            }
+            onClick={() =>
+              setView("activities")
+            }
+          >
+            Activity library
+          </Button>
+        </HStack>
+
+        <Box
+          display="flex"
+          flexDirection={{
+            base: "column",
+            md: "row",
           }}
+          alignItems={{
+            base: "stretch",
+            md: "center",
+          }}
+          justifyContent="space-between"
+          gap="4"
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="xl"
+          bg="white"
+          p="4"
         >
-          {view === "events"
-            ? showEventCreate ? "Close" : "New event"
-            : view === "areas"
-              ? showAreaCreate ? "Close" : "New place"
-              : showActivityCreate ? "Close" : "New activity"}
-        </button>
-      </div>
+          <Stack gap="0">
+            <Text fontWeight="700">
+              {view === "events"
+                ? "Events"
+                : view === "areas"
+                  ? "Place library"
+                  : "Activity library"}
+            </Text>
 
-      {error && (
-        <div className="app-alert app-alert-danger">
-          {error}
-        </div>
-      )}
-
-      {view === "areas" && (
-        <div className="admin-grid operations-setup-grid">
-          {showAreaCreate && (
-          <section className="app-card">
-            <div className="app-card-head">
-              <div>
-                <strong>
-                  Add place
-                </strong>
-                <span>
-                  Reusable physical location.
-                </span>
-              </div>
-            </div>
-
-            <form
-              className="admin-form"
-              onSubmit={submitArea}
+            <Text
+              fontSize="sm"
+              color="gray.500"
             >
-              <label>
-                <span>Name</span>
+              {view === "events"
+                ? `${events.length} persistent event${events.length === 1 ? "" : "s"}. Event categories are reusable.`
+                : view === "areas"
+                  ? `${areas.length} reusable place${areas.length === 1 ? "" : "s"} available to every event.`
+                  : `${activities.length} reusable activit${activities.length === 1 ? "y" : "ies"} available to every event.`}
+            </Text>
+          </Stack>
 
-                <input
-                  value={areaName}
-                  onChange={(event) =>
-                    setAreaName(
-                      event.target.value,
-                    )
+          <Button
+            type="button"
+            colorPalette="green"
+            onClick={() => {
+              if (view === "events") {
+                setShowEventCreate(
+                  (current) => !current,
+                );
+              } else if (
+                view === "areas"
+              ) {
+                setShowAreaCreate(
+                  (current) => !current,
+                );
+              } else {
+                setShowActivityCreate(
+                  (current) => !current,
+                );
+              }
+            }}
+          >
+            {view === "events"
+              ? showEventCreate
+                ? "Close"
+                : "New event"
+              : view === "areas"
+                ? showAreaCreate
+                  ? "Close"
+                  : "New place"
+                : showActivityCreate
+                  ? "Close"
+                  : "New activity"}
+          </Button>
+        </Box>
+
+        {error && (
+          <Alert.Root status="error">
+            <Alert.Indicator />
+
+            <Alert.Content>
+              <Alert.Description>
+                {error}
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
+        )}
+
+        {view === "areas" && (
+          <Grid
+            templateColumns={
+              showAreaCreate
+                ? {
+                    base: "1fr",
+                    lg: "360px minmax(0, 1fr)",
                   }
-                />
-              </label>
-
-              <button
-                className="app-button app-button-primary"
-                type="submit"
+                : "1fr"
+            }
+            gap="5"
+            alignItems="start"
+          >
+            {showAreaCreate && (
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                p={{ base: "4", md: "5" }}
               >
-                Add place
-              </button>
-            </form>
-          </section>
-          )}
+                <Stack gap="5">
+                  <Box>
+                    <Text fontWeight="700">
+                      Add place
+                    </Text>
 
-          <section className="app-card">
-            <div className="app-card-head">
-              <div>
-                <strong>Place library</strong>
-                <span>
-                  {areas.length} total
-                </span>
-              </div>
-            </div>
-
-            <div className="admin-list">
-              {areas.length ? (
-                areas.map((area) =>
-                  editingAreaId ===
-                  area.id ? (
-                    <form
-                      className="admin-inline-edit"
-                      key={area.id}
-                      onSubmit={(event) =>
-                        void saveAreaEdit(
-                          event,
-                          area.id,
-                        )
-                      }
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
                     >
-                      <input
-                        aria-label="Area name"
-                        value={
-                          editingAreaName
-                        }
-                        onChange={(event) =>
-                          setEditingAreaName(
-                            event.target.value,
-                          )
-                        }
-                      />
+                      Reusable physical location.
+                    </Text>
+                  </Box>
 
-                      <div className="admin-row-actions">
-                        <button
-                          className="app-button"
-                          type="submit"
-                        >
-                          Save
-                        </button>
+                  <Box
+                    as="form"
+                    onSubmit={submitArea}
+                  >
+                    <Stack gap="4">
+                      <Field.Root>
+                        <Field.Label>
+                          Name
+                        </Field.Label>
 
-                        <button
-                          className="app-button"
-                          type="button"
-                          onClick={() =>
-                            setEditingAreaId(
-                              null,
+                        <Input
+                          value={areaName}
+                          onChange={(event) =>
+                            setAreaName(
+                              event.target.value,
                             )
                           }
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <div
-                      className="admin-list-row admin-manage-row"
-                      key={area.id}
-                    >
-                      <span>
-                        <strong>
-                          {area.name}
-                        </strong>
-                      </span>
+                        />
+                      </Field.Root>
 
-                      <div className="admin-row-actions">
-                        <button
-                          className="app-button"
-                          type="button"
-                          onClick={() =>
-                            beginAreaEdit(
-                              area,
-                            )
-                          }
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          className="app-button app-button-danger"
-                          type="button"
-                          onClick={() =>
-                            void removeArea(
-                              area,
-                            )
-                          }
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ),
-                )
-              ) : (
-                <div className="app-empty">
-                  No areas yet.
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
-      )}
-
-      {view === "activities" && (
-        <div className="admin-grid operations-setup-grid">
-          {showActivityCreate && (
-          <section className="app-card">
-            <div className="app-card-head">
-              <div>
-                <strong>
-                  Add activity
-                </strong>
-                <span>
-                  Reusable activity definition. Schedule it inside any event.
-                </span>
-              </div>
-            </div>
-
-            <form
-              className="admin-form"
-              onSubmit={submitActivity}
-            >
-              <label>
-                <span>Name</span>
-
-                <input
-                  value={activityName}
-                  onChange={(event) =>
-                    setActivityName(
-                      event.target.value,
-                    )
-                  }
-                />
-              </label>
-
-              <label>
-                <span>Area</span>
-
-                <select
-                  value={activityAreaId}
-                  onChange={(event) =>
-                    setActivityAreaId(
-                      event.target.value,
-                    )
-                  }
-                >
-                  <option value="">
-                    Choose area
-                  </option>
-
-                  {areas.map((area) => (
-                    <option
-                      key={area.id}
-                      value={area.id}
-                    >
-                      {area.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                <span>Setting</span>
-
-                <select
-                  value={setting}
-                  onChange={(event) =>
-                    setSetting(
-                      event.target
-                        .value as ActivitySetting,
-                    )
-                  }
-                >
-                  <option value="outside">
-                    Outside
-                  </option>
-
-                  <option value="inside">
-                    Inside
-                  </option>
-
-                  <option value="other">
-                    Other
-                  </option>
-                </select>
-              </label>
-
-              <label>
-                <span>Map place</span>
-
-                <select
-                  value={activityMapPlaceId}
-                  onChange={(event) =>
-                    setActivityMapPlaceId(
-                      event.target.value as CampMapPlaceId | "",
-                    )
-                  }
-                >
-                  <option value="">Not on map</option>
-
-                  {CAMP_MAP_PLACE_IDS.map((placeId) => (
-                    <option key={placeId} value={placeId}>
-                      {CAMP_MAP_PLACE_LABELS[placeId]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <button
-                className="app-button app-button-primary"
-                type="submit"
-              >
-                Add activity
-              </button>
-            </form>
-          </section>
-          )}
-
-          <section className="app-card">
-            <div className="app-card-head">
-              <div>
-                <strong>
-                  Activity library
-                </strong>
-                <span>
-                  {activities.length} total
-                </span>
-              </div>
-            </div>
-
-            <div className="admin-list">
-              {activities.length ? (
-                activities.map(
-                  (activity) =>
-                    editingActivityId ===
-                    activity.id ? (
-                      <form
-                        className="admin-list-row profile-edit-row"
-                        key={activity.id}
-                        onSubmit={(event) =>
-                          void saveActivityEdit(
-                            event,
-                            activity.id,
-                          )
-                        }
+                      <Button
+                        type="submit"
+                        colorPalette="green"
                       >
-                        <div className="admin-edit-fields operation-activity-edit-fields">
-                          <input
-                            aria-label="Activity name"
+                        Add place
+                      </Button>
+                    </Stack>
+                  </Box>
+                </Stack>
+              </Box>
+            )}
+
+            <Box
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="xl"
+              bg="white"
+              overflow="hidden"
+            >
+              <Box
+                px="5"
+                py="4"
+                borderBottomWidth="1px"
+                borderColor="gray.200"
+              >
+                <Text fontWeight="700">
+                  Place library
+                </Text>
+
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                >
+                  {areas.length} total
+                </Text>
+              </Box>
+
+              {areas.length ? (
+                <Stack gap="0">
+                  {areas.map((area) =>
+                    editingAreaId ===
+                    area.id ? (
+                      <Box
+                        as="form"
+                        key={area.id}
+                        onSubmit={(event) =>
+                          void saveAreaEdit(
+                            event,
+                            area.id,
+                          )
+                        }
+                        px="5"
+                        py="4"
+                        bg="gray.50"
+                        borderBottomWidth="1px"
+                        borderColor="gray.200"
+                      >
+                        <Stack gap="3">
+                          <Input
+                            aria-label="Area name"
                             value={
-                              editingActivityName
+                              editingAreaName
                             }
                             onChange={(event) =>
-                              setEditingActivityName(
+                              setEditingAreaName(
                                 event.target
                                   .value,
                               )
                             }
                           />
 
-                          <select
-                            aria-label="Activity area"
+                          <HStack>
+                            <Button
+                              type="submit"
+                              size="sm"
+                              colorPalette="green"
+                            >
+                              Save
+                            </Button>
+
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                setEditingAreaId(
+                                  null,
+                                )
+                              }
+                            >
+                              Cancel
+                            </Button>
+                          </HStack>
+                        </Stack>
+                      </Box>
+                    ) : (
+                      <Box
+                        key={area.id}
+                        px="5"
+                        py="4"
+                        borderBottomWidth="1px"
+                        borderColor="gray.100"
+                      >
+                        <Box
+                          display="flex"
+                          flexDirection={{
+                            base: "column",
+                            md: "row",
+                          }}
+                          alignItems={{
+                            base: "stretch",
+                            md: "center",
+                          }}
+                          justifyContent="space-between"
+                          gap="4"
+                        >
+                          <Text fontWeight="700">
+                            {area.name}
+                          </Text>
+
+                          <HStack>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                beginAreaEdit(
+                                  area,
+                                )
+                              }
+                            >
+                              Edit
+                            </Button>
+
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              colorPalette="red"
+                              onClick={() =>
+                                void removeArea(
+                                  area,
+                                )
+                              }
+                            >
+                              Delete
+                            </Button>
+                          </HStack>
+                        </Box>
+                      </Box>
+                    ),
+                  )}
+                </Stack>
+              ) : (
+                <Box
+                  p="8"
+                  textAlign="center"
+                >
+                  <Text color="gray.500">
+                    No areas yet.
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          </Grid>
+        )}
+
+        {view === "activities" && (
+          <Grid
+            templateColumns={
+              showActivityCreate
+                ? {
+                    base: "1fr",
+                    lg: "360px minmax(0, 1fr)",
+                  }
+                : "1fr"
+            }
+            gap="5"
+            alignItems="start"
+          >
+            {showActivityCreate && (
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                p={{ base: "4", md: "5" }}
+              >
+                <Stack gap="5">
+                  <Box>
+                    <Text fontWeight="700">
+                      Add activity
+                    </Text>
+
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                    >
+                      Reusable activity definition. Schedule it inside any event.
+                    </Text>
+                  </Box>
+
+                  <Box
+                    as="form"
+                    onSubmit={
+                      submitActivity
+                    }
+                  >
+                    <Stack gap="4">
+                      <Field.Root>
+                        <Field.Label>
+                          Name
+                        </Field.Label>
+
+                        <Input
+                          value={
+                            activityName
+                          }
+                          onChange={(event) =>
+                            setActivityName(
+                              event.target
+                                .value,
+                            )
+                          }
+                        />
+                      </Field.Root>
+
+                      <Field.Root>
+                        <Field.Label>
+                          Area
+                        </Field.Label>
+
+                        <NativeSelect.Root>
+                          <NativeSelect.Field
                             value={
-                              editingActivityAreaId
+                              activityAreaId
                             }
-                            onChange={(event) =>
-                              setEditingActivityAreaId(
+                            onChange={(
+                              event,
+                            ) =>
+                              setActivityAreaId(
                                 event.target
                                   .value,
                               )
                             }
                           >
+                            <option value="">
+                              Choose area
+                            </option>
+
                             {areas.map(
                               (area) => (
                                 <option
@@ -1148,15 +1213,24 @@ export default function AdminOperationsPage() {
                                 </option>
                               ),
                             )}
-                          </select>
+                          </NativeSelect.Field>
 
-                          <select
-                            aria-label="Activity setting"
-                            value={
-                              editingActivitySetting
-                            }
-                            onChange={(event) =>
-                              setEditingActivitySetting(
+                          <NativeSelect.Indicator />
+                        </NativeSelect.Root>
+                      </Field.Root>
+
+                      <Field.Root>
+                        <Field.Label>
+                          Setting
+                        </Field.Label>
+
+                        <NativeSelect.Root>
+                          <NativeSelect.Field
+                            value={setting}
+                            onChange={(
+                              event,
+                            ) =>
+                              setSetting(
                                 event.target
                                   .value as ActivitySetting,
                               )
@@ -1173,525 +1247,969 @@ export default function AdminOperationsPage() {
                             <option value="other">
                               Other
                             </option>
-                          </select>
-                          <select
-                            aria-label="Activity map place"
-                            value={editingActivityMapPlaceId}
-                            onChange={(event) =>
-                              setEditingActivityMapPlaceId(
-                                event.target.value as CampMapPlaceId | "",
+                          </NativeSelect.Field>
+
+                          <NativeSelect.Indicator />
+                        </NativeSelect.Root>
+                      </Field.Root>
+
+                      <Field.Root>
+                        <Field.Label>
+                          Map place
+                        </Field.Label>
+
+                        <NativeSelect.Root>
+                          <NativeSelect.Field
+                            value={
+                              activityMapPlaceId
+                            }
+                            onChange={(
+                              event,
+                            ) =>
+                              setActivityMapPlaceId(
+                                event.target
+                                  .value as CampMapPlaceId | "",
                               )
                             }
                           >
-                            <option value="">Not on map</option>
+                            <option value="">
+                              Not on map
+                            </option>
 
-                            {CAMP_MAP_PLACE_IDS.map((placeId) => (
-                              <option key={placeId} value={placeId}>
-                                {CAMP_MAP_PLACE_LABELS[placeId]}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                            {CAMP_MAP_PLACE_IDS.map(
+                              (placeId) => (
+                                <option
+                                  key={
+                                    placeId
+                                  }
+                                  value={
+                                    placeId
+                                  }
+                                >
+                                  {
+                                    CAMP_MAP_PLACE_LABELS[
+                                      placeId
+                                    ]
+                                  }
+                                </option>
+                              ),
+                            )}
+                          </NativeSelect.Field>
 
-                        <div className="admin-row-actions">
-                          <button
-                            className="app-button"
-                            type="submit"
-                          >
-                            Save
-                          </button>
+                          <NativeSelect.Indicator />
+                        </NativeSelect.Root>
+                      </Field.Root>
 
-                          <button
-                            className="app-button"
-                            type="button"
-                            onClick={() =>
-                              setEditingActivityId(
-                                null,
-                              )
-                            }
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </form>
-                    ) : (
-                      <div
-                        className="admin-list-row admin-manage-row"
-                        key={activity.id}
+                      <Button
+                        type="submit"
+                        colorPalette="green"
                       >
-                        <span>
-                          <strong>
-                            {
-                              activity.name
-                            }
-                          </strong>
+                        Add activity
+                      </Button>
+                    </Stack>
+                  </Box>
+                </Stack>
+              </Box>
+            )}
 
-                          <small>
-                            {
-                              activity.area_name
-                            }{" "}
-                            ·{" "}
-                            {
-                              activity.setting
-                            }
-                            {activity.map_place_id ? (
-                              <>
-                                {" · "}
-                                {CAMP_MAP_PLACE_LABELS[activity.map_place_id]}
-                              </>
-                            ) : null}
-                          </small>
-                        </span>
-
-                        <div className="admin-row-actions">
-                          <button
-                            className="app-button"
-                            type="button"
-                            onClick={() =>
-                              beginActivityEdit(
-                                activity,
-                              )
-                            }
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            className="app-button app-button-danger"
-                            type="button"
-                            onClick={() =>
-                              void removeActivity(
-                                activity,
-                              )
-                            }
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    ),
-                )
-              ) : (
-                <div className="app-empty">
-                  No activities yet.
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
-      )}
-
-      {view === "events" && (
-        <div className="admin-grid operations-event-grid">
-          {showEventCreate && (
-          <section className="app-card">
-            <div className="app-card-head">
-              <div>
-                <strong>
-                  Create event
-                </strong>
-
-                <span>
-                  The container for a camp
-                  stay or gathering.
-                </span>
-              </div>
-            </div>
-
-            <form
-              className="admin-form"
-              onSubmit={submitEvent}
+            <Box
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="xl"
+              bg="white"
+              overflow="hidden"
             >
-              <label>
-                <span>Name</span>
-
-                <input
-                  value={eventName}
-                  onChange={(event) =>
-                    setEventName(
-                      event.target.value,
-                    )
-                  }
-                />
-              </label>
-
-              <label>
-                <span>Event category</span>
-
-                <select
-                  value={eventTypeId}
-                  onChange={(event) =>
-                    setEventTypeId(
-                      event.target.value,
-                    )
-                  }
-                >
-                  <option value="">
-                    Choose type
-                  </option>
-
-                  {eventTypes.map(
-                    (eventType) => (
-                      <option
-                        key={eventType.id}
-                        value={eventType.id}
-                      >
-                        {eventType.name}
-                      </option>
-                    ),
-                  )}
-                </select>
-                <small className="operations-field-help">
-                  A category is reusable. Family Camp 2026 and Family Camp 2027 can both use Family Camp.
-                </small>
-              </label>
-
-              {selectedEventType?.name ===
-                "Other" && (
-                <>
-                  <label>
-                    <span>
-                      Other type
-                    </span>
-
-                    <input
-                      value={otherValue}
-                      onChange={(event) =>
-                        setOtherValue(
-                          event.target
-                            .value,
-                        )
-                      }
-                    />
-                  </label>
-
-                  <label>
-                    <span>
-                      Why isn't an existing
-                      type right?
-                    </span>
-
-                    <input
-                      value={otherReason}
-                      onChange={(event) =>
-                        setOtherReason(
-                          event.target
-                            .value,
-                        )
-                      }
-                    />
-                  </label>
-                </>
-              )}
-
-              <label>
-                <span>Starts</span>
-
-                <HumanDateTimeInput
-                  value={startsAt}
-                  onChange={setStartsAt}
-                />
-              </label>
-
-              <label>
-                <span>Ends</span>
-
-                <HumanDateTimeInput
-                  value={endsAt}
-                  onChange={setEndsAt}
-                  defaultDate={startsAt}
-                />
-              </label>
-
-              <button
-                className="app-button app-button-primary"
-                type="submit"
+              <Box
+                px="5"
+                py="4"
+                borderBottomWidth="1px"
+                borderColor="gray.200"
               >
-                Create event
-              </button>
-            </form>
-          </section>
+                <Text fontWeight="700">
+                  Activity library
+                </Text>
 
-          )}
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                >
+                  {activities.length} total
+                </Text>
+              </Box>
 
-          <section className="app-card">
-            <div className="app-card-head">
-              <div>
-                <strong>Events</strong>
-                <span>
-                  {events.length} total
-                </span>
-              </div>
-            </div>
-
-            <div className="admin-list">
-              {events.length ? (
-                events.map((event) =>
-                  editingEventId ===
-                  event.id ? (
-                    <form
-                      className="admin-list-row profile-edit-row operation-event-edit"
-                      key={event.id}
-                      onSubmit={(formEvent) =>
-                        void saveEventEdit(
-                          formEvent,
-                          event.id,
-                        )
-                      }
-                    >
-                      <div className="admin-edit-fields operation-event-edit-fields">
-                        <input
-                          aria-label="Event name"
-                          value={
-                            editingEventName
+              {activities.length ? (
+                <Stack gap="0">
+                  {activities.map(
+                    (activity) =>
+                      editingActivityId ===
+                      activity.id ? (
+                        <Box
+                          as="form"
+                          key={
+                            activity.id
                           }
-                          onChange={(
-                            inputEvent,
+                          onSubmit={(
+                            event,
                           ) =>
-                            setEditingEventName(
-                              inputEvent.target
-                                .value,
+                            void saveActivityEdit(
+                              event,
+                              activity.id,
                             )
                           }
-                        />
-
-                        <select
-                          aria-label="Event category"
-                          value={
-                            editingEventTypeId
-                          }
-                          onChange={(
-                            inputEvent,
-                          ) =>
-                            setEditingEventTypeId(
-                              inputEvent.target
-                                .value,
-                            )
-                          }
+                          px="5"
+                          py="4"
+                          bg="gray.50"
+                          borderBottomWidth="1px"
+                          borderColor="gray.200"
                         >
-                          {eventTypes.map(
-                            (eventType) => (
-                              <option
-                                key={
-                                  eventType.id
-                                }
+                          <Stack gap="3">
+                            <Grid
+                              templateColumns={{
+                                base: "1fr",
+                                md: "repeat(2, minmax(0, 1fr))",
+                              }}
+                              gap="3"
+                            >
+                              <Input
+                                aria-label="Activity name"
                                 value={
-                                  eventType.id
+                                  editingActivityName
+                                }
+                                onChange={(
+                                  event,
+                                ) =>
+                                  setEditingActivityName(
+                                    event
+                                      .target
+                                      .value,
+                                  )
+                                }
+                              />
+
+                              <NativeSelect.Root>
+                                <NativeSelect.Field
+                                  aria-label="Activity area"
+                                  value={
+                                    editingActivityAreaId
+                                  }
+                                  onChange={(
+                                    event,
+                                  ) =>
+                                    setEditingActivityAreaId(
+                                      event
+                                        .target
+                                        .value,
+                                    )
+                                  }
+                                >
+                                  {areas.map(
+                                    (area) => (
+                                      <option
+                                        key={
+                                          area.id
+                                        }
+                                        value={
+                                          area.id
+                                        }
+                                      >
+                                        {
+                                          area.name
+                                        }
+                                      </option>
+                                    ),
+                                  )}
+                                </NativeSelect.Field>
+
+                                <NativeSelect.Indicator />
+                              </NativeSelect.Root>
+
+                              <NativeSelect.Root>
+                                <NativeSelect.Field
+                                  aria-label="Activity setting"
+                                  value={
+                                    editingActivitySetting
+                                  }
+                                  onChange={(
+                                    event,
+                                  ) =>
+                                    setEditingActivitySetting(
+                                      event
+                                        .target
+                                        .value as ActivitySetting,
+                                    )
+                                  }
+                                >
+                                  <option value="outside">
+                                    Outside
+                                  </option>
+
+                                  <option value="inside">
+                                    Inside
+                                  </option>
+
+                                  <option value="other">
+                                    Other
+                                  </option>
+                                </NativeSelect.Field>
+
+                                <NativeSelect.Indicator />
+                              </NativeSelect.Root>
+
+                              <NativeSelect.Root>
+                                <NativeSelect.Field
+                                  aria-label="Activity map place"
+                                  value={
+                                    editingActivityMapPlaceId
+                                  }
+                                  onChange={(
+                                    event,
+                                  ) =>
+                                    setEditingActivityMapPlaceId(
+                                      event
+                                        .target
+                                        .value as CampMapPlaceId | "",
+                                    )
+                                  }
+                                >
+                                  <option value="">
+                                    Not on map
+                                  </option>
+
+                                  {CAMP_MAP_PLACE_IDS.map(
+                                    (
+                                      placeId,
+                                    ) => (
+                                      <option
+                                        key={
+                                          placeId
+                                        }
+                                        value={
+                                          placeId
+                                        }
+                                      >
+                                        {
+                                          CAMP_MAP_PLACE_LABELS[
+                                            placeId
+                                          ]
+                                        }
+                                      </option>
+                                    ),
+                                  )}
+                                </NativeSelect.Field>
+
+                                <NativeSelect.Indicator />
+                              </NativeSelect.Root>
+                            </Grid>
+
+                            <HStack>
+                              <Button
+                                type="submit"
+                                size="sm"
+                                colorPalette="green"
+                              >
+                                Save
+                              </Button>
+
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  setEditingActivityId(
+                                    null,
+                                  )
                                 }
                               >
-                                {
-                                  eventType.name
-                                }
-                              </option>
-                            ),
-                          )}
-                        </select>
-
-                        <HumanDateTimeInput
-                          value={
-                            editingStartsAt
+                                Cancel
+                              </Button>
+                            </HStack>
+                          </Stack>
+                        </Box>
+                      ) : (
+                        <Box
+                          key={
+                            activity.id
                           }
-                          onChange={
-                            setEditingStartsAt
-                          }
-                        />
-
-                        <HumanDateTimeInput
-                          value={
-                            editingEndsAt
-                          }
-                          onChange={
-                            setEditingEndsAt
-                          }
-                          defaultDate={
-                            editingStartsAt
-                          }
-                        />
-
-                        {selectedEditingEventType
-                          ?.name ===
-                          "Other" && (
-                          <>
-                            <input
-                              aria-label="Other event type"
-                              placeholder="Other type"
-                              value={
-                                editingOtherValue
-                              }
-                              onChange={(
-                                inputEvent,
-                              ) =>
-                                setEditingOtherValue(
-                                  inputEvent
-                                    .target
-                                    .value,
-                                )
-                              }
-                            />
-
-                            <input
-                              aria-label="Other event reason"
-                              placeholder="Why isn't an existing type right?"
-                              value={
-                                editingOtherReason
-                              }
-                              onChange={(
-                                inputEvent,
-                              ) =>
-                                setEditingOtherReason(
-                                  inputEvent
-                                    .target
-                                    .value,
-                                )
-                              }
-                            />
-                          </>
-                        )}
-                      </div>
-
-                      <div className="admin-row-actions">
-                        <button
-                          className="app-button"
-                          type="submit"
+                          px="5"
+                          py="4"
+                          borderBottomWidth="1px"
+                          borderColor="gray.100"
                         >
-                          Save
-                        </button>
+                          <Box
+                            display="flex"
+                            flexDirection={{
+                              base: "column",
+                              md: "row",
+                            }}
+                            alignItems={{
+                              base: "stretch",
+                              md: "center",
+                            }}
+                            justifyContent="space-between"
+                            gap="4"
+                          >
+                            <Stack gap="0">
+                              <Text fontWeight="700">
+                                {
+                                  activity.name
+                                }
+                              </Text>
 
-                        <button
-                          className="app-button"
-                          type="button"
-                          onClick={() =>
-                            setEditingEventId(
-                              null,
+                              <Text
+                                fontSize="sm"
+                                color="gray.500"
+                              >
+                                {
+                                  activity.area_name
+                                }{" "}
+                                ·{" "}
+                                {
+                                  activity.setting
+                                }
+                                {activity.map_place_id
+                                  ? ` · ${
+                                      CAMP_MAP_PLACE_LABELS[
+                                        activity.map_place_id
+                                      ]
+                                    }`
+                                  : ""}
+                              </Text>
+                            </Stack>
+
+                            <HStack>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  beginActivityEdit(
+                                    activity,
+                                  )
+                                }
+                              >
+                                Edit
+                              </Button>
+
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                colorPalette="red"
+                                onClick={() =>
+                                  void removeActivity(
+                                    activity,
+                                  )
+                                }
+                              >
+                                Delete
+                              </Button>
+                            </HStack>
+                          </Box>
+                        </Box>
+                      ),
+                  )}
+                </Stack>
+              ) : (
+                <Box
+                  p="8"
+                  textAlign="center"
+                >
+                  <Text color="gray.500">
+                    No activities yet.
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          </Grid>
+        )}
+
+        {view === "events" && (
+          <Grid
+            templateColumns={
+              showEventCreate
+                ? {
+                    base: "1fr",
+                    lg: "380px minmax(0, 1fr)",
+                  }
+                : "1fr"
+            }
+            gap="5"
+            alignItems="start"
+          >
+            {showEventCreate && (
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                p={{ base: "4", md: "5" }}
+              >
+                <Stack gap="5">
+                  <Box>
+                    <Text fontWeight="700">
+                      Create event
+                    </Text>
+
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                    >
+                      The container for a camp stay or gathering.
+                    </Text>
+                  </Box>
+
+                  <Box
+                    as="form"
+                    onSubmit={
+                      submitEvent
+                    }
+                  >
+                    <Stack gap="4">
+                      <Field.Root>
+                        <Field.Label>
+                          Name
+                        </Field.Label>
+
+                        <Input
+                          value={
+                            eventName
+                          }
+                          onChange={(event) =>
+                            setEventName(
+                              event.target
+                                .value,
                             )
                           }
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : cloningEventId ===
-                    event.id ? (
-                    <form
-                      className="admin-list-row profile-edit-row operation-event-edit"
-                      key={event.id}
-                      onSubmit={(formEvent) =>
-                        void submitEventClone(
-                          formEvent,
-                          event.id,
-                        )
-                      }
-                    >
-                      <div className="operation-event-edit-fields">
-                        <label>
-                          <span>New event name</span>
-                          <input
-                            autoFocus
-                            value={cloneEventName}
-                            onChange={(inputEvent) =>
-                              setCloneEventName(
-                                inputEvent.target.value,
+                        />
+                      </Field.Root>
+
+                      <Field.Root>
+                        <Field.Label>
+                          Event category
+                        </Field.Label>
+
+                        <NativeSelect.Root>
+                          <NativeSelect.Field
+                            value={
+                              eventTypeId
+                            }
+                            onChange={(
+                              event,
+                            ) =>
+                              setEventTypeId(
+                                event.target
+                                  .value,
                               )
                             }
-                          />
-                        </label>
+                          >
+                            <option value="">
+                              Choose type
+                            </option>
 
-                        <label>
-                          <span>New start</span>
-                          <HumanDateTimeInput
-                            value={cloneStartsAt}
-                            onChange={setCloneStartsAt}
-                          />
-                        </label>
-                      </div>
+                            {eventTypes.map(
+                              (
+                                eventType,
+                              ) => (
+                                <option
+                                  key={
+                                    eventType.id
+                                  }
+                                  value={
+                                    eventType.id
+                                  }
+                                >
+                                  {
+                                    eventType.name
+                                  }
+                                </option>
+                              ),
+                            )}
+                          </NativeSelect.Field>
 
-                      <div className="admin-row-actions">
-                        <button
-                          className="app-button app-button-primary"
-                          type="submit"
-                        >
-                          Clone event
-                        </button>
+                          <NativeSelect.Indicator />
+                        </NativeSelect.Root>
 
-                        <button
-                          className="app-button"
-                          type="button"
-                          onClick={() =>
-                            setCloningEventId(null)
+                        <Field.HelperText>
+                          A category is reusable. Family Camp 2026 and Family Camp 2027 can both use Family Camp.
+                        </Field.HelperText>
+                      </Field.Root>
+
+                      {selectedEventType
+                        ?.name ===
+                        "Other" && (
+                        <>
+                          <Field.Root>
+                            <Field.Label>
+                              Other type
+                            </Field.Label>
+
+                            <Input
+                              value={
+                                otherValue
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setOtherValue(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            />
+                          </Field.Root>
+
+                          <Field.Root>
+                            <Field.Label>
+                              Why isn't an existing type right?
+                            </Field.Label>
+
+                            <Input
+                              value={
+                                otherReason
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                setOtherReason(
+                                  event.target
+                                    .value,
+                                )
+                              }
+                            />
+                          </Field.Root>
+                        </>
+                      )}
+
+                      <Field.Root>
+                        <Field.Label>
+                          Starts
+                        </Field.Label>
+
+                        <HumanDateTimeInput
+                          value={
+                            startsAt
                           }
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <div
-                      className="admin-list-row operation-event-row admin-manage-row"
-                      key={event.id}
-                    >
-                      <span>
-                        <strong>
-                          {event.name}
-                        </strong>
-
-                        <small>
-                          {
-                            event.event_type_name
-                          }{" "}
-                          ·{" "}
-                          {localDateTime(
-                            event.starts_at,
-                          )}
-                        </small>
-                      </span>
-
-                      <div className="admin-row-actions">
-                        <button
-                          className="app-button"
-                          type="button"
-                          onClick={() =>
-                            beginEventClone(event)
+                          onChange={
+                            setStartsAt
                           }
-                        >
-                          Clone
-                        </button>
+                        />
+                      </Field.Root>
 
-                        <button
-                          className="app-button"
-                          type="button"
-                          onClick={() =>
-                            beginEventEdit(
-                              event,
-                            )
-                          }
-                        >
-                          Edit
-                        </button>
+                      <Field.Root>
+                        <Field.Label>
+                          Ends
+                        </Field.Label>
 
-                        <button
-                          className="app-button app-button-danger"
-                          type="button"
-                          onClick={() =>
-                            void removeEvent(
-                              event,
-                            )
+                        <HumanDateTimeInput
+                          value={endsAt}
+                          onChange={
+                            setEndsAt
                           }
+                          defaultDate={
+                            startsAt
+                          }
+                        />
+                      </Field.Root>
+
+                      <Button
+                        type="submit"
+                        colorPalette="green"
+                      >
+                        Create event
+                      </Button>
+                    </Stack>
+                  </Box>
+                </Stack>
+              </Box>
+            )}
+
+            <Box
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="xl"
+              bg="white"
+              overflow="hidden"
+            >
+              <Box
+                px="5"
+                py="4"
+                borderBottomWidth="1px"
+                borderColor="gray.200"
+              >
+                <Text fontWeight="700">
+                  Events
+                </Text>
+
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                >
+                  {events.length} total
+                </Text>
+              </Box>
+
+              {events.length ? (
+                <Stack gap="0">
+                  {events.map((event) =>
+                    editingEventId ===
+                    event.id ? (
+                      <Box
+                        as="form"
+                        key={event.id}
+                        onSubmit={(
+                          formEvent,
+                        ) =>
+                          void saveEventEdit(
+                            formEvent,
+                            event.id,
+                          )
+                        }
+                        px="5"
+                        py="4"
+                        bg="gray.50"
+                        borderBottomWidth="1px"
+                        borderColor="gray.200"
+                      >
+                        <Stack gap="3">
+                          <Grid
+                            templateColumns={{
+                              base: "1fr",
+                              md: "repeat(2, minmax(0, 1fr))",
+                            }}
+                            gap="3"
+                          >
+                            <Input
+                              aria-label="Event name"
+                              value={
+                                editingEventName
+                              }
+                              onChange={(
+                                inputEvent,
+                              ) =>
+                                setEditingEventName(
+                                  inputEvent
+                                    .target
+                                    .value,
+                                )
+                              }
+                            />
+
+                            <NativeSelect.Root>
+                              <NativeSelect.Field
+                                aria-label="Event category"
+                                value={
+                                  editingEventTypeId
+                                }
+                                onChange={(
+                                  inputEvent,
+                                ) =>
+                                  setEditingEventTypeId(
+                                    inputEvent
+                                      .target
+                                      .value,
+                                  )
+                                }
+                              >
+                                {eventTypes.map(
+                                  (
+                                    eventType,
+                                  ) => (
+                                    <option
+                                      key={
+                                        eventType.id
+                                      }
+                                      value={
+                                        eventType.id
+                                      }
+                                    >
+                                      {
+                                        eventType.name
+                                      }
+                                    </option>
+                                  ),
+                                )}
+                              </NativeSelect.Field>
+
+                              <NativeSelect.Indicator />
+                            </NativeSelect.Root>
+
+                            <HumanDateTimeInput
+                              value={
+                                editingStartsAt
+                              }
+                              onChange={
+                                setEditingStartsAt
+                              }
+                            />
+
+                            <HumanDateTimeInput
+                              value={
+                                editingEndsAt
+                              }
+                              onChange={
+                                setEditingEndsAt
+                              }
+                              defaultDate={
+                                editingStartsAt
+                              }
+                            />
+
+                            {selectedEditingEventType
+                              ?.name ===
+                              "Other" && (
+                              <>
+                                <Input
+                                  aria-label="Other event type"
+                                  placeholder="Other type"
+                                  value={
+                                    editingOtherValue
+                                  }
+                                  onChange={(
+                                    inputEvent,
+                                  ) =>
+                                    setEditingOtherValue(
+                                      inputEvent
+                                        .target
+                                        .value,
+                                    )
+                                  }
+                                />
+
+                                <Input
+                                  aria-label="Other event reason"
+                                  placeholder="Why isn't an existing type right?"
+                                  value={
+                                    editingOtherReason
+                                  }
+                                  onChange={(
+                                    inputEvent,
+                                  ) =>
+                                    setEditingOtherReason(
+                                      inputEvent
+                                        .target
+                                        .value,
+                                    )
+                                  }
+                                />
+                              </>
+                            )}
+                          </Grid>
+
+                          <HStack>
+                            <Button
+                              type="submit"
+                              size="sm"
+                              colorPalette="green"
+                            >
+                              Save
+                            </Button>
+
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                setEditingEventId(
+                                  null,
+                                )
+                              }
+                            >
+                              Cancel
+                            </Button>
+                          </HStack>
+                        </Stack>
+                      </Box>
+                    ) : cloningEventId ===
+                      event.id ? (
+                      <Box
+                        as="form"
+                        key={event.id}
+                        onSubmit={(
+                          formEvent,
+                        ) =>
+                          void submitEventClone(
+                            formEvent,
+                            event.id,
+                          )
+                        }
+                        px="5"
+                        py="4"
+                        bg="gray.50"
+                        borderBottomWidth="1px"
+                        borderColor="gray.200"
+                      >
+                        <Stack gap="4">
+                          <Grid
+                            templateColumns={{
+                              base: "1fr",
+                              md: "repeat(2, minmax(0, 1fr))",
+                            }}
+                            gap="3"
+                          >
+                            <Field.Root>
+                              <Field.Label>
+                                New event name
+                              </Field.Label>
+
+                              <Input
+                                autoFocus
+                                value={
+                                  cloneEventName
+                                }
+                                onChange={(
+                                  inputEvent,
+                                ) =>
+                                  setCloneEventName(
+                                    inputEvent
+                                      .target
+                                      .value,
+                                  )
+                                }
+                              />
+                            </Field.Root>
+
+                            <Field.Root>
+                              <Field.Label>
+                                New start
+                              </Field.Label>
+
+                              <HumanDateTimeInput
+                                value={
+                                  cloneStartsAt
+                                }
+                                onChange={
+                                  setCloneStartsAt
+                                }
+                              />
+                            </Field.Root>
+                          </Grid>
+
+                          <HStack>
+                            <Button
+                              type="submit"
+                              size="sm"
+                              colorPalette="green"
+                            >
+                              Clone event
+                            </Button>
+
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                setCloningEventId(
+                                  null,
+                                )
+                              }
+                            >
+                              Cancel
+                            </Button>
+                          </HStack>
+                        </Stack>
+                      </Box>
+                    ) : (
+                      <Box
+                        key={event.id}
+                        px="5"
+                        py="4"
+                        borderBottomWidth="1px"
+                        borderColor="gray.100"
+                      >
+                        <Box
+                          display="flex"
+                          flexDirection={{
+                            base: "column",
+                            xl: "row",
+                          }}
+                          alignItems={{
+                            base: "stretch",
+                            xl: "center",
+                          }}
+                          justifyContent="space-between"
+                          gap="4"
                         >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ),
-                )
+                          <Stack gap="0">
+                            <Text fontWeight="700">
+                              {event.name}
+                            </Text>
+
+                            <Text
+                              fontSize="sm"
+                              color="gray.500"
+                            >
+                              {
+                                event.event_type_name
+                              }{" "}
+                              ·{" "}
+                              {localDateTime(
+                                event.starts_at,
+                              )}
+                            </Text>
+                          </Stack>
+
+                          <HStack
+                            flexWrap="wrap"
+                          >
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                beginEventClone(
+                                  event,
+                                )
+                              }
+                            >
+                              Clone
+                            </Button>
+
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                beginEventEdit(
+                                  event,
+                                )
+                              }
+                            >
+                              Edit
+                            </Button>
+
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              colorPalette="red"
+                              onClick={() =>
+                                void removeEvent(
+                                  event,
+                                )
+                              }
+                            >
+                              Delete
+                            </Button>
+                          </HStack>
+                        </Box>
+                      </Box>
+                    ),
+                  )}
+                </Stack>
               ) : (
-                <div className="app-empty">
-                  No events yet.
-                </div>
+                <Box
+                  p="8"
+                  textAlign="center"
+                >
+                  <Text color="gray.500">
+                    No events yet.
+                  </Text>
+                </Box>
               )}
-            </div>
-          </section>
-        </div>
-      )}
-    </section>
+            </Box>
+          </Grid>
+        )}
+      </Stack>
+    </Box>
   );
 }
