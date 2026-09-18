@@ -7,6 +7,20 @@ import {
   type FormEvent,
 } from "react";
 
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Field,
+  Grid,
+  HStack,
+  Input,
+  NativeSelect,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
 import type { EventRecord } from "@appoponi/shared/schemas/events";
 import {
   foodTagValues,
@@ -611,462 +625,1947 @@ export default function AdminMealPlanningPage({
   const selectedDayDate = days.find((day) => day.key === selectedDay)?.date ?? null;
 
   return (
-    <section className={`meal-planning-page${composerOpen ? " composer-open" : ""}`}>
-      <div className="admin-heading meal-planning-heading">
-        <div>
-          <div className="admin-eyebrow">ADMIN</div>
-          <h1>Meal planning</h1>
-          <p>Plan each food service, then use the same food library for meals, receptions, and after-hours.</p>
-        </div>
+    <Box
+      as="section"
+      minW="0"
+      minH={{
+        base: composerOpen ? "72vh" : undefined,
+        md: undefined,
+      }}
+    >
+      <Box
+        display="flex"
+        flexDirection={{
+          base: "column",
+          lg: "row",
+        }}
+        alignItems={{
+          base: "flex-start",
+          lg: "flex-end",
+        }}
+        justifyContent="space-between"
+        gap="18px"
+        mb="4"
+      >
+        <Box>
+          <Text
+            fontSize="xs"
+            fontWeight="800"
+            letterSpacing="0.08em"
+            color="gray.500"
+          >
+            ADMIN
+          </Text>
 
-        <div className="meal-plan-menu-control">
-          <span>Menu</span>
-          <strong>{currentMenu?.name ?? "No menu"}</strong>
-          <button className="app-button" type="button" onClick={() => setShowMenuPicker((open) => !open)}>
+          <Text
+            as="h1"
+            fontSize="2xl"
+            fontWeight="700"
+          >
+            Meal planning
+          </Text>
+
+          <Text color="gray.600">
+            Plan each food service, then use the same food library for meals, receptions, and after-hours.
+          </Text>
+        </Box>
+
+        <Grid
+          templateColumns={{
+            base: "auto minmax(0, 1fr) auto",
+          }}
+          alignItems="center"
+          gap="2"
+          minH="40px"
+          w={{
+            base: "full",
+            lg: "auto",
+          }}
+        >
+          <Text
+            fontSize="10px"
+            fontWeight="800"
+            textTransform="uppercase"
+            letterSpacing="0.08em"
+            color="#6d7169"
+          >
+            Menu
+          </Text>
+
+          <Text
+            fontWeight="700"
+            minW="0"
+          >
+            {currentMenu?.name ?? "No menu"}
+          </Text>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              setShowMenuPicker(
+                (open) => !open,
+              )
+            }
+          >
             Change
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Grid>
+      </Box>
 
       {showMenuPicker && (
-        <section className="app-card meal-menu-picker-panel">
-          <div>
-            <strong>Saved menus</strong>
-            <span>Use one menu as the event baseline. Individual services can still be customized.</span>
-          </div>
-          <div className="meal-menu-picker-list">
-            {menus.map((menu) => (
-              <button
-                type="button"
-                key={menu.id}
-                className={menu.id === currentMenu?.id ? "active" : ""}
-                onClick={() => applyMenu(menu.id)}
-              >
-                <strong>{menu.name}</strong>
-                <span>{menu.item_count} placements</span>
-              </button>
-            ))}
+        <Grid
+          as="section"
+          templateColumns={{
+            base: "1fr",
+            lg: "minmax(180px, .7fr) minmax(0, 1.3fr)",
+          }}
+          gap="18px"
+          p="14px"
+          mb="12px"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="#ffffff"
+        >
+          <Stack
+            gap="1"
+            alignContent="start"
+          >
+            <Text fontWeight="700">
+              Saved menus
+            </Text>
+
+            <Text
+              fontSize="12px"
+              color="#6d7169"
+            >
+              Use one menu as the event baseline. Individual services can still be customized.
+            </Text>
+          </Stack>
+
+          <Grid
+            templateColumns="repeat(auto-fit, minmax(180px, 1fr))"
+            gap="2"
+          >
+            {menus.map((menu) => {
+              const active =
+                menu.id === currentMenu?.id;
+
+              return (
+                <Button
+                  key={menu.id}
+                  type="button"
+                  variant="outline"
+                  minH="54px"
+                  h="auto"
+                  justifyContent="flex-start"
+                  textAlign="left"
+                  px="11px"
+                  py="9px"
+                  borderColor={
+                    active
+                      ? "#9ccfbd"
+                      : "#dddcd5"
+                  }
+                  bg={
+                    active
+                      ? "#e7f3ef"
+                      : "#ffffff"
+                  }
+                  onClick={() =>
+                    applyMenu(menu.id)
+                  }
+                >
+                  <Stack gap="3px">
+                    <Text fontWeight="700">
+                      {menu.name}
+                    </Text>
+
+                    <Text
+                      fontSize="11px"
+                      color="#6d7169"
+                    >
+                      {menu.item_count} placements
+                    </Text>
+                  </Stack>
+                </Button>
+              );
+            })}
+
             {presets.map((preset) => (
-              <button type="button" key={preset.key} onClick={() => loadPreset(preset.key)}>
-                <strong>Load {preset.name}</strong>
-                <span>{preset.item_count} items</span>
-              </button>
+              <Button
+                key={preset.key}
+                type="button"
+                variant="outline"
+                minH="54px"
+                h="auto"
+                justifyContent="flex-start"
+                textAlign="left"
+                px="11px"
+                py="9px"
+                borderColor="#dddcd5"
+                bg="#ffffff"
+                onClick={() =>
+                  loadPreset(preset.key)
+                }
+              >
+                <Stack gap="3px">
+                  <Text fontWeight="700">
+                    Load {preset.name}
+                  </Text>
+
+                  <Text
+                    fontSize="11px"
+                    color="#6d7169"
+                  >
+                    {preset.item_count} items
+                  </Text>
+                </Stack>
+              </Button>
             ))}
-          </div>
-        </section>
+          </Grid>
+        </Grid>
       )}
 
-      {error && <div className="app-alert app-alert-danger">{error}</div>}
-      {status && <div className="app-alert app-alert-success">{status}</div>}
+      {error && (
+        <Alert.Root
+          status="error"
+          mb="3"
+        >
+          <Alert.Indicator />
+
+          <Alert.Content>
+            <Alert.Description>
+              {error}
+            </Alert.Description>
+          </Alert.Content>
+        </Alert.Root>
+      )}
+
+      {status && (
+        <Alert.Root
+          status="success"
+          mb="3"
+        >
+          <Alert.Indicator />
+
+          <Alert.Content>
+            <Alert.Description>
+              {status}
+            </Alert.Description>
+          </Alert.Content>
+        </Alert.Root>
+      )}
 
       {!composerOpen && (
         <>
-          <div className="meal-plan-daybar">
-            <div className="app-day-rail" aria-label="Event day">
-              {days.map((day) => (
-                <button
-                  key={day.key}
-                  type="button"
-                  className={selectedDay === day.key ? "active" : ""}
-                  onClick={() => setSelectedDay(day.key)}
-                >
-                  <span>{day.date.toLocaleDateString([], { weekday: "short" })}</span>
-                  <strong>{day.date.getDate()}</strong>
-                  {day.key === todayKey && <small>Today</small>}
-                </button>
-              ))}
-            </div>
+          <Box
+            position="sticky"
+            top="0"
+            zIndex="8"
+            display="flex"
+            alignItems={{
+              base: "stretch",
+              md: "center",
+            }}
+            justifyContent="space-between"
+            gap="3"
+            py="2"
+            pb="10px"
+            bg="#f6f5f1"
+          >
+            <HStack
+              minW="0"
+              gap="1"
+              overflowX="auto"
+              scrollbarWidth="none"
+              aria-label="Event day"
+            >
+              {days.map((day) => {
+                const active =
+                  selectedDay === day.key;
 
-            <button className="app-button app-button-primary" type="button" onClick={openNewService}>
+                return (
+                  <Button
+                    key={day.key}
+                    type="button"
+                    variant="outline"
+                    flex="0 0 auto"
+                    minW={{
+                      base: "62px",
+                      md: "72px",
+                    }}
+                    minH="48px"
+                    h="auto"
+                    px="10px"
+                    py="6px"
+                    borderColor={
+                      active
+                        ? "#9ccfbd"
+                        : "#dddcd5"
+                    }
+                    bg={
+                      active
+                        ? "#e7f3ef"
+                        : "#ffffff"
+                    }
+                    color={
+                      active
+                        ? "#005d41"
+                        : "#6d7169"
+                    }
+                    onClick={() =>
+                      setSelectedDay(day.key)
+                    }
+                  >
+                    <Stack
+                      gap="1px"
+                      textAlign="center"
+                    >
+                      <Text
+                        fontSize="10px"
+                        fontWeight="750"
+                        textTransform="uppercase"
+                        letterSpacing="0.05em"
+                      >
+                        {day.date.toLocaleDateString(
+                          [],
+                          {
+                            weekday: "short",
+                          },
+                        )}
+                      </Text>
+
+                      <Text
+                        fontSize="15px"
+                        fontWeight="700"
+                        color="#171915"
+                      >
+                        {day.date.getDate()}
+                      </Text>
+
+                      {day.key === todayKey && (
+                        <Text
+                          fontSize="9px"
+                          fontWeight="750"
+                          color="#005d41"
+                        >
+                          Today
+                        </Text>
+                      )}
+                    </Stack>
+                  </Button>
+                );
+              })}
+            </HStack>
+
+            <Button
+              type="button"
+              colorPalette="green"
+              flex="0 0 auto"
+              onClick={openNewService}
+            >
               + Food service
-            </button>
-          </div>
+            </Button>
+          </Box>
 
           {showServiceForm && (
-            <form className="app-card meal-service-editor" onSubmit={submitService}>
-              <select value={serviceTypeId} onChange={(event) => setServiceTypeId(event.target.value)} required>
-                <option value="">Service type</option>
-                {mealTypes.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}
-              </select>
-              <input
-                placeholder="Special title (optional)"
-                value={serviceTitle}
-                onChange={(event) => setServiceTitle(event.target.value)}
-              />
-              <HumanDateTimeInput value={serviceStart} onChange={setServiceStart} placeholder="Starts" />
-              <HumanDateTimeInput value={serviceEnd} onChange={setServiceEnd} placeholder="Ends" />
-              <div className="meal-service-editor-actions">
-                <button className="app-button" type="button" onClick={() => setShowServiceForm(false)}>Cancel</button>
-                <button className="app-button app-button-primary" type="submit">{editingMealId ? "Save service" : "Add service"}</button>
-              </div>
-            </form>
+            <Grid
+              as="form"
+              onSubmit={submitService}
+              templateColumns={{
+                base: "1fr",
+                lg: "minmax(130px, .65fr) minmax(180px, 1fr) minmax(210px, 1fr) minmax(210px, 1fr) auto",
+              }}
+              gap="2"
+              alignItems="end"
+              p="3"
+              mb="3"
+              borderWidth="1px"
+              borderColor="#dddcd5"
+              borderRadius="12px"
+              bg="#ffffff"
+            >
+              <Field.Root>
+                <Field.Label>
+                  Service type
+                </Field.Label>
+
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    value={serviceTypeId}
+                    onChange={(event) =>
+                      setServiceTypeId(
+                        event.target.value,
+                      )
+                    }
+                  >
+                    <option value="">
+                      Service type
+                    </option>
+
+                    {mealTypes.map((type) => (
+                      <option
+                        key={type.id}
+                        value={type.id}
+                      >
+                        {type.name}
+                      </option>
+                    ))}
+                  </NativeSelect.Field>
+
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
+
+              <Field.Root>
+                <Field.Label>
+                  Title
+                </Field.Label>
+
+                <Input
+                  placeholder="Special title (optional)"
+                  value={serviceTitle}
+                  onChange={(event) =>
+                    setServiceTitle(
+                      event.target.value,
+                    )
+                  }
+                />
+              </Field.Root>
+
+              <Field.Root>
+                <Field.Label>
+                  Starts
+                </Field.Label>
+
+                <HumanDateTimeInput
+                  value={serviceStart}
+                  onChange={setServiceStart}
+                  placeholder="Starts"
+                />
+              </Field.Root>
+
+              <Field.Root>
+                <Field.Label>
+                  Ends
+                </Field.Label>
+
+                <HumanDateTimeInput
+                  value={serviceEnd}
+                  onChange={setServiceEnd}
+                  placeholder="Ends"
+                />
+              </Field.Root>
+
+              <HStack gap="2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    setShowServiceForm(false)
+                  }
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  type="submit"
+                  colorPalette="green"
+                >
+                  {editingMealId
+                    ? "Save service"
+                    : "Add service"}
+                </Button>
+              </HStack>
+            </Grid>
           )}
 
-          <section className="meal-day-plan">
-            <header className="meal-day-plan-head">
-              <div>
-                <strong>{selectedDayDate ? dayLabel(selectedDayDate) : "Event day"}</strong>
-                <span>Choose a service to plan its food.</span>
-              </div>
-            </header>
+          <Box
+            as="section"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+          >
+            <Box
+              minH="54px"
+              px="14px"
+              py="10px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+            >
+              <Text fontWeight="700">
+                {selectedDayDate
+                  ? dayLabel(selectedDayDate)
+                  : "Event day"}
+              </Text>
 
-            <div className="meal-day-service-list">
+              <Text
+                mt="2px"
+                fontSize="11px"
+                color="#6d7169"
+              >
+                Choose a service to plan its food.
+              </Text>
+            </Box>
+
+            <Stack gap="0">
               {visibleMeals.map((meal) => (
-                <article className="meal-day-service-row" key={meal.id}>
-                  <time>{serviceTime(meal.starts_at)}</time>
-                  <div className="meal-day-service-copy">
-                    <div className="meal-day-service-title">
-                      <strong>{meal.title ?? meal.meal_type_name}</strong>
-                      {meal.title && meal.title !== meal.meal_type_name && <span>{meal.meal_type_name}</span>}
-                    </div>
-                    <p className={meal.items.length ? "" : "empty"}>
+                <Grid
+                  as="article"
+                  key={meal.id}
+                  templateColumns={{
+                    base: "62px minmax(0, 1fr)",
+                    md: "84px minmax(0, 1fr) auto",
+                  }}
+                  gap={{
+                    base: "9px",
+                    md: "14px",
+                  }}
+                  alignItems="center"
+                  minH="72px"
+                  px="14px"
+                  py="10px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                >
+                  <Text
+                    as="time"
+                    fontSize="11px"
+                    fontWeight="800"
+                    color="#6d7169"
+                    whiteSpace="nowrap"
+                  >
+                    {serviceTime(
+                      meal.starts_at,
+                    )}
+                  </Text>
+
+                  <Box minW="0">
+                    <HStack
+                      alignItems="baseline"
+                      gap="2"
+                      flexWrap="wrap"
+                    >
+                      <Text
+                        fontSize="13px"
+                        fontWeight="700"
+                      >
+                        {meal.title ??
+                          meal.meal_type_name}
+                      </Text>
+
+                      {meal.title &&
+                        meal.title !==
+                          meal.meal_type_name && (
+                          <Text
+                            fontSize="10px"
+                            color="#6d7169"
+                          >
+                            {
+                              meal.meal_type_name
+                            }
+                          </Text>
+                        )}
+                    </HStack>
+
+                    <Text
+                      mt="1"
+                      fontSize="11px"
+                      lineHeight="1.45"
+                      color={
+                        meal.items.length
+                          ? "#6d7169"
+                          : "#005d41"
+                      }
+                    >
                       {meal.items.length
-                        ? meal.items.map((item) => item.name).join(" · ")
+                        ? meal.items
+                            .map(
+                              (item) =>
+                                item.name,
+                            )
+                            .join(" · ")
                         : "No food planned yet."}
-                    </p>
-                  </div>
-                  <div className="meal-day-service-actions">
-                    <button className="app-button app-button-primary" type="button" onClick={() => openComposer({ kind: "meal", mealId: meal.id })}>
+                    </Text>
+                  </Box>
+
+                  <HStack
+                    gap="2"
+                    gridColumn={{
+                      base: "2",
+                      md: "auto",
+                    }}
+                  >
+                    <Button
+                      type="button"
+                      size="sm"
+                      colorPalette="green"
+                      onClick={() =>
+                        openComposer({
+                          kind: "meal",
+                          mealId: meal.id,
+                        })
+                      }
+                    >
                       Plan food
-                    </button>
-                    <button className="app-button" type="button" onClick={() => editService(meal)}>
+                    </Button>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        editService(meal)
+                      }
+                    >
                       Edit time
-                    </button>
-                  </div>
-                </article>
+                    </Button>
+                  </HStack>
+                </Grid>
               ))}
 
               {!visibleMeals.length && (
-                <div className="app-empty">No food services scheduled for this day.</div>
+                <Box
+                  p="8"
+                  textAlign="center"
+                >
+                  <Text color="#6d7169">
+                    No food services scheduled for this day.
+                  </Text>
+                </Box>
               )}
-            </div>
-          </section>
+            </Stack>
+          </Box>
 
-          <section className="meal-anytime-plan">
-            <header className="meal-day-plan-head">
-              <div>
-                <strong>Anytime offerings</strong>
-                <span>Food members can choose outside scheduled meal services.</span>
-              </div>
-            </header>
+          <Box
+            as="section"
+            mt="3"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+          >
+            <Box
+              minH="54px"
+              px="14px"
+              py="10px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+            >
+              <Text fontWeight="700">
+                Anytime offerings
+              </Text>
+
+              <Text
+                mt="2px"
+                fontSize="11px"
+                color="#6d7169"
+              >
+                Food members can choose outside scheduled meal services.
+              </Text>
+            </Box>
 
             {([
-              ["SNACK", "Snacks", "Pickup throughout the day"],
-              ["AFTER_HOURS", "After-hours", "Pickup or delivery after hours"],
-            ] as const).map(([offeringType, title, description]) => {
-              const offeringItems = offerings.filter((item) => item.offering_type === offeringType);
-              const availableItems = offeringItems.filter((item) => item.available);
-              return (
-                <article className="meal-day-service-row meal-offering-service-row" key={offeringType}>
-                  <span className="meal-offering-time">Anytime</span>
-                  <div className="meal-day-service-copy">
-                    <div className="meal-day-service-title">
-                      <strong>{title}</strong>
-                      <span>{description}</span>
-                    </div>
-                    <p className={offeringItems.length ? "" : "empty"}>
-                      {offeringItems.length
-                        ? availableItems.map((item) => item.name).join(" · ") || `All ${title.toLowerCase()} foods are hidden.`
-                        : `No ${title.toLowerCase()} food planned yet.`}
-                    </p>
-                  </div>
-                  <div className="meal-day-service-actions">
-                    <button className="app-button app-button-primary" type="button" onClick={() => openComposer({ kind: "offering", offeringType })}>
+              [
+                "SNACK",
+                "Snacks",
+                "Pickup throughout the day",
+              ],
+              [
+                "AFTER_HOURS",
+                "After-hours",
+                "Pickup or delivery after hours",
+              ],
+            ] as const).map(
+              ([
+                offeringType,
+                title,
+                description,
+              ]) => {
+                const offeringItems =
+                  offerings.filter(
+                    (item) =>
+                      item.offering_type ===
+                      offeringType,
+                  );
+
+                const availableItems =
+                  offeringItems.filter(
+                    (item) => item.available,
+                  );
+
+                return (
+                  <Grid
+                    as="article"
+                    key={offeringType}
+                    templateColumns={{
+                      base: "1fr",
+                      md: "84px minmax(0, 1fr) auto",
+                    }}
+                    gap="14px"
+                    alignItems="center"
+                    minH="72px"
+                    px="14px"
+                    py="10px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                  >
+                    <Text
+                      fontSize="11px"
+                      fontWeight="800"
+                      color="#6d7169"
+                      whiteSpace="nowrap"
+                    >
+                      Anytime
+                    </Text>
+
+                    <Box minW="0">
+                      <HStack
+                        alignItems="baseline"
+                        gap="2"
+                        flexWrap="wrap"
+                      >
+                        <Text
+                          fontSize="13px"
+                          fontWeight="700"
+                        >
+                          {title}
+                        </Text>
+
+                        <Text
+                          fontSize="10px"
+                          color="#6d7169"
+                        >
+                          {description}
+                        </Text>
+                      </HStack>
+
+                      <Text
+                        mt="1"
+                        fontSize="11px"
+                        lineHeight="1.45"
+                        color={
+                          offeringItems.length
+                            ? "#6d7169"
+                            : "#005d41"
+                        }
+                      >
+                        {offeringItems.length
+                          ? availableItems
+                              .map(
+                                (item) =>
+                                  item.name,
+                              )
+                              .join(" · ") ||
+                            `All ${title.toLowerCase()} foods are hidden.`
+                          : `No ${title.toLowerCase()} food planned yet.`}
+                      </Text>
+                    </Box>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      colorPalette="green"
+                      onClick={() =>
+                        openComposer({
+                          kind: "offering",
+                          offeringType,
+                        })
+                      }
+                    >
                       Plan food
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </section>
+                    </Button>
+                  </Grid>
+                );
+              },
+            )}
+          </Box>
         </>
       )}
 
       {composerOpen && selectedTarget && (
-        <section className="food-composer-focus">
-          <header className="food-composer-focus-head">
-            <button className="app-button" type="button" onClick={closeComposer}>
+        <Box
+          as="section"
+          position={{
+            base: "fixed",
+            md: "static",
+          }}
+          inset={{
+            base: "64px 0 0",
+            md: "auto",
+          }}
+          zIndex={{
+            base: "70",
+            md: "auto",
+          }}
+          h={{
+            base: "calc(100dvh - 64px)",
+            md: "auto",
+          }}
+          overflow={{
+            base: "auto",
+            md: "hidden",
+          }}
+          borderWidth={{
+            base: "0",
+            md: "1px",
+          }}
+          borderColor="#dddcd5"
+          borderRadius={{
+            base: "0",
+            md: "12px",
+          }}
+          bg="#ffffff"
+        >
+          <Grid
+            as="header"
+            position="sticky"
+            top="0"
+            zIndex="9"
+            templateColumns={{
+              base: "auto minmax(0, 1fr)",
+              md: "auto minmax(0, 1fr) auto",
+            }}
+            gap="3"
+            alignItems="center"
+            minH="66px"
+            px="3"
+            py="10px"
+            borderBottomWidth="1px"
+            borderColor="#dddcd5"
+            bg="#ffffff"
+          >
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeComposer}
+            >
               ← Back to day
-            </button>
-            <div>
-              <span>PLANNING FOOD FOR</span>
-              <strong>{selectedTargetTitle}</strong>
-              <small>{selectedTargetMeta}</small>
-            </div>
-            {selectedTarget.kind === "meal" && selectedMeal && (
-              <button className="app-button" type="button" onClick={() => editService(selectedMeal)}>
-                Edit time
-              </button>
-            )}
-          </header>
+            </Button>
 
-          <div className="food-composer-grid">
-            <section className="food-composer-library">
-              <div className="food-library-head">
-                <div>
-                  <strong>Food library</strong>
-                  <span>Tap to add. Drag to place on desktop.</span>
-                </div>
-                <button
-                  className="app-button"
+            <Stack
+              minW="0"
+              gap="2px"
+            >
+              <Text
+                fontSize="10px"
+                fontWeight="800"
+                textTransform="uppercase"
+                letterSpacing="0.08em"
+                color="#6d7169"
+              >
+                PLANNING FOOD FOR
+              </Text>
+
+              <Text
+                fontSize="15px"
+                fontWeight="700"
+              >
+                {selectedTargetTitle}
+              </Text>
+
+              <Text
+                fontSize="11px"
+                color="#6d7169"
+              >
+                {selectedTargetMeta}
+              </Text>
+            </Stack>
+
+            {selectedTarget.kind ===
+              "meal" &&
+              selectedMeal && (
+                <Button
                   type="button"
+                  variant="outline"
+                  gridColumn={{
+                    base: "2",
+                    md: "auto",
+                  }}
+                  justifySelf={{
+                    base: "start",
+                    md: "auto",
+                  }}
+                  onClick={() =>
+                    editService(selectedMeal)
+                  }
+                >
+                  Edit time
+                </Button>
+              )}
+          </Grid>
+
+          <Grid
+            templateColumns={{
+              base: "1fr",
+              md: "minmax(300px, .78fr) minmax(360px, 1.22fr)",
+            }}
+            minH={{
+              base: "calc(100dvh - 130px)",
+              md: "min(680px, calc(100vh - 220px))",
+            }}
+            pb={{
+              base:
+                "calc(74px + env(safe-area-inset-bottom))",
+              md: "0",
+            }}
+          >
+            <Box
+              as="section"
+              minW="0"
+              borderRightWidth={{
+                base: "0",
+                md: "1px",
+              }}
+              borderBottomWidth={{
+                base: "0",
+                md: "0",
+              }}
+              borderColor="#dddcd5"
+              bg="#ffffff"
+            >
+              <Box
+                minH="66px"
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                gap="3"
+                px="14px"
+                py="12px"
+                borderBottomWidth="1px"
+                borderColor="#dddcd5"
+              >
+                <Stack
+                  minW="0"
+                  gap="3px"
+                >
+                  <Text
+                    fontSize="13px"
+                    fontWeight="700"
+                  >
+                    Food library
+                  </Text>
+
+                  <Text
+                    fontSize="10px"
+                    lineHeight="1.35"
+                    color="#6d7169"
+                  >
+                    Tap to add. Drag to place on desktop.
+                  </Text>
+                </Stack>
+
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => {
                     setEditingFoodId(null);
                     setFoodName("");
                     setFoodDescription("");
                     setFoodDietary("");
                     setFoodTags([]);
-                    setShowFoodForm((open) => !open);
+                    setShowFoodForm(
+                      (open) => !open,
+                    );
                   }}
                 >
                   + New food
-                </button>
-              </div>
+                </Button>
+              </Box>
 
               {showFoodForm && (
-                <form className="meal-plan-food-editor" onSubmit={submitFood}>
-                  <input autoFocus placeholder="Food name" value={foodName} onChange={(event) => setFoodName(event.target.value)} required />
-                  <input placeholder="Description (optional)" value={foodDescription} onChange={(event) => setFoodDescription(event.target.value)} />
-                  <input placeholder="Dietary note (optional)" value={foodDietary} onChange={(event) => setFoodDietary(event.target.value)} />
+                <Grid
+                  as="form"
+                  onSubmit={submitFood}
+                  templateColumns={{
+                    base: "1fr",
+                    md: "minmax(140px, 1fr) minmax(140px, 1fr)",
+                  }}
+                  gap="6px"
+                  px="10px"
+                  py="8px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                  bg="#fbfaf7"
+                >
+                  <Input
+                    autoFocus
+                    placeholder="Food name"
+                    value={foodName}
+                    onChange={(event) =>
+                      setFoodName(
+                        event.target.value,
+                      )
+                    }
+                    required
+                  />
 
-                  <fieldset className="app-choice-field food-tag-field">
-                    <legend>Food tags</legend>
+                  <Input
+                    placeholder="Description (optional)"
+                    value={foodDescription}
+                    onChange={(event) =>
+                      setFoodDescription(
+                        event.target.value,
+                      )
+                    }
+                  />
 
-                    <div className="food-tag-picker">
-                      {foodTagValues.map((tag) => {
-                        const selected = foodTags.includes(tag);
+                  <Input
+                    placeholder="Dietary note (optional)"
+                    value={foodDietary}
+                    onChange={(event) =>
+                      setFoodDietary(
+                        event.target.value,
+                      )
+                    }
+                  />
 
-                        return (
-                          <button
-                            key={tag}
-                            type="button"
-                            className={`app-button food-tag-choice${selected ? " selected" : ""}`}
-                            aria-pressed={selected}
-                            onClick={() =>
-                              setFoodTags((current) =>
-                                current.includes(tag)
-                                  ? current.filter((item) => item !== tag)
-                                  : [...current, tag],
-                              )
-                            }
-                          >
-                            {foodTagLabel(tag)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </fieldset>
+                  <Box
+                    as="fieldset"
+                    gridColumn={{
+                      md: "1 / -1",
+                    }}
+                    pt="2px"
+                  >
+                    <Text
+                      as="legend"
+                      fontSize="sm"
+                      fontWeight="700"
+                      mb="2"
+                    >
+                      Food tags
+                    </Text>
 
-                  <button className="app-button app-button-primary" type="submit">{editingFoodId ? "Save" : "Add"}</button>
-                  <button className="app-button" type="button" onClick={() => setShowFoodForm(false)}>Cancel</button>
-                </form>
+                    <HStack
+                      flexWrap="wrap"
+                      gap="5px"
+                    >
+                      {foodTagValues.map(
+                        (tag) => {
+                          const selected =
+                            foodTags.includes(
+                              tag,
+                            );
+
+                          return (
+                            <Button
+                              key={tag}
+                              type="button"
+                              size="xs"
+                              variant="outline"
+                              minH="28px"
+                              px="9px"
+                              borderRadius="full"
+                              borderColor={
+                                selected
+                                  ? "#9ccfbd"
+                                  : "#dddcd5"
+                              }
+                              bg={
+                                selected
+                                  ? "#e7f3ef"
+                                  : "#ffffff"
+                              }
+                              color={
+                                selected
+                                  ? "#005d41"
+                                  : "#6d7169"
+                              }
+                              aria-pressed={
+                                selected
+                              }
+                              onClick={() =>
+                                setFoodTags(
+                                  (
+                                    current,
+                                  ) =>
+                                    current.includes(
+                                      tag,
+                                    )
+                                      ? current.filter(
+                                          (
+                                            item,
+                                          ) =>
+                                            item !==
+                                            tag,
+                                        )
+                                      : [
+                                          ...current,
+                                          tag,
+                                        ],
+                                )
+                              }
+                            >
+                              {foodTagLabel(
+                                tag,
+                              )}
+                            </Button>
+                          );
+                        },
+                      )}
+                    </HStack>
+                  </Box>
+
+                  <HStack
+                    gridColumn={{
+                      md: "1 / -1",
+                    }}
+                    gap="2"
+                  >
+                    <Button
+                      type="submit"
+                      colorPalette="green"
+                    >
+                      {editingFoodId
+                        ? "Save"
+                        : "Add"}
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        setShowFoodForm(false)
+                      }
+                    >
+                      Cancel
+                    </Button>
+                  </HStack>
+                </Grid>
               )}
 
-              <div className="food-library-search-row">
-                <input type="search" placeholder="Search foods…" value={search} onChange={(event) => setSearch(event.target.value)} />
-                <span>{visibleLibrary.length} foods</span>
-              </div>
+              <Grid
+                templateColumns="minmax(0, 1fr) auto"
+                alignItems="center"
+                gap="10px"
+                px="12px"
+                pt="10px"
+                pb="8px"
+              >
+                <Input
+                  type="search"
+                  placeholder="Search foods…"
+                  value={search}
+                  onChange={(event) =>
+                    setSearch(
+                      event.target.value,
+                    )
+                  }
+                  minH="34px"
+                />
 
-              <div className="food-library-filters">
+                <Text
+                  fontSize="10px"
+                  color="#6d7169"
+                  whiteSpace="nowrap"
+                >
+                  {visibleLibrary.length} foods
+                </Text>
+              </Grid>
+
+              <HStack
+                gap="5px"
+                px="12px"
+                pb="9px"
+                overflowX="auto"
+                scrollbarWidth="none"
+              >
                 {[
                   ["all", "All"],
-                  ["breakfast", "Breakfast"],
+                  [
+                    "breakfast",
+                    "Breakfast",
+                  ],
                   ["lunch", "Lunch"],
                   ["dinner", "Dinner"],
                   ["unused", "Unused"],
-                ].map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className={filter === value ? "active" : ""}
-                    onClick={() => setFilter(value as typeof filter)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+                ].map(([value, label]) => {
+                  const active =
+                    filter === value;
 
-              <div
-                className="food-library-filters food-library-tag-filters"
+                  return (
+                    <Button
+                      key={value}
+                      type="button"
+                      size="xs"
+                      variant="outline"
+                      flex="0 0 auto"
+                      minH="28px"
+                      px="9px"
+                      borderRadius="full"
+                      borderColor={
+                        active
+                          ? "#9ccfbd"
+                          : "#dddcd5"
+                      }
+                      bg={
+                        active
+                          ? "#e7f3ef"
+                          : "#ffffff"
+                      }
+                      color={
+                        active
+                          ? "#005d41"
+                          : "#6d7169"
+                      }
+                      onClick={() =>
+                        setFilter(
+                          value as typeof filter,
+                        )
+                      }
+                    >
+                      {label}
+                    </Button>
+                  );
+                })}
+              </HStack>
+
+              <HStack
+                gap="5px"
+                px="12px"
+                pt="1px"
+                pb="9px"
+                overflowX="auto"
+                scrollbarWidth="none"
+                borderTopWidth="1px"
+                borderColor="#dddcd5"
                 aria-label="Filter by food tag"
               >
-                <button
+                <Button
                   type="button"
-                  className={tagFilter === "ALL" ? "active" : ""}
-                  onClick={() => setTagFilter("ALL")}
+                  size="xs"
+                  variant="outline"
+                  flex="0 0 auto"
+                  minH="28px"
+                  px="9px"
+                  borderRadius="full"
+                  borderColor={
+                    tagFilter === "ALL"
+                      ? "#9ccfbd"
+                      : "#dddcd5"
+                  }
+                  bg={
+                    tagFilter === "ALL"
+                      ? "#e7f3ef"
+                      : "#ffffff"
+                  }
+                  color={
+                    tagFilter === "ALL"
+                      ? "#005d41"
+                      : "#6d7169"
+                  }
+                  onClick={() =>
+                    setTagFilter("ALL")
+                  }
                 >
                   All tags
-                </button>
+                </Button>
 
-                {foodTagValues.map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    className={tagFilter === tag ? "active" : ""}
-                    onClick={() => setTagFilter(tag)}
-                  >
-                    {foodTagLabel(tag)}
-                  </button>
-                ))}
-              </div>
+                {foodTagValues.map(
+                  (tag) => {
+                    const active =
+                      tagFilter === tag;
 
-              <div className="food-library-list">
-                {visibleLibrary.map((item) => (
-                  <article
-                    key={item.id}
-                    className="food-library-row"
-                    draggable
-                    onDragStart={(event) => writeDrag(event, { kind: "library", itemId: item.id })}
-                    onClick={() => addFood(item.id)}
-                  >
-                    <span className="food-drag-grip" aria-hidden="true">⋮⋮</span>
-                    <div className="food-library-copy">
-                      <strong>{item.name}</strong>
-                      {(item.description || item.dietary_notes) && (
-                        <span>{[item.description, item.dietary_notes].filter(Boolean).join(" · ")}</span>
-                      )}
+                    return (
+                      <Button
+                        key={tag}
+                        type="button"
+                        size="xs"
+                        variant="outline"
+                        flex="0 0 auto"
+                        minH="28px"
+                        px="9px"
+                        borderRadius="full"
+                        borderColor={
+                          active
+                            ? "#9ccfbd"
+                            : "#dddcd5"
+                        }
+                        bg={
+                          active
+                            ? "#e7f3ef"
+                            : "#ffffff"
+                        }
+                        color={
+                          active
+                            ? "#005d41"
+                            : "#6d7169"
+                        }
+                        onClick={() =>
+                          setTagFilter(tag)
+                        }
+                      >
+                        {foodTagLabel(
+                          tag,
+                        )}
+                      </Button>
+                    );
+                  },
+                )}
+              </HStack>
 
-                      {item.tags.length > 0 && (
-                        <div className="food-library-tags">
-                          {item.tags.map((tag) => (
-                            <span key={tag}>
-                              {foodTagLabel(tag)}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      className="food-library-edit"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        editFood(item);
+              <Stack
+                gap="0"
+                minH="0"
+                maxH={{
+                  base: "none",
+                  md: "calc(100vh - 365px)",
+                }}
+                overflowY="auto"
+                borderTopWidth="1px"
+                borderColor="#dddcd5"
+              >
+                {visibleLibrary.map(
+                  (item) => (
+                    <Grid
+                      as="article"
+                      key={item.id}
+                      draggable
+                      templateColumns="18px minmax(0, 1fr) auto"
+                      alignItems="center"
+                      gap="2"
+                      minH="44px"
+                      px="10px"
+                      py="6px"
+                      borderBottomWidth="1px"
+                      borderColor="#dddcd5"
+                      bg="#ffffff"
+                      cursor="grab"
+                      userSelect="none"
+                      _hover={{
+                        bg: "#fbfaf7",
                       }}
+                      onDragStart={(
+                        event,
+                      ) =>
+                        writeDrag(
+                          event,
+                          {
+                            kind: "library",
+                            itemId:
+                              item.id,
+                          },
+                        )
+                      }
+                      onClick={() =>
+                        addFood(item.id)
+                      }
                     >
-                      Edit
-                    </button>
-                  </article>
-                ))}
-              </div>
-            </section>
+                      <Text
+                        aria-hidden="true"
+                        color="#c8c7bf"
+                        fontSize="13px"
+                        fontWeight="800"
+                        letterSpacing="-0.16em"
+                      >
+                        ⋮⋮
+                      </Text>
 
-            <section
-              className={`food-composer-target app-bottom-sheet${dragOverComposer ? " drag-over" : ""}${mobileSheetOpen ? " mobile-open" : ""}`}
+                      <Stack
+                        minW="0"
+                        gap="2px"
+                      >
+                        <Text
+                          overflow="hidden"
+                          fontSize="11px"
+                          fontWeight="700"
+                          lineHeight="1.25"
+                          textOverflow="ellipsis"
+                          whiteSpace="nowrap"
+                        >
+                          {item.name}
+                        </Text>
+
+                        {(item.description ||
+                          item.dietary_notes) && (
+                          <Text
+                            overflow="hidden"
+                            fontSize="9px"
+                            lineHeight="1.25"
+                            color="#6d7169"
+                            textOverflow="ellipsis"
+                            whiteSpace="nowrap"
+                          >
+                            {[
+                              item.description,
+                              item.dietary_notes,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </Text>
+                        )}
+
+                        {item.tags.length >
+                          0 && (
+                          <HStack
+                            flexWrap="wrap"
+                            gap="3px"
+                            mt="2px"
+                          >
+                            {item.tags.map(
+                              (tag) => (
+                                <Badge
+                                  key={tag}
+                                  variant="outline"
+                                  borderRadius="full"
+                                  bg="#fbfaf7"
+                                  color="#6d7169"
+                                  fontSize="8px"
+                                  fontWeight="750"
+                                >
+                                  {foodTagLabel(
+                                    tag,
+                                  )}
+                                </Badge>
+                              ),
+                            )}
+                          </HStack>
+                        )}
+                      </Stack>
+
+                      <Button
+                        type="button"
+                        size="xs"
+                        variant="ghost"
+                        color="#6d7169"
+                        onClick={(
+                          event,
+                        ) => {
+                          event.stopPropagation();
+                          editFood(item);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    </Grid>
+                  ),
+                )}
+              </Stack>
+            </Box>
+
+            <Box
+              as="section"
+              position={{
+                base: "fixed",
+                md: "static",
+              }}
+              left={{
+                base: "0",
+                md: "auto",
+              }}
+              right={{
+                base: "0",
+                md: "auto",
+              }}
+              bottom={{
+                base: "0",
+                md: "auto",
+              }}
+              zIndex={{
+                base: "72",
+                md: "auto",
+              }}
+              w="full"
+              h={{
+                base: "min(62dvh, 560px)",
+                md: "auto",
+              }}
+              maxH={{
+                base: "calc(100dvh - 76px)",
+                md: "none",
+              }}
+              display="grid"
+              gridTemplateRows="auto auto minmax(0, 1fr) auto"
+              overflow="hidden"
+              borderWidth={{
+                base: "1px",
+                md: "0",
+              }}
+              borderBottomWidth={{
+                base: "0",
+                md: "0",
+              }}
+              borderColor="#c8c7bf"
+              borderRadius={{
+                base: "16px 16px 0 0",
+                md: "0",
+              }}
+              bg="#fbfaf7"
+              boxShadow={{
+                base:
+                  "0 -12px 28px rgba(23, 25, 21, 0.12)",
+                md: "none",
+              }}
+              transform={{
+                base: mobileSheetOpen
+                  ? "translateY(0)"
+                  : "translateY(calc(100% - 62px - env(safe-area-inset-bottom)))",
+                md: "none",
+              }}
+              transition={{
+                base: "transform 180ms ease",
+                md: "none",
+              }}
+              outline={
+                dragOverComposer
+                  ? "2px solid #007854"
+                  : "none"
+              }
+              outlineOffset="-2px"
               onDragOver={(event) => {
                 event.preventDefault();
                 setDragOverComposer(true);
               }}
               onDragLeave={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                if (
+                  !event.currentTarget.contains(
+                    event.relatedTarget as
+                      | Node
+                      | null,
+                  )
+                ) {
                   setDragOverComposer(false);
                 }
               }}
-              onDrop={(event) => dropIntoComposer(event)}
+              onDrop={(event) =>
+                dropIntoComposer(event)
+              }
             >
-              <button
+              <Button
                 type="button"
-                className="app-bottom-sheet-handle"
-                aria-expanded={mobileSheetOpen}
-                onClick={() => setMobileSheetOpen((open) => !open)}
+                display={{
+                  base: "grid",
+                  md: "none",
+                }}
+                position="relative"
+                gridTemplateColumns="minmax(0, 1fr) auto"
+                alignItems="center"
+                gap="3"
+                minH="62px"
+                h="auto"
+                px="4"
+                pt="13px"
+                pb="8px"
+                border="0"
+                borderBottomWidth="1px"
+                borderColor="#dddcd5"
+                borderRadius="0"
+                bg="#ffffff"
+                color="#171915"
+                textAlign="left"
+                aria-expanded={
+                  mobileSheetOpen
+                }
+                _before={{
+                  content: '""',
+                  w: "34px",
+                  h: "3px",
+                  position: "absolute",
+                  top: "6px",
+                  left: "50%",
+                  borderRadius: "full",
+                  bg: "#c8c7bf",
+                  transform:
+                    "translateX(-50%)",
+                }}
+                onClick={() =>
+                  setMobileSheetOpen(
+                    (open) => !open,
+                  )
+                }
               >
-                <span className="app-bottom-sheet-copy">
-                  <strong>{selectedTargetTitle}</strong>
-                  <small>{selectedTargetItems.length} food{selectedTargetItems.length === 1 ? "" : "s"} selected</small>
-                </span>
-                <span className="app-bottom-sheet-action">{mobileSheetOpen ? "Done" : "Review"}</span>
-              </button>
-
-              <header
-                className={`food-composer-target-head${selectedTarget.kind === "meal" && selectedMeal?.composition_mode === "CUSTOM" && currentMenu ? " has-actions" : ""}`}
-              >
-                <div>
-                  <strong>{selectedTargetTitle}</strong>
-                  <span>{selectedTargetItems.length} food{selectedTargetItems.length === 1 ? "" : "s"}</span>
-                </div>
-                {selectedTarget.kind === "meal" && selectedMeal?.composition_mode === "CUSTOM" && currentMenu && (
-                  <button
-                    type="button"
-                    className="app-button"
-                    onClick={() => void run(() => resetEventMealItems(selectedMeal.id), "Service reset to the event menu.")}
+                <Stack
+                  minW="0"
+                  gap="2px"
+                >
+                  <Text
+                    overflow="hidden"
+                    fontWeight="700"
+                    textOverflow="ellipsis"
+                    whiteSpace="nowrap"
                   >
-                    Reset to menu
-                  </button>
-                )}
-              </header>
+                    {selectedTargetTitle}
+                  </Text>
 
-              <div className="food-composer-selected-list">
-                {selectedTargetItems.length ? selectedTargetItems.map((item) => {
-                  const assignmentId = selectedTarget.kind === "offering" ? (item as FoodOffering).id : undefined;
-                  const itemId = "item_id" in item ? item.item_id : "";
-                  const available = selectedTarget.kind === "offering" ? (item as FoodOffering).available : true;
-                  return (
-                    <article
-                      className={`food-composer-selected-row${dragOverItemId === itemId ? " drag-over" : ""}${available ? "" : " muted"}`}
-                      key={`${selectedTarget.kind}:${assignmentId ?? itemId}`}
-                      draggable
-                      onDragStart={(event) => writeDrag(event, { kind: "target", itemId, assignmentId })}
-                      onDragOver={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        setDragOverItemId(itemId);
-                      }}
-                      onDrop={(event) => dropIntoComposer(event, item)}
-                    >
-                      <span className="food-drag-grip" aria-hidden="true">⋮⋮</span>
-                      <div>
-                        <strong>{item.name}</strong>
-                        {item.description && <span>{item.description}</span>}
-                      </div>
-                      {selectedTarget.kind === "offering" && (
-                        <button
-                          type="button"
-                          className="food-composer-availability"
-                          onClick={() => void run(() => updateFoodOffering((item as FoodOffering).id, { available: !(item as FoodOffering).available }))}
-                        >
-                          {(item as FoodOffering).available ? "Available" : "Hidden"}
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        className="food-composer-remove"
-                        aria-label={`Remove ${item.name}`}
-                        onClick={() => removeFood(itemId, assignmentId)}
-                      >
-                        ×
-                      </button>
-                    </article>
-                  );
-                }) : (
-                  <div className="food-composer-empty">
-                    <strong>No food yet.</strong>
-                    <span>Tap a food on the left or drag it here.</span>
-                  </div>
-                )}
-              </div>
+                  <Text
+                    overflow="hidden"
+                    fontSize="10px"
+                    fontWeight="650"
+                    color="#6d7169"
+                    textOverflow="ellipsis"
+                    whiteSpace="nowrap"
+                  >
+                    {selectedTargetItems.length}{" "}
+                    food
+                    {selectedTargetItems.length ===
+                    1
+                      ? ""
+                      : "s"}{" "}
+                    selected
+                  </Text>
+                </Stack>
 
-              {selectedTarget.kind === "meal" && selectedMeal && (
-                <footer className="food-composer-target-footer">
-                  <button
-                    type="button"
-                    className="app-button app-button-danger"
-                    onClick={() => {
-                      if (window.confirm(`Delete ${selectedMeal.title ?? selectedMeal.meal_type_name}?`)) {
-                        void run(async () => {
-                          await deleteEventMeal(selectedMeal.id);
-                          closeComposer();
-                        }, "Food service deleted.");
+                <Text
+                  fontSize="11px"
+                  fontWeight="800"
+                  color="#005d41"
+                >
+                  {mobileSheetOpen
+                    ? "Done"
+                    : "Review"}
+                </Text>
+              </Button>
+
+              <Box
+                minH={{
+                  base: "44px",
+                  md: "56px",
+                }}
+                display={
+                  selectedTarget.kind ===
+                    "meal" &&
+                  selectedMeal?.composition_mode ===
+                    "CUSTOM" &&
+                  currentMenu
+                    ? "flex"
+                    : {
+                        base: "none",
+                        md: "flex",
                       }
-                    }}
+                }
+                alignItems="center"
+                justifyContent="space-between"
+                gap="10px"
+                px="14px"
+                py={{
+                  base: "6px",
+                  md: "10px",
+                }}
+                borderBottomWidth="1px"
+                borderColor="#dddcd5"
+                bg="#ffffff"
+              >
+                <Stack
+                  display={{
+                    base:
+                      selectedTarget.kind ===
+                        "meal" &&
+                      selectedMeal?.composition_mode ===
+                        "CUSTOM" &&
+                      currentMenu
+                        ? "none"
+                        : "flex",
+                    md: "flex",
+                  }}
+                  gap="2px"
+                >
+                  <Text fontWeight="700">
+                    {selectedTargetTitle}
+                  </Text>
+
+                  <Text
+                    fontSize="11px"
+                    color="#6d7169"
                   >
-                    Delete service
-                  </button>
-                </footer>
-              )}
-            </section>
-          </div>
-        </section>
+                    {selectedTargetItems.length}{" "}
+                    food
+                    {selectedTargetItems.length ===
+                    1
+                      ? ""
+                      : "s"}
+                  </Text>
+                </Stack>
+
+                {selectedTarget.kind ===
+                  "meal" &&
+                  selectedMeal?.composition_mode ===
+                    "CUSTOM" &&
+                  currentMenu && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      ml={{
+                        base: "auto",
+                        md: "0",
+                      }}
+                      onClick={() =>
+                        void run(
+                          () =>
+                            resetEventMealItems(
+                              selectedMeal.id,
+                            ),
+                          "Service reset to the event menu.",
+                        )
+                      }
+                    >
+                      Reset to menu
+                    </Button>
+                  )}
+              </Box>
+
+              <Stack
+                gap="0"
+                minH="0"
+                overflow="auto"
+              >
+                {selectedTargetItems.length ? (
+                  selectedTargetItems.map(
+                    (item) => {
+                      const assignmentId =
+                        selectedTarget.kind ===
+                        "offering"
+                          ? (
+                              item as FoodOffering
+                            ).id
+                          : undefined;
+
+                      const itemId =
+                        "item_id" in item
+                          ? item.item_id
+                          : "";
+
+                      const available =
+                        selectedTarget.kind ===
+                        "offering"
+                          ? (
+                              item as FoodOffering
+                            ).available
+                          : true;
+
+                      const dragOver =
+                        dragOverItemId ===
+                        itemId;
+
+                      return (
+                        <Grid
+                          as="article"
+                          key={`${selectedTarget.kind}:${assignmentId ?? itemId}`}
+                          draggable
+                          templateColumns={{
+                            base: "18px minmax(0, 1fr) auto",
+                            md: "18px minmax(0, 1fr) auto auto",
+                          }}
+                          alignItems="center"
+                          gap="2"
+                          minH="48px"
+                          px="3"
+                          py="2"
+                          borderBottomWidth="1px"
+                          borderColor="#dddcd5"
+                          bg="#ffffff"
+                          opacity={
+                            available
+                              ? "1"
+                              : "0.55"
+                          }
+                          boxShadow={
+                            dragOver
+                              ? "inset 0 2px 0 #007854"
+                              : "none"
+                          }
+                          onDragStart={(
+                            event,
+                          ) =>
+                            writeDrag(
+                              event,
+                              {
+                                kind: "target",
+                                itemId,
+                                assignmentId,
+                              },
+                            )
+                          }
+                          onDragOver={(
+                            event,
+                          ) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            setDragOverItemId(
+                              itemId,
+                            );
+                          }}
+                          onDrop={(
+                            event,
+                          ) =>
+                            dropIntoComposer(
+                              event,
+                              item,
+                            )
+                          }
+                        >
+                          <Text
+                            aria-hidden="true"
+                            color="#c8c7bf"
+                            fontSize="13px"
+                            fontWeight="800"
+                            letterSpacing="-0.16em"
+                          >
+                            ⋮⋮
+                          </Text>
+
+                          <Stack
+                            minW="0"
+                            gap="2px"
+                          >
+                            <Text
+                              fontSize="12px"
+                              fontWeight="700"
+                            >
+                              {item.name}
+                            </Text>
+
+                            {item.description && (
+                              <Text
+                                fontSize="10px"
+                                color="#6d7169"
+                              >
+                                {
+                                  item.description
+                                }
+                              </Text>
+                            )}
+                          </Stack>
+
+                          {selectedTarget.kind ===
+                            "offering" && (
+                            <Button
+                              type="button"
+                              size="xs"
+                              variant="outline"
+                              gridColumn={{
+                                base: "2",
+                                md: "auto",
+                              }}
+                              justifySelf={{
+                                base: "start",
+                                md: "auto",
+                              }}
+                              color="#6d7169"
+                              onClick={() =>
+                                void run(
+                                  () =>
+                                    updateFoodOffering(
+                                      (
+                                        item as FoodOffering
+                                      ).id,
+                                      {
+                                        available:
+                                          !(
+                                            item as FoodOffering
+                                          )
+                                            .available,
+                                      },
+                                    ),
+                                )
+                              }
+                            >
+                              {
+                                (
+                                  item as FoodOffering
+                                ).available
+                                  ? "Available"
+                                  : "Hidden"
+                              }
+                            </Button>
+                          )}
+
+                          <Button
+                            type="button"
+                            size="xs"
+                            variant="outline"
+                            minW="28px"
+                            px="0"
+                            fontSize="16px"
+                            color="#6d7169"
+                            aria-label={`Remove ${item.name}`}
+                            onClick={() =>
+                              removeFood(
+                                itemId,
+                                assignmentId,
+                              )
+                            }
+                          >
+                            ×
+                          </Button>
+                        </Grid>
+                      );
+                    },
+                  )
+                ) : (
+                  <Box
+                    minH="220px"
+                    display="grid"
+                    placeContent="center"
+                    gap="1"
+                    p="6"
+                    textAlign="center"
+                  >
+                    <Text fontWeight="700">
+                      No food yet.
+                    </Text>
+
+                    <Text
+                      fontSize="11px"
+                      color="#6d7169"
+                    >
+                      Tap a food on the left or drag it here.
+                    </Text>
+                  </Box>
+                )}
+              </Stack>
+
+              {selectedTarget.kind ===
+                "meal" &&
+                selectedMeal && (
+                  <HStack
+                    justifyContent="flex-end"
+                    px="3"
+                    pt="10px"
+                    pb={{
+                      base:
+                        "calc(10px + env(safe-area-inset-bottom))",
+                      md: "10px",
+                    }}
+                    borderTopWidth="1px"
+                    borderColor="#dddcd5"
+                    bg="#ffffff"
+                  >
+                    <Button
+                      type="button"
+                      colorPalette="red"
+                      variant="outline"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Delete ${selectedMeal.title ?? selectedMeal.meal_type_name}?`,
+                          )
+                        ) {
+                          void run(
+                            async () => {
+                              await deleteEventMeal(
+                                selectedMeal.id,
+                              );
+                              closeComposer();
+                            },
+                            "Food service deleted.",
+                          );
+                        }
+                      }}
+                    >
+                      Delete service
+                    </Button>
+                  </HStack>
+                )}
+            </Box>
+          </Grid>
+        </Box>
       )}
-    </section>
+    </Box>
   );
 }
