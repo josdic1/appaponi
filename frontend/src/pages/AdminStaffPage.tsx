@@ -1,4 +1,21 @@
 import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Checkbox,
+  Field,
+  Grid,
+  Heading,
+  HStack,
+  Input,
+  NativeSelect,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
+import {
   useEffect,
   useMemo,
   useState,
@@ -280,386 +297,564 @@ export default function AdminStaffPage() {
   }
 
   return (
-    <section>
-      <div className="admin-heading">
-        <div>
-          <div className="admin-eyebrow">
-            ADMIN
-          </div>
-
-          <h1>Staff</h1>
-
-          <p>
-            Staff profiles connect login accounts
-            to camp staffing and scheduling.
-          </p>
-        </div>
-      </div>
-
-      {error && (
-        <div className="app-alert app-alert-danger">
-          {error}
-        </div>
-      )}
-
-      <div
-        className={
-          availableAccounts.length
-            ? "admin-grid staff-admin-grid"
-            : "staff-admin-single"
-        }
-      >
-        {availableAccounts.length > 0 && (
-        <section className="app-card">
-          <div className="app-card-head">
-            <div>
-              <strong>Create staff profile</strong>
-              <span>
-                Attach an existing staff login.
-              </span>
-            </div>
-          </div>
-
-          <form
-            className="admin-form"
-            onSubmit={submit}
+    <Box
+      as="section"
+      px={{ base: "4", md: "6" }}
+      py="6"
+      maxW="1400px"
+      mx="auto"
+      w="full"
+    >
+      <Stack gap="6">
+        <Stack gap="1">
+          <Text
+            fontSize="xs"
+            fontWeight="700"
+            color="green.700"
+            letterSpacing="wide"
+            textTransform="uppercase"
           >
-            <label>
-              <span>Account</span>
+            Admin
+          </Text>
 
-              <select
-                value={accountId}
-                onChange={(event) => {
-                  const nextId =
-                    event.target.value;
+          <Heading as="h1" size="2xl">
+            Staff
+          </Heading>
 
-                  setAccountId(nextId);
+          <Text color="gray.600">
+            Staff profiles connect login accounts to camp staffing and
+            scheduling.
+          </Text>
+        </Stack>
 
-                  const account =
-                    availableAccounts.find(
-                      (item) =>
-                        item.id === nextId,
-                    );
+        {error && (
+          <Alert.Root status="error">
+            <Alert.Indicator />
 
-                  if (
-                    account?.display_name
-                  ) {
-                    setFullName(
-                      account.display_name,
-                    );
-                  }
-                }}
-              >
-                <option value="">
-                  Choose staff account
-                </option>
-
-                {availableAccounts.map((item) => (
-                  <option
-                    key={item.id}
-                    value={item.id}
-                  >
-                    {item.display_name ??
-                      item.username}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              <span>Name</span>
-
-              <input
-                value={fullName}
-                onChange={(event) =>
-                  setFullName(event.target.value)
-                }
-              />
-            </label>
-
-            <label>
-              <span>Email</span>
-
-              <input
-                type="email"
-                value={email}
-                onChange={(event) =>
-                  setEmail(event.target.value)
-                }
-              />
-            </label>
-
-            <label>
-              <span>Phone</span>
-
-              <input
-                value={phone}
-                onChange={(event) =>
-                  setPhone(event.target.value)
-                }
-              />
-            </label>
-
-            <label>
-              <span>Role</span>
-
-              <select
-                value={role}
-                onChange={(event) =>
-                  setRole(
-                    event.target.value as StaffRole,
-                  )
-                }
-              >
-                <option value="staff">
-                  Staff
-                </option>
-
-                <option value="manager">
-                  Manager
-                </option>
-              </select>
-            </label>
-
-            <label className="admin-check">
-              <input
-                type="checkbox"
-                checked={babysittingEligible}
-                onChange={(event) =>
-                  setBabysittingEligible(
-                    event.target.checked,
-                  )
-                }
-              />
-
-              <span>
-                Available for babysitting
-              </span>
-            </label>
-
-            <button
-              className="app-button app-button-primary"
-              type="submit"
-            >
-              Create staff profile
-            </button>
-          </form>
-        </section>
+            <Alert.Content>
+              <Alert.Description>
+                {error}
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
         )}
 
-        <section className="app-card staff-directory-card">
-          <div className="app-card-head">
-            <div>
-              <strong>Staff</strong>
-              <span>{staff.length} total</span>
-            </div>
-          </div>
+        <Grid
+          templateColumns={
+            availableAccounts.length
+              ? {
+                  base: "1fr",
+                  lg: "360px minmax(0, 1fr)",
+                }
+              : "1fr"
+          }
+          gap="5"
+          alignItems="start"
+        >
+          {availableAccounts.length > 0 && (
+            <Box
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="xl"
+              bg="white"
+              p={{ base: "4", md: "5" }}
+            >
+              <Stack gap="5">
+                <Box>
+                  <Text fontWeight="700">
+                    Create staff profile
+                  </Text>
 
-          <div className="admin-list">
-            {staff.length ? (
-              staff.map((item) =>
-                editingId === item.id ? (
-                  <form
-                    className="admin-list-row profile-edit-row"
-                    key={item.id}
-                    onSubmit={(event) =>
-                      void saveEdit(
-                        event,
-                        item.id,
-                      )
-                    }
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
                   >
-                    <div className="admin-edit-fields">
-                      <input
-                        aria-label="Staff name"
-                        value={editFullName}
+                    Attach an existing staff login.
+                  </Text>
+                </Box>
+
+                <Box
+                  as="form"
+                  onSubmit={submit}
+                >
+                  <Stack gap="4">
+                    <Field.Root>
+                      <Field.Label>
+                        Account
+                      </Field.Label>
+
+                      <NativeSelect.Root>
+                        <NativeSelect.Field
+                          value={accountId}
+                          onChange={(event) => {
+                            const nextId =
+                              event.target.value;
+
+                            setAccountId(nextId);
+
+                            const account =
+                              availableAccounts.find(
+                                (item) =>
+                                  item.id === nextId,
+                              );
+
+                            if (
+                              account?.display_name
+                            ) {
+                              setFullName(
+                                account.display_name,
+                              );
+                            }
+                          }}
+                        >
+                          <option value="">
+                            Choose staff account
+                          </option>
+
+                          {availableAccounts.map(
+                            (item) => (
+                              <option
+                                key={item.id}
+                                value={item.id}
+                              >
+                                {item.display_name ??
+                                  item.username}
+                              </option>
+                            ),
+                          )}
+                        </NativeSelect.Field>
+
+                        <NativeSelect.Indicator />
+                      </NativeSelect.Root>
+                    </Field.Root>
+
+                    <Field.Root>
+                      <Field.Label>
+                        Name
+                      </Field.Label>
+
+                      <Input
+                        value={fullName}
                         onChange={(event) =>
-                          setEditFullName(
+                          setFullName(
                             event.target.value,
                           )
                         }
                       />
+                    </Field.Root>
 
-                      <input
-                        aria-label="Staff email"
+                    <Field.Root>
+                      <Field.Label>
+                        Email
+                      </Field.Label>
+
+                      <Input
                         type="email"
-                        placeholder="Email"
-                        value={editEmail}
+                        value={email}
                         onChange={(event) =>
-                          setEditEmail(
+                          setEmail(
                             event.target.value,
                           )
                         }
                       />
+                    </Field.Root>
 
-                      <input
-                        aria-label="Staff phone"
-                        placeholder="Phone"
-                        value={editPhone}
+                    <Field.Root>
+                      <Field.Label>
+                        Phone
+                      </Field.Label>
+
+                      <Input
+                        value={phone}
                         onChange={(event) =>
-                          setEditPhone(
+                          setPhone(
                             event.target.value,
                           )
                         }
                       />
+                    </Field.Root>
 
-                      <select
-                        aria-label="Staff role"
-                        value={editRole}
-                        onChange={(event) =>
-                          setEditRole(
-                            event.target
-                              .value as StaffRole,
-                          )
-                        }
-                      >
-                        <option value="staff">
-                          Staff
-                        </option>
+                    <Field.Root>
+                      <Field.Label>
+                        Role
+                      </Field.Label>
 
-                        <option value="manager">
-                          Manager
-                        </option>
-                      </select>
+                      <NativeSelect.Root>
+                        <NativeSelect.Field
+                          value={role}
+                          onChange={(event) =>
+                            setRole(
+                              event.target
+                                .value as StaffRole,
+                            )
+                          }
+                        >
+                          <option value="staff">
+                            Staff
+                          </option>
 
-                      <label className="admin-check">
-                        <input
-                          type="checkbox"
+                          <option value="manager">
+                            Manager
+                          </option>
+                        </NativeSelect.Field>
+
+                        <NativeSelect.Indicator />
+                      </NativeSelect.Root>
+                    </Field.Root>
+
+                    <Checkbox.Root
+                      checked={
+                        babysittingEligible
+                      }
+                      onCheckedChange={(
+                        details,
+                      ) =>
+                        setBabysittingEligible(
+                          details.checked === true,
+                        )
+                      }
+                    >
+                      <Checkbox.HiddenInput />
+                      <Checkbox.Control>
+                        <Checkbox.Indicator />
+                      </Checkbox.Control>
+
+                      <Checkbox.Label>
+                        Available for babysitting
+                      </Checkbox.Label>
+                    </Checkbox.Root>
+
+                    <Button
+                      type="submit"
+                      colorPalette="green"
+                    >
+                      Create staff profile
+                    </Button>
+                  </Stack>
+                </Box>
+              </Stack>
+            </Box>
+          )}
+
+          <Box
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="xl"
+            bg="white"
+            overflow="hidden"
+          >
+            <Box
+              px="5"
+              py="4"
+              borderBottomWidth="1px"
+              borderColor="gray.200"
+            >
+              <Text fontWeight="700">
+                Staff
+              </Text>
+
+              <Text
+                fontSize="sm"
+                color="gray.500"
+              >
+                {staff.length} total
+              </Text>
+            </Box>
+
+            {staff.length ? (
+              <Stack gap="0">
+                {staff.map((item) =>
+                  editingId === item.id ? (
+                    <Box
+                      as="form"
+                      key={item.id}
+                      onSubmit={(event) =>
+                        void saveEdit(
+                          event,
+                          item.id,
+                        )
+                      }
+                      px="5"
+                      py="4"
+                      bg="gray.50"
+                      borderBottomWidth="1px"
+                      borderColor="gray.200"
+                    >
+                      <Stack gap="4">
+                        <SimpleGrid
+                          columns={{
+                            base: 1,
+                            md: 2,
+                          }}
+                          gap="3"
+                        >
+                          <Input
+                            aria-label="Staff name"
+                            placeholder="Name"
+                            value={editFullName}
+                            onChange={(event) =>
+                              setEditFullName(
+                                event.target.value,
+                              )
+                            }
+                          />
+
+                          <Input
+                            aria-label="Staff email"
+                            type="email"
+                            placeholder="Email"
+                            value={editEmail}
+                            onChange={(event) =>
+                              setEditEmail(
+                                event.target.value,
+                              )
+                            }
+                          />
+
+                          <Input
+                            aria-label="Staff phone"
+                            placeholder="Phone"
+                            value={editPhone}
+                            onChange={(event) =>
+                              setEditPhone(
+                                event.target.value,
+                              )
+                            }
+                          />
+
+                          <NativeSelect.Root>
+                            <NativeSelect.Field
+                              aria-label="Staff role"
+                              value={editRole}
+                              onChange={(event) =>
+                                setEditRole(
+                                  event.target
+                                    .value as StaffRole,
+                                )
+                              }
+                            >
+                              <option value="staff">
+                                Staff
+                              </option>
+
+                              <option value="manager">
+                                Manager
+                              </option>
+                            </NativeSelect.Field>
+
+                            <NativeSelect.Indicator />
+                          </NativeSelect.Root>
+                        </SimpleGrid>
+
+                        <Checkbox.Root
                           checked={
                             editBabysittingEligible
                           }
-                          onChange={(event) =>
+                          onCheckedChange={(
+                            details,
+                          ) =>
                             setEditBabysittingEligible(
-                              event.target.checked,
+                              details.checked ===
+                                true,
                             )
                           }
-                        />
+                        >
+                          <Checkbox.HiddenInput />
 
-                        <span>
-                          Babysitting
-                        </span>
-                      </label>
-                    </div>
+                          <Checkbox.Control>
+                            <Checkbox.Indicator />
+                          </Checkbox.Control>
 
-                    <div className="admin-row-actions">
-                      <button
-                        className="app-button"
-                        type="submit"
+                          <Checkbox.Label>
+                            Babysitting
+                          </Checkbox.Label>
+                        </Checkbox.Root>
+
+                        <HStack>
+                          <Button
+                            type="submit"
+                            size="sm"
+                            colorPalette="green"
+                          >
+                            Save
+                          </Button>
+
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={cancelEdit}
+                          >
+                            Cancel
+                          </Button>
+                        </HStack>
+                      </Stack>
+                    </Box>
+                  ) : (
+                    <Box
+                      key={item.id}
+                      px="5"
+                      py="4"
+                      borderBottomWidth="1px"
+                      borderColor="gray.100"
+                    >
+                      <Box
+                        display="flex"
+                        flexDirection={{
+                          base: "column",
+                          xl: "row",
+                        }}
+                        alignItems={{
+                          base: "stretch",
+                          xl: "center",
+                        }}
+                        justifyContent="space-between"
+                        gap="4"
                       >
-                        Save
-                      </button>
+                        <HStack gap="3">
+                          <Box
+                            w="11"
+                            h="11"
+                            flexShrink="0"
+                            display="grid"
+                            placeItems="center"
+                            borderRadius="full"
+                            bg="green.50"
+                            color="green.700"
+                            fontWeight="700"
+                          >
+                            {initials(
+                              item.full_name,
+                            )}
+                          </Box>
 
-                      <button
-                        className="app-button"
-                        type="button"
-                        onClick={cancelEdit}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <div
-                    className="staff-directory-row"
-                    key={item.id}
-                  >
-                    <div className="staff-directory-person">
-                      <span className="staff-directory-avatar">
-                        {initials(
-                          item.full_name,
-                        )}
-                      </span>
+                          <Stack gap="0">
+                            <Text fontWeight="700">
+                              {item.full_name}
+                            </Text>
 
-                      <div>
-                        <strong>
-                          {item.full_name}
-                        </strong>
+                            <Text
+                              fontSize="sm"
+                              color="gray.500"
+                            >
+                              {item.username
+                                ? `@${item.username}`
+                                : "No login account"}
+                            </Text>
+                          </Stack>
+                        </HStack>
 
-                        <small>
-                          {item.username
-                            ? `@${item.username}`
-                            : "No login account"}
-                        </small>
-                      </div>
-                    </div>
-
-                    <div className="staff-directory-chips">
-                      <span className="staff-directory-chip role">
-                        {item.role === "manager"
-                          ? "Manager"
-                          : "Staff"}
-                      </span>
-
-                      {item.babysitting_eligible && (
-                        <span className="staff-directory-chip">
-                          Babysitting
-                        </span>
-                      )}
-
-                      {qualificationsFor(
-                        item.id,
-                      ).map(
-                        (qualification) => (
-                          <span
-                            className="staff-directory-chip"
-                            key={
-                              qualification
+                        <HStack
+                          flexWrap="wrap"
+                          gap="2"
+                        >
+                          <Badge
+                            colorPalette={
+                              item.role ===
+                              "manager"
+                                ? "purple"
+                                : "blue"
                             }
                           >
-                            {
-                              qualification
+                            {item.role ===
+                            "manager"
+                              ? "Manager"
+                              : "Staff"}
+                          </Badge>
+
+                          {item.babysitting_eligible && (
+                            <Badge colorPalette="green">
+                              Babysitting
+                            </Badge>
+                          )}
+
+                          {qualificationsFor(
+                            item.id,
+                          ).map(
+                            (
+                              qualification,
+                            ) => (
+                              <Badge
+                                key={
+                                  qualification
+                                }
+                                colorPalette="gray"
+                              >
+                                {
+                                  qualification
+                                }
+                              </Badge>
+                            ),
+                          )}
+                        </HStack>
+
+                        <Stack
+                          gap="0"
+                          minW={{
+                            xl: "180px",
+                          }}
+                        >
+                          {item.email && (
+                            <Text
+                              fontSize="sm"
+                              color="gray.600"
+                            >
+                              {item.email}
+                            </Text>
+                          )}
+
+                          {item.phone && (
+                            <Text
+                              fontSize="sm"
+                              color="gray.600"
+                            >
+                              {item.phone}
+                            </Text>
+                          )}
+                        </Stack>
+
+                        <HStack>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              beginEdit(item)
                             }
-                          </span>
-                        ),
-                      )}
-                    </div>
+                          >
+                            Edit
+                          </Button>
 
-                    <div className="staff-directory-contact">
-                      {item.email && (
-                        <span>
-                          {item.email}
-                        </span>
-                      )}
-
-                      {item.phone && (
-                        <span>
-                          {item.phone}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="admin-row-actions staff-directory-actions">
-                      <button
-                        className="app-button"
-                        type="button"
-                        onClick={() =>
-                          beginEdit(item)
-                        }
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        className="app-button app-button-danger"
-                        type="button"
-                        onClick={() =>
-                          void remove(item)
-                        }
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ),
-              )
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            colorPalette="red"
+                            onClick={() =>
+                              void remove(item)
+                            }
+                          >
+                            Delete
+                          </Button>
+                        </HStack>
+                      </Box>
+                    </Box>
+                  ),
+                )}
+              </Stack>
             ) : (
-              <div className="app-empty">
-                No staff profiles yet.
-              </div>
+              <Box
+                p="8"
+                textAlign="center"
+              >
+                <Text color="gray.500">
+                  No staff profiles yet.
+                </Text>
+              </Box>
             )}
-          </div>
-        </section>
-      </div>
-    </section>
+          </Box>
+        </Grid>
+      </Stack>
+    </Box>
   );
 }
