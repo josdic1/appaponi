@@ -4,6 +4,18 @@ import {
   useState,
 } from "react";
 
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Grid,
+  HStack,
+  NativeSelect,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
 import type {
   HouseholdMember,
 } from "@appoponi/shared/schemas/householdMembers";
@@ -508,41 +520,76 @@ export default function MemberPage() {
     "Member";
 
   return (
-    <div className="member-app has-section-rail">
-      <header className="member-header">
-        <button
+    <Box
+      minH="100vh"
+      bg="#f6f5f1"
+    >
+      <Box
+        as="header"
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        gap="4"
+        px={{ base: "4", md: "6" }}
+        py="3"
+        bg="white"
+        borderBottomWidth="1px"
+        borderColor="gray.200"
+      >
+        <Button
           type="button"
-          className="app-home-brand member-home-brand"
+          variant="ghost"
+          h="auto"
+          p="1"
+          aria-label="Appaponi home"
           onClick={() =>
             window.scrollTo({
               top: 0,
               behavior: "smooth",
             })
           }
-          aria-label="Appaponi home"
         >
-          <div className="brand-mark">
-            A
-          </div>
+          <HStack gap="3">
+            <Box
+              w="9"
+              h="9"
+              display="grid"
+              placeItems="center"
+              borderRadius="md"
+              bg="green.700"
+              color="white"
+              fontWeight="700"
+            >
+              A
+            </Box>
 
-          <div>
-            <strong>Appaponi</strong>
-            <span>
-              {householdDisplayName}
-            </span>
-          </div>
-        </button>
+            <Stack
+              gap="0"
+              alignItems="flex-start"
+            >
+              <Text fontWeight="700">
+                Appaponi
+              </Text>
 
-        <button
+              <Text
+                fontSize="xs"
+                color="gray.500"
+              >
+                {householdDisplayName}
+              </Text>
+            </Stack>
+          </HStack>
+        </Button>
+
+        <Button
           type="button"
-          className="app-button"
-          onClick={() =>
-            void logout()
-          }
+          size="sm"
+          variant="outline"
+          onClick={() => void logout()}
         >
           Sign out
-        </button>
-      </header>
+        </Button>
+      </Box>
 
       <AppSectionStack
         label="Member sections"
@@ -550,103 +597,144 @@ export default function MemberPage() {
           {
             id: "today",
             label: "Today",
-            targetId:
-              "member-today",
+            targetId: "member-today",
           },
           {
             id: "itinerary",
             label: "Itinerary",
-            targetId:
-              "member-itinerary",
+            targetId: "member-itinerary",
           },
           {
             id: "stay",
             label: "Stay + map",
-            targetId:
-              "member-stay",
+            targetId: "member-stay",
           },
           {
             id: "services",
             label: "Food + services",
-            targetId:
-              "member-services",
+            targetId: "member-services",
           },
           {
             id: "directory",
             label: "Directory",
-            targetId:
-              "member-directory",
+            targetId: "member-directory",
           },
           {
             id: "household",
             label: "Household",
-            targetId:
-              "member-household",
+            targetId: "member-household",
           },
         ]}
       />
 
-      <main className="member-main">
-        {(!online ||
-          usingCachedData) && (
-          <div className="app-alert app-alert-warning">
-            Offline · showing the
-            last saved information.
-            Changes are unavailable.
-          </div>
+      <Box
+        as="main"
+        w="full"
+        maxW="1400px"
+        mx="auto"
+        px={{ base: "4", md: "6" }}
+        py={{ base: "5", md: "7" }}
+      >
+        {(!online || usingCachedData) && (
+          <Alert.Root
+            status="warning"
+            mb="4"
+          >
+            <Alert.Indicator />
+
+            <Alert.Content>
+              <Alert.Description>
+                Offline · showing the last saved information. Changes are unavailable.
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
         )}
 
+        <Box mb="5">
+          <Text
+            as="h1"
+            fontSize={{ base: "27px", md: "30px" }}
+            lineHeight="1.05"
+            letterSpacing="-0.045em"
+            fontWeight="700"
+          >
+            Your stay
+          </Text>
 
-
-        <div className="member-title">
-          <h1>Your stay</h1>
-
-          {registrations.length >
-          1 ? (
-            <select
-              value={activeEventId}
-              onChange={(event) => {
-                setActiveEventId(
-                  event.target.value,
-                );
-                setMapFocusTarget(null);
-              }}
+          {registrations.length > 1 ? (
+            <NativeSelect.Root
+              mt="2"
+              size="sm"
+              w={{ base: "full", md: "320px" }}
             >
-              {registrations.map(
-                (item) => (
+              <NativeSelect.Field
+                aria-label="Current event"
+                value={activeEventId}
+                onChange={(event) => {
+                  setActiveEventId(
+                    event.target.value,
+                  );
+                  setMapFocusTarget(null);
+                }}
+              >
+                {registrations.map((item) => (
                   <option
                     key={item.id}
-                    value={
-                      item.event_id
-                    }
+                    value={item.event_id}
                   >
-                    {
-                      item.event_name
-                    }
+                    {item.event_name}
                   </option>
-                ),
-              )}
-            </select>
+                ))}
+              </NativeSelect.Field>
+
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
           ) : (
-            <p>
-              {registration
-                ?.event_name ??
+            <Text
+              mt="7px"
+              fontSize="13px"
+              lineHeight="1.45"
+              color="#6d7169"
+            >
+              {registration?.event_name ??
                 "No upcoming event"}
-            </p>
+            </Text>
           )}
-        </div>
+        </Box>
 
         {error && (
-          <div className="app-alert app-alert-danger app-alert-sticky" role="alert">
-            {error}
-          </div>
+          <Alert.Root
+            status="error"
+            role="alert"
+            mb="4"
+          >
+            <Alert.Indicator />
+
+            <Alert.Content>
+              <Alert.Description>
+                {error}
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
         )}
 
         {!registration ? (
-          <section className="app-card member-card app-empty">
-            This household is not
-            registered for an event yet.
-          </section>
+          <Box
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="white"
+            px="5"
+            py="8"
+            textAlign="center"
+          >
+            <Text
+              fontSize="12px"
+              color="#6d7169"
+            >
+              This household is not registered for an event yet.
+            </Text>
+          </Box>
         ) : (
           <>
             <MemberToday
@@ -657,11 +745,15 @@ export default function MemberPage() {
               signups={eventSignups}
               unreadNotifications={unreadNotifications}
               onOpenItinerary={() =>
-                scrollToMemberSection("member-itinerary")
+                scrollToMemberSection(
+                  "member-itinerary",
+                )
               }
               onOpenMeal={openMealDetails}
               onOpenStay={() =>
-                scrollToMemberSection("member-stay")
+                scrollToMemberSection(
+                  "member-stay",
+                )
               }
               onOpenNotices={() =>
                 scrollToMemberSection(
@@ -672,68 +764,121 @@ export default function MemberPage() {
               }
             />
 
-        {unreadNotifications.length >
-          0 && (
-          <section
-            id="member-priority-notices"
-            className="member-priority-notices member-scroll-target"
-            aria-label="Unread notices"
-          >
-            <div className="member-priority-notices-head">
-              <strong>
-                {unreadNotifications.length ===
-                1
-                  ? "New notice"
-                  : `${unreadNotifications.length} new notices`}
-              </strong>
-            </div>
-
-            {unreadNotifications.map(
-              (notice) => (
-                <article
-                  className="member-priority-notice"
-                  key={notice.id}
+            {unreadNotifications.length > 0 && (
+              <Box
+                as="section"
+                id="member-priority-notices"
+                aria-label="Unread notices"
+                scrollMarginTop={{
+                  base: "128px",
+                  md: "84px",
+                }}
+                mb="18px"
+                overflow="hidden"
+                borderWidth="1px"
+                borderColor="#b7ddcf"
+                borderRadius="12px"
+                bg="#e7f3ef"
+              >
+                <Box
+                  minH="38px"
+                  display="flex"
+                  alignItems="center"
+                  px="13px"
+                  py="8px"
+                  borderBottomWidth="1px"
+                  borderColor="#cce5dc"
                 >
-                  <div>
-                    <strong>
-                      {notice.title}
-                    </strong>
-
-                    <span>
-                      {notice.body}
-                    </span>
-
-                    <small>
-                      {new Date(
-                        notice.created_at,
-                      ).toLocaleString()}
-                    </small>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="app-button"
-                    disabled={
-                      !online ||
-                      usingCachedData
-                    }
-                    onClick={() =>
-                      void readNotice(
-                        notice,
-                      )
-                    }
+                  <Text
+                    color="#005d41"
+                    fontSize="10px"
+                    fontWeight="800"
+                    letterSpacing="0.06em"
+                    textTransform="uppercase"
                   >
-                    Mark read
-                  </button>
-                </article>
-              ),
-            )}
-          </section>
-        )}
+                    {unreadNotifications.length === 1
+                      ? "New notice"
+                      : `${unreadNotifications.length} new notices`}
+                  </Text>
+                </Box>
 
-            <div
+                <Stack gap="0">
+                  {unreadNotifications.map(
+                    (notice) => (
+                      <Box
+                        as="article"
+                        key={notice.id}
+                        minH="66px"
+                        display="flex"
+                        flexDirection={{
+                          base: "column",
+                          sm: "row",
+                        }}
+                        alignItems={{
+                          base: "flex-start",
+                          sm: "center",
+                        }}
+                        justifyContent="space-between"
+                        gap="3"
+                        px="13px"
+                        py="11px"
+                        borderBottomWidth="1px"
+                        borderColor="#cce5dc"
+                      >
+                        <Stack
+                          minW="0"
+                          gap="3px"
+                        >
+                          <Text fontWeight="700">
+                            {notice.title}
+                          </Text>
+
+                          <Text
+                            fontSize="11px"
+                            color="#6d7169"
+                          >
+                            {notice.body}
+                          </Text>
+
+                          <Text
+                            fontSize="11px"
+                            color="#6d7169"
+                          >
+                            {new Date(
+                              notice.created_at,
+                            ).toLocaleString()}
+                          </Text>
+                        </Stack>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={
+                            !online ||
+                            usingCachedData
+                          }
+                          onClick={() =>
+                            void readNotice(
+                              notice,
+                            )
+                          }
+                        >
+                          Mark read
+                        </Button>
+                      </Box>
+                    ),
+                  )}
+                </Stack>
+              </Box>
+            )}
+
+            <Box
               id="member-itinerary"
-              className="member-scroll-target"
+              scrollMarginTop={{
+                base: "128px",
+                md: "84px",
+              }}
             >
               <FamilyItinerary
                 activities={eventActivities}
@@ -747,131 +892,281 @@ export default function MemberPage() {
                 onToggleSignup={
                   toggleItinerarySignup
                 }
-                onShowOnMap={
-                  showOnMap
-                }
-                onOpenMeal={
-                  openMealDetails
-                }
+                onShowOnMap={showOnMap}
+                onOpenMeal={openMealDetails}
               />
-            </div>
+            </Box>
 
-            <div
+            <Grid
               id="member-stay"
-              className="member-scroll-target member-stay-grid"
+              scrollMarginTop={{
+                base: "128px",
+                md: "84px",
+              }}
+              templateColumns={{
+                base: "1fr",
+                xl: "minmax(270px, .48fr) minmax(0, 1fr)",
+              }}
+              alignItems="start"
+              gap="14px"
+              mb="18px"
             >
-              <section className="app-card member-card member-stay-card">
-                <div className="app-card-head">
-                  <div>
-                    <strong>Your stay</strong>
-                    <span>
+              <Box
+                as="section"
+                overflow="hidden"
+                borderWidth="1px"
+                borderColor="#dddcd5"
+                borderRadius="12px"
+                bg="white"
+              >
+                <Box
+                  minH="58px"
+                  display="flex"
+                  alignItems="center"
+                  px="4"
+                  py="13px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                >
+                  <Stack gap="3px">
+                    <Text fontWeight="700">
+                      Your stay
+                    </Text>
+
+                    <Text
+                      fontSize="11px"
+                      color="#6d7169"
+                    >
                       {registration.cabin_name
                         ? `${registration.cabin_name} · ${eventAttendees.length}/${registration.spots_paid_for} attending`
                         : `${eventAttendees.length}/${registration.spots_paid_for} attending · Cabin not assigned`}
-                    </span>
-                  </div>
-                </div>
+                    </Text>
+                  </Stack>
+                </Box>
 
-                <div className="member-profile-list member-attendance-list">
+                <Stack
+                  gap="0"
+                  p="6px"
+                >
                   {household.map((person) => {
-                    const attendee = attendeeByMember.get(person.id);
+                    const attendee =
+                      attendeeByMember.get(
+                        person.id,
+                      );
 
                     return (
-                      <button
-                        type="button"
+                      <Button
                         key={person.id}
-                        className={`member-attendee ${attendee ? "active" : ""}`}
-                        disabled={!online || usingCachedData}
+                        type="button"
+                        variant="ghost"
+                        w="full"
+                        minH="48px"
+                        h="auto"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        gap="3"
+                        px="10px"
+                        py="8px"
+                        borderRadius="0"
+                        borderBottomWidth="1px"
+                        borderColor="#dddcd5"
+                        bg={
+                          attendee
+                            ? "#e7f3ef"
+                            : "transparent"
+                        }
+                        textAlign="left"
+                        disabled={
+                          !online ||
+                          usingCachedData
+                        }
                         onClick={() =>
                           void run(() =>
                             attendee
-                              ? removeAttendee(attendee.id)
+                              ? removeAttendee(
+                                  attendee.id,
+                                )
                               : addAttendee(
-                                  Number(person.id),
-                                  Number(registration.event_id),
+                                  Number(
+                                    person.id,
+                                  ),
+                                  Number(
+                                    registration.event_id,
+                                  ),
                                 ),
                           )
                         }
                       >
-                        <span>
-                          <strong>{person.full_name}</strong>
-                          <small>{memberRoleLabel(person.member_role)}</small>
-                        </span>
+                        <Stack
+                          minW="0"
+                          gap="2px"
+                          alignItems="flex-start"
+                        >
+                          <Text fontWeight="700">
+                            {person.full_name}
+                          </Text>
 
-                        <b className="member-attendee-state">
-                          {attendee ? "Going" : "Not going"}
-                        </b>
-                      </button>
+                          <Text
+                            fontSize="10px"
+                            color="#6d7169"
+                          >
+                            {memberRoleLabel(
+                              person.member_role,
+                            )}
+                          </Text>
+                        </Stack>
+
+                        <Text
+                          fontSize="10px"
+                          fontWeight="750"
+                          color={
+                            attendee
+                              ? "#005d41"
+                              : "#6d7169"
+                          }
+                        >
+                          {attendee
+                            ? "Going"
+                            : "Not going"}
+                        </Text>
+                      </Button>
                     );
                   })}
-                </div>
+                </Stack>
 
-                <div className="app-record-row member-household-lead-row">
-                  <div className="app-record-copy">
-                    <strong>Household lead</strong>
-                    <span>
+                <Grid
+                  templateColumns={{
+                    base: "1fr",
+                    md: "minmax(0, 1fr) auto",
+                  }}
+                  alignItems="center"
+                  gap="3"
+                  px="4"
+                  py="3"
+                  borderTopWidth="1px"
+                  borderColor="#dddcd5"
+                >
+                  <Stack
+                    minW="0"
+                    gap="1"
+                  >
+                    <Text fontWeight="700">
+                      Household lead
+                    </Text>
+
+                    <Text
+                      fontSize="11px"
+                      color="#6d7169"
+                    >
                       Camp&apos;s lead contact for this event. This does not change who can use the shared household login.
-                    </span>
-                  </div>
+                    </Text>
+                  </Stack>
 
-                  <div className="app-record-actions">
-                    {householdLeadCandidates.length ? (
-                      <select
+                  {householdLeadCandidates.length ? (
+                    <NativeSelect.Root
+                      size="sm"
+                      w={{
+                        base: "full",
+                        md: "220px",
+                      }}
+                      disabled={
+                        !online ||
+                        usingCachedData
+                      }
+                    >
+                      <NativeSelect.Field
                         aria-label="Household lead"
-                        value={registration.household_lead_member_id ?? ""}
-                        disabled={!online || usingCachedData}
+                        value={
+                          registration.household_lead_member_id ??
+                          ""
+                        }
                         onChange={(event) =>
                           void run(() =>
                             updateEventHouseholdLead(
-                              Number(registration.event_id),
-                              Number(event.target.value),
+                              Number(
+                                registration.event_id,
+                              ),
+                              Number(
+                                event.target.value,
+                              ),
                             ),
                           )
                         }
                       >
-                        <option value="" disabled>
+                        <option
+                          value=""
+                          disabled
+                        >
                           Choose adult
                         </option>
 
-                        {householdLeadCandidates.map((person) => (
-                          <option key={person.member_id} value={person.member_id}>
-                            {person.full_name}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <span className="app-badge">Choose an attending adult</span>
-                    )}
-                  </div>
-                </div>
-              </section>
+                        {householdLeadCandidates.map(
+                          (person) => (
+                            <option
+                              key={
+                                person.member_id
+                              }
+                              value={
+                                person.member_id
+                              }
+                            >
+                              {person.full_name}
+                            </option>
+                          ),
+                        )}
+                      </NativeSelect.Field>
 
-              <div id="member-map" className="member-map-in-stay">
+                      <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                  ) : (
+                    <Badge>
+                      Choose an attending adult
+                    </Badge>
+                  )}
+                </Grid>
+              </Box>
+
+              <Box
+                id="member-map"
+                minW="0"
+              >
                 <MemberCampMap
                   registration={registration}
-                  focusTarget={mapFocusTarget}
+                  focusTarget={
+                    mapFocusTarget
+                  }
                 />
-              </div>
-            </div>
+              </Box>
+            </Grid>
           </>
         )}
 
-        <div
+        <Box
           id="member-services"
-          className="member-scroll-target"
+          scrollMarginTop={{
+            base: "128px",
+            md: "84px",
+          }}
         >
           <MemberServicesPanel
             activeEventId={activeEventId}
             registration={registration}
             household={household}
-            mealOpenRequest={mealOpenRequest}
+            mealOpenRequest={
+              mealOpenRequest
+            }
           />
-        </div>
+        </Box>
 
         {registration && (
-          <div
+          <Box
             id="member-directory"
-            className="member-scroll-target member-directory-section"
+            scrollMarginTop={{
+              base: "128px",
+              md: "84px",
+            }}
+            mt="18px"
           >
             <MemberDirectory
               eventId={activeEventId}
@@ -884,20 +1179,27 @@ export default function MemberPage() {
                 usingCachedData
               }
             />
-          </div>
+          </Box>
         )}
 
-        <div
+        <Box
           id="member-household"
-          className="member-scroll-target member-household-settings"
+          scrollMarginTop={{
+            base: "128px",
+            md: "84px",
+          }}
+          mt="26px"
         >
           <MemberHouseholdPanel
             household={household}
-            disabled={!online || usingCachedData}
+            disabled={
+              !online ||
+              usingCachedData
+            }
             onChanged={refresh}
           />
-        </div>
-      </main>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
