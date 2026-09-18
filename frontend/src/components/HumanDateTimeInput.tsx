@@ -1,4 +1,9 @@
 import {
+  Box,
+  Input,
+  Text,
+} from "@chakra-ui/react";
+import {
   useRef,
   useState,
   type ChangeEvent,
@@ -80,6 +85,7 @@ export default function HumanDateTimeInput({
           defaultDate,
         ),
       );
+
       setInvalid(false);
     } catch {
       setInvalid(true);
@@ -123,6 +129,7 @@ export default function HumanDateTimeInput({
             defaultDate,
           ),
         );
+
         setInvalid(false);
       } catch {
         onChange(nextValue);
@@ -167,15 +174,10 @@ export default function HumanDateTimeInput({
   }
 
   return (
-    <span className="appoponi-datetime">
-      <span className="appoponi-datetime-control">
-        <input
+    <Box w="full">
+      <Box position="relative">
+        <Input
           ref={textInputRef}
-          className={
-            invalid
-              ? "appoponi-datetime-input invalid"
-              : "appoponi-datetime-input"
-          }
           type="text"
           inputMode="text"
           autoComplete="off"
@@ -184,14 +186,36 @@ export default function HumanDateTimeInput({
           placeholder={placeholder}
           disabled={disabled}
           aria-invalid={invalid}
+          borderColor={
+            invalid
+              ? "red.500"
+              : undefined
+          }
+          pr="11"
           onChange={handleChange}
           onBlur={normalize}
           onKeyDown={handleKeyDown}
         />
 
-        <span
-          className="appoponi-datetime-calendar"
-          aria-hidden="true"
+        <Box
+          position="absolute"
+          right="2"
+          top="50%"
+          transform="translateY(-50%)"
+          w="8"
+          h="8"
+          display="grid"
+          placeItems="center"
+          color={
+            disabled
+              ? "gray.300"
+              : "gray.500"
+          }
+          pointerEvents={
+            disabled
+              ? "none"
+              : "auto"
+          }
         >
           <svg
             viewBox="0 0 24 24"
@@ -202,6 +226,7 @@ export default function HumanDateTimeInput({
             strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
+            aria-hidden="true"
           >
             <path d="M7 3v3M17 3v3M4 9h16" />
             <rect
@@ -213,21 +238,30 @@ export default function HumanDateTimeInput({
             />
           </svg>
 
-          <input
-            className="appoponi-datetime-date-picker"
+          <Input
+            position="absolute"
+            inset="0"
+            w="full"
+            h="full"
             type="date"
+            opacity="0"
+            cursor="pointer"
             aria-label="Choose date"
             disabled={disabled}
             onChange={handleDatePick}
           />
-        </span>
-      </span>
+        </Box>
+      </Box>
 
       {invalid && (
-        <small className="appoponi-datetime-hint">
+        <Text
+          mt="1"
+          fontSize="xs"
+          color="red.600"
+        >
           Try 11a, 230p, or 9/5 7p.
-        </small>
+        </Text>
       )}
-    </span>
+    </Box>
   );
 }
