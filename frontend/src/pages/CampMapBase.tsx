@@ -115,6 +115,10 @@ export function CampCabinShape({
         width={slot.width}
         height={slot.height}
         rx={7}
+        fill="transparent"
+        stroke="transparent"
+        strokeWidth={1.5}
+        vectorEffect="non-scaling-stroke"
       />
     </g>
   );
@@ -138,6 +142,9 @@ export default function CampMapBase() {
         y="0"
         width={CAMP_MAP_WIDTH}
         height={CAMP_MAP_HEIGHT}
+        fill="#ffffff"
+        opacity={0.025}
+        pointerEvents="none"
       />
     </g>
   );
