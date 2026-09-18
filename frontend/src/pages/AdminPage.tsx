@@ -1,3 +1,10 @@
+import {
+  Box,
+  Button,
+  HStack,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import AppSectionStack from "../components/AppSectionStack";
@@ -413,10 +420,23 @@ export default function AdminPage() {
 
   return (
     <div className="admin-page has-section-rail">
-      <header className="app-header">
-        <button
+      <Box
+        as="header"
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        gap="4"
+        px={{ base: "4", md: "6" }}
+        py="3"
+        bg="white"
+        borderBottomWidth="1px"
+        borderColor="gray.200"
+      >
+        <Button
           type="button"
-          className="app-header-brand app-home-brand"
+          variant="ghost"
+          h="auto"
+          p="1"
           aria-label="Appaponi home"
           onClick={() => {
             setSection("event");
@@ -426,75 +446,197 @@ export default function AdminPage() {
             });
           }}
         >
-          <div className="brand-mark">A</div>
-          <div>
-            <strong>Appaponi</strong>
-            <span>Admin</span>
-          </div>
-        </button>
+          <HStack gap="3">
+            <Box
+              w="9"
+              h="9"
+              display="grid"
+              placeItems="center"
+              borderRadius="md"
+              bg="green.700"
+              color="white"
+              fontWeight="700"
+            >
+              A
+            </Box>
 
-        <div className="app-header-actions">
-          <div className="admin-dev-control">
-              <button
-                type="button"
-                className="admin-dev-trigger"
-                onClick={() => setShowDevTools((current) => !current)}
+            <Stack
+              gap="0"
+              alignItems="flex-start"
+            >
+              <Text fontWeight="700">
+                Appaponi
+              </Text>
+
+              <Text
+                fontSize="xs"
+                color="gray.500"
               >
-                DEV
-              </button>
+                Admin
+              </Text>
+            </Stack>
+          </HStack>
+        </Button>
 
-              {showDevTools && (
-                <div className="admin-dev-menu">
-                  <div className="admin-dev-menu-head">
-                    <strong>Demo data</strong>
-                    <span>
-                      {demoBusy ? "Working…" : demoMessage || "Ready"}
-                    </span>
-                  </div>
+        <HStack gap="3">
+          <Box position="relative">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                setShowDevTools(
+                  (current) => !current,
+                )
+              }
+            >
+              DEV
+            </Button>
 
-                  <button
+            {showDevTools && (
+              <Box
+                position="absolute"
+                top="calc(100% + 8px)"
+                right="0"
+                zIndex="dropdown"
+                w="320px"
+                maxW="calc(100vw - 32px)"
+                bg="white"
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="lg"
+                boxShadow="lg"
+                p="3"
+              >
+                <Stack gap="3">
+                  <Box>
+                    <Text fontWeight="700">
+                      Demo data
+                    </Text>
+
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                    >
+                      {demoBusy
+                        ? "Working…"
+                        : demoMessage || "Ready"}
+                    </Text>
+                  </Box>
+
+                  <Button
                     type="button"
-                    className="danger"
+                    variant="outline"
+                    colorPalette="red"
+                    h="auto"
+                    py="3"
+                    justifyContent="flex-start"
                     disabled={demoBusy !== null}
-                    onClick={() => void runDemo("clear-people-events")}
+                    onClick={() =>
+                      void runDemo(
+                        "clear-people-events",
+                      )
+                    }
                   >
-                    <strong>Clear people + events</strong>
-                    <span>Keep admin + reusable setup</span>
-                  </button>
+                    <Stack
+                      gap="0"
+                      alignItems="flex-start"
+                    >
+                      <Text fontWeight="700">
+                        Clear people + events
+                      </Text>
 
-                  <button
+                      <Text
+                        fontSize="xs"
+                        fontWeight="400"
+                      >
+                        Keep admin + reusable setup
+                      </Text>
+                    </Stack>
+                  </Button>
+
+                  <Button
                     type="button"
+                    variant="outline"
+                    h="auto"
+                    py="3"
+                    justifyContent="flex-start"
                     disabled={demoBusy !== null}
-                    onClick={() => void runDemo("clear-guests-events")}
+                    onClick={() =>
+                      void runDemo(
+                        "clear-guests-events",
+                      )
+                    }
                   >
-                    <strong>Clear guests + events</strong>
-                    <span>Keep admin + staff + reusable setup</span>
-                  </button>
+                    <Stack
+                      gap="0"
+                      alignItems="flex-start"
+                    >
+                      <Text fontWeight="700">
+                        Clear guests + events
+                      </Text>
 
-                  <button
+                      <Text
+                        fontSize="xs"
+                        fontWeight="400"
+                      >
+                        Keep admin + staff + reusable setup
+                      </Text>
+                    </Stack>
+                  </Button>
+
+                  <Button
                     type="button"
-                    className="primary"
+                    colorPalette="green"
+                    h="auto"
+                    py="3"
+                    justifyContent="flex-start"
                     disabled={demoBusy !== null}
-                    onClick={() => void runDemo("seed-family-camp")}
+                    onClick={() =>
+                      void runDemo(
+                        "seed-family-camp",
+                      )
+                    }
                   >
-                    <strong>Family Camp demo</strong>
-                    <span>Keep setup; load Aug 19–22 sample</span>
-                  </button>
-                </div>
-              )}
-          </div>
+                    <Stack
+                      gap="0"
+                      alignItems="flex-start"
+                    >
+                      <Text fontWeight="700">
+                        Family Camp demo
+                      </Text>
 
-          <span>@{account?.username}</span>
+                      <Text
+                        fontSize="xs"
+                        fontWeight="400"
+                      >
+                        Keep setup; load Aug 19–22 sample
+                      </Text>
+                    </Stack>
+                  </Button>
+                </Stack>
+              </Box>
+            )}
+          </Box>
 
-          <button
+          <Text
+            display={{ base: "none", md: "block" }}
+            fontSize="sm"
+            color="gray.600"
+          >
+            @{account?.username}
+          </Text>
+
+          <Button
             type="button"
-            className="app-button"
+            size="sm"
+            variant="outline"
             onClick={() => void logout()}
           >
             Sign out
-          </button>
-        </div>
-      </header>
+          </Button>
+        </HStack>
+      </Box>
 
       <AppSectionStack
         label="Admin sections"
