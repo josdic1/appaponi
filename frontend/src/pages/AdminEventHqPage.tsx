@@ -1,4 +1,18 @@
 import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Grid,
+  Heading,
+  HStack,
+  NativeSelect,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
+import {
   useEffect,
   useMemo,
   useState,
@@ -387,169 +401,336 @@ export default function AdminEventHqPage({
       return rows;
     }, [hq]);
 
+
   return (
-    <section className="event-hq">
-      <div className="event-hq-heading">
-        <div>
-          <div className="admin-eyebrow">
-            EVENT HQ
-          </div>
-
-          <h1>
-            {hq?.event.name ??
-              "Event HQ"}
-          </h1>
-
-          {hq && (
-            <p>
-              {hq.event.event_type_name}
-              {" · "}
-              {eventDateRange(
-                hq.event,
-              )}
-            </p>
-          )}
-        </div>
-
-        {events.length > 1 && (
-          <label className="event-hq-selector">
-            <span>Event</span>
-
-            <select
-              value={selectedEventId}
-              onChange={(event) => {
-                const next = event.target.value;
-                setSelectedEventId(next);
-                onActiveEventChange?.(next);
-              }}
+    <Box
+      as="section"
+      className="event-hq"
+      px={{ base: "4", md: "6" }}
+      py="6"
+      maxW="1400px"
+      mx="auto"
+      w="full"
+    >
+      <Stack gap="6">
+        <Box
+          display="flex"
+          flexDirection={{ base: "column", md: "row" }}
+          alignItems={{ base: "stretch", md: "flex-end" }}
+          justifyContent="space-between"
+          gap="4"
+        >
+          <Stack gap="1">
+            <Text
+              fontSize="xs"
+              fontWeight="700"
+              color="green.700"
+              letterSpacing="wide"
+              textTransform="uppercase"
             >
-              {events.map(
-                (event) => (
-                  <option
-                    key={event.id}
-                    value={event.id}
-                  >
-                    {event.name}
-                  </option>
-                ),
-              )}
-            </select>
-          </label>
+              Event HQ
+            </Text>
+
+            <Heading as="h1" size="2xl">
+              {hq?.event.name ?? "Event HQ"}
+            </Heading>
+
+            {hq && (
+              <Text color="gray.600">
+                {hq.event.event_type_name}
+                {" · "}
+                {eventDateRange(hq.event)}
+              </Text>
+            )}
+          </Stack>
+
+          {events.length > 1 && (
+            <Box w={{ base: "full", md: "280px" }}>
+              <Text
+                fontSize="sm"
+                fontWeight="600"
+                mb="1"
+              >
+                Event
+              </Text>
+
+              <NativeSelect.Root>
+                <NativeSelect.Field
+                  value={selectedEventId}
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    setSelectedEventId(next);
+                    onActiveEventChange?.(next);
+                  }}
+                >
+                  {events.map((event) => (
+                    <option
+                      key={event.id}
+                      value={event.id}
+                    >
+                      {event.name}
+                    </option>
+                  ))}
+                </NativeSelect.Field>
+
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
+            </Box>
+          )}
+        </Box>
+
+        {error && (
+          <Alert.Root status="error">
+            <Alert.Indicator />
+
+            <Alert.Content>
+              <Alert.Description>
+                {error}
+              </Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
         )}
-      </div>
 
-      {error && (
-        <div className="app-alert app-alert-danger">
-          {error}
-        </div>
-      )}
-
-      {loading && !hq ? (
-        <div className="app-empty">
-          Loading Event HQ…
-        </div>
-      ) : !hq ? (
-        <section className="app-empty-state">
-          <strong>No event yet</strong>
-
-          <span>
-            Create your first event to start using Event HQ.
-          </span>
-
-          <button
-            type="button"
-            className="app-button app-button-primary"
-            onClick={() =>
-              onNavigate(
-                "operations",
-              )
-            }
+        {loading && !hq ? (
+          <Box
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="xl"
+            bg="white"
+            p="8"
+            textAlign="center"
           >
-            Create event
-          </button>
-        </section>
-      ) : (
-        <>
-          <div className="event-hq-metrics event-hq-metrics-compact">
-            <article>
-              <span>Guests</span>
-              <strong>
-                {hq.metrics.people}/{hq.metrics.paid_spots}
-              </strong>
-              <small>attending / paid</small>
-            </article>
+            <Text color="gray.500">
+              Loading Event HQ…
+            </Text>
+          </Box>
+        ) : !hq ? (
+          <Box
+            borderWidth="1px"
+            borderStyle="dashed"
+            borderColor="gray.300"
+            borderRadius="xl"
+            p="10"
+            textAlign="center"
+          >
+            <Stack gap="3" alignItems="center">
+              <Heading as="h2" size="lg">
+                No event yet
+              </Heading>
 
-            <article>
-              <span>Cabins</span>
-              <strong>
-                {hq.metrics.cabins_assigned}/{hq.metrics.households}
-              </strong>
-              <small>households placed</small>
-            </article>
+              <Text color="gray.600">
+                Create your first event to start using Event HQ.
+              </Text>
 
-            <article>
-              <span>Staffing</span>
-              <strong>
-                {Math.max(
-                  hq.metrics.activities - hq.metrics.unstaffed_activities,
-                  0,
-                )}/{hq.metrics.activities}
-              </strong>
-              <small>activities covered</small>
-            </article>
+              <Button
+                type="button"
+                colorPalette="green"
+                onClick={() =>
+                  onNavigate("operations")
+                }
+              >
+                Create event
+              </Button>
+            </Stack>
+          </Box>
+        ) : (
+          <Stack gap="6">
+            <SimpleGrid
+              columns={{
+                base: 2,
+                lg: 4,
+              }}
+              gap="4"
+            >
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                p="4"
+              >
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                >
+                  Guests
+                </Text>
 
-            <article>
-              <span>Food</span>
-              <strong>{hq.metrics.meals}</strong>
-              <small>
-                {hq.metrics.meals === 0
-                  ? "no food services scheduled"
-                  : hq.metrics.food_services_unready === 0
-                    ? "services · food ready"
-                    : `${hq.metrics.food_services_unready} ${
-                        hq.metrics.food_services_unready === 1
-                          ? "service needs food"
-                          : "services need food"
-                      }`}
-              </small>
-            </article>
-          </div>
+                <Text
+                  fontSize="2xl"
+                  fontWeight="700"
+                >
+                  {hq.metrics.people}/
+                  {hq.metrics.paid_spots}
+                </Text>
 
-          <div className="event-hq-layout">
-            <section className="app-card event-hq-overview">
-              <div className="app-card-head event-hq-card-head">
-                <div>
-                  <strong>
-                    At a glance
-                  </strong>
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                >
+                  attending / paid
+                </Text>
+              </Box>
 
-                  <span>
-                    What needs attention
-                    before or during this
-                    event.
-                  </span>
-                </div>
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                p="4"
+              >
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                >
+                  Cabins
+                </Text>
 
-                {hq.metrics.unread_notices >
-                  0 && (
-                  <b className="event-hq-notice-count">
-                    {
-                      hq.metrics
-                        .unread_notices
-                    }{" "}
-                    unread notices
-                  </b>
-                )}
-              </div>
+                <Text
+                  fontSize="2xl"
+                  fontWeight="700"
+                >
+                  {hq.metrics.cabins_assigned}/
+                  {hq.metrics.households}
+                </Text>
 
-              {attention.length ? (
-                <div className="event-hq-attention-list">
-                  {attention.map(
-                    (item) => (
-                      <button
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                >
+                  households placed
+                </Text>
+              </Box>
+
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                p="4"
+              >
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                >
+                  Staffing
+                </Text>
+
+                <Text
+                  fontSize="2xl"
+                  fontWeight="700"
+                >
+                  {Math.max(
+                    hq.metrics.activities -
+                      hq.metrics.unstaffed_activities,
+                    0,
+                  )}
+                  /{hq.metrics.activities}
+                </Text>
+
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                >
+                  activities covered
+                </Text>
+              </Box>
+
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                p="4"
+              >
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                >
+                  Food
+                </Text>
+
+                <Text
+                  fontSize="2xl"
+                  fontWeight="700"
+                >
+                  {hq.metrics.meals}
+                </Text>
+
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                >
+                  {hq.metrics.meals === 0
+                    ? "no food services scheduled"
+                    : hq.metrics.food_services_unready === 0
+                      ? "services · food ready"
+                      : `${hq.metrics.food_services_unready} ${
+                          hq.metrics.food_services_unready === 1
+                            ? "service needs food"
+                            : "services need food"
+                        }`}
+                </Text>
+              </Box>
+            </SimpleGrid>
+
+            <Grid
+              templateColumns={{
+                base: "1fr",
+                lg: "minmax(0, 1.2fr) minmax(0, 1fr)",
+              }}
+              gap="5"
+              alignItems="start"
+            >
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                overflow="hidden"
+              >
+                <Box
+                  display="flex"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  gap="4"
+                  px="5"
+                  py="4"
+                  borderBottomWidth="1px"
+                  borderColor="gray.200"
+                >
+                  <Box>
+                    <Text fontWeight="700">
+                      At a glance
+                    </Text>
+
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                    >
+                      What needs attention before or during this event.
+                    </Text>
+                  </Box>
+
+                  {hq.metrics.unread_notices > 0 && (
+                    <Badge colorPalette="orange">
+                      {hq.metrics.unread_notices} unread notices
+                    </Badge>
+                  )}
+                </Box>
+
+                {attention.length ? (
+                  <Stack gap="0">
+                    {attention.map((item) => (
+                      <Button
                         key={item.id}
                         type="button"
-                        className="event-hq-attention-row"
+                        variant="ghost"
+                        h="auto"
+                        borderRadius="0"
+                        justifyContent="stretch"
+                        px="5"
+                        py="4"
                         onClick={() =>
                           onNavigate(
                             item.destination,
@@ -557,181 +738,298 @@ export default function AdminEventHqPage({
                           )
                         }
                       >
-                        <span
-                          className="event-hq-attention-dot"
-                          aria-hidden="true"
-                        />
-                        <strong>
-                          {item.label}
-                        </strong>
-                        <span className="event-hq-attention-action">
-                          Open
-                        </span>
-                      </button>
+                        <HStack
+                          w="full"
+                          justifyContent="space-between"
+                          gap="4"
+                        >
+                          <HStack gap="3">
+                            <Box
+                              w="2"
+                              h="2"
+                              borderRadius="full"
+                              bg="orange.500"
+                              flexShrink="0"
+                            />
+
+                            <Text
+                              fontWeight="600"
+                              textAlign="left"
+                            >
+                              {item.label}
+                            </Text>
+                          </HStack>
+
+                          <Text
+                            fontSize="sm"
+                            color="gray.500"
+                            fontWeight="500"
+                          >
+                            Open
+                          </Text>
+                        </HStack>
+                      </Button>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Box p="6">
+                    <Text fontWeight="700">
+                      No immediate gaps.
+                    </Text>
+
+                    <Text
+                      mt="1"
+                      fontSize="sm"
+                      color="gray.500"
+                    >
+                      Guest spots, cabins, staffing, meals, and active
+                      services are covered.
+                    </Text>
+                  </Box>
+                )}
+              </Box>
+
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                bg="white"
+                overflow="hidden"
+              >
+                <Box
+                  display="flex"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  gap="4"
+                  px="5"
+                  py="4"
+                  borderBottomWidth="1px"
+                  borderColor="gray.200"
+                >
+                  <Box>
+                    <Text fontWeight="700">
+                      Households
+                    </Text>
+
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                    >
+                      Registration and cabin snapshot.
+                    </Text>
+                  </Box>
+
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      onNavigate("registrations")
+                    }
+                  >
+                    Manage
+                  </Button>
+                </Box>
+
+                <Stack gap="0">
+                  {hq.registrations.map(
+                    (registration) => (
+                      <HStack
+                        key={registration.id}
+                        justifyContent="space-between"
+                        alignItems="center"
+                        gap="4"
+                        px="5"
+                        py="3"
+                        borderBottomWidth="1px"
+                        borderColor="gray.100"
+                      >
+                        <Stack gap="0" minW="0">
+                          <Text fontWeight="600">
+                            {registration.household_name}
+                          </Text>
+
+                          <Text
+                            fontSize="sm"
+                            color="gray.500"
+                          >
+                            {registration.attendee_count}/
+                            {registration.spots_paid_for} attending
+                          </Text>
+                        </Stack>
+
+                        <Badge
+                          colorPalette={
+                            registration.cabin_name
+                              ? "green"
+                              : "orange"
+                          }
+                        >
+                          {registration.cabin_name ??
+                            "Needs cabin"}
+                        </Badge>
+                      </HStack>
                     ),
                   )}
-                </div>
-              ) : (
-                <div className="event-hq-clear">
-                  <strong>
-                    No immediate gaps.
-                  </strong>
+                </Stack>
+              </Box>
+            </Grid>
 
-                  <span>
-                    Guest spots, cabins,
-                    staffing, meals, and
-                    active services are
-                    covered.
-                  </span>
-                </div>
-              )}
-            </section>
+            <Box
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="xl"
+              bg="white"
+              overflow="hidden"
+            >
+              <Box
+                display="flex"
+                flexDirection={{
+                  base: "column",
+                  md: "row",
+                }}
+                alignItems={{
+                  base: "stretch",
+                  md: "flex-start",
+                }}
+                justifyContent="space-between"
+                gap="4"
+                px="5"
+                py="4"
+                borderBottomWidth="1px"
+                borderColor="gray.200"
+              >
+                <Box>
+                  <Text fontWeight="700">
+                    Schedule preview
+                  </Text>
 
-            <section className="app-card event-hq-households">
-              <div className="app-card-head event-hq-card-head">
-                <div>
-                  <strong>
-                    Households
-                  </strong>
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                  >
+                    The first few things happening in this event. Open
+                    Scheduling for the full calendar.
+                  </Text>
+                </Box>
 
-                  <span>
-                    Registration and cabin
-                    snapshot.
-                  </span>
-                </div>
-
-                <button
+                <Button
                   type="button"
-                  className="app-button"
+                  size="sm"
+                  variant="outline"
                   onClick={() =>
-                    onNavigate(
-                      "registrations",
-                    )
+                    onNavigate("scheduling")
                   }
                 >
-                  Manage
-                </button>
-              </div>
+                  Full schedule
+                </Button>
+              </Box>
 
-              <div className="event-hq-household-list">
-                {hq.registrations.map(
-                  (registration) => (
-                    <div
-                      className="event-hq-household-row"
-                      key={
-                        registration.id
-                      }
+              {schedulePreview.length ? (
+                <Stack gap="0">
+                  {schedulePreview.map((item) => (
+                    <Grid
+                      key={`${item.kind}-${item.id}`}
+                      templateColumns={{
+                        base: "1fr",
+                        md: "150px 90px minmax(0, 1fr) 180px",
+                      }}
+                      gap="4"
+                      alignItems="center"
+                      px="5"
+                      py="4"
+                      borderBottomWidth="1px"
+                      borderColor="gray.100"
                     >
-                      <div>
-                        <strong>
-                          {
-                            registration.household_name
-                          }
-                        </strong>
+                      <Stack gap="0">
+                        <Text fontWeight="700">
+                          {timeLabel(item.starts_at)}
+                        </Text>
 
-                        <span>
-                          {
-                            registration.attendee_count
-                          }
-                          /
-                          {
-                            registration.spots_paid_for
-                          }{" "}
-                          attending
-                        </span>
-                      </div>
+                        <Text
+                          fontSize="xs"
+                          color="gray.500"
+                        >
+                          {dayLabel(item.starts_at)}
+                        </Text>
+                      </Stack>
 
-                      <b
-                        className={
-                          registration.cabin_name
-                            ? ""
-                            : "missing"
+                      <Badge
+                        w="fit-content"
+                        colorPalette={
+                          item.kind === "activity"
+                            ? "blue"
+                            : "green"
                         }
                       >
-                        {registration.cabin_name ??
-                          "Needs cabin"}
-                      </b>
-                    </div>
-                  ),
-                )}
-              </div>
-            </section>
-          </div>
-
-          <section className="app-card event-hq-schedule event-hq-schedule-preview">
-            <div className="app-card-head event-hq-card-head">
-              <div>
-                <strong>Schedule preview</strong>
-                <span>
-                  The first few things happening in this event. Open Scheduling for the full calendar.
-                </span>
-              </div>
-
-              <button
-                type="button"
-                className="app-button"
-                onClick={() => onNavigate("scheduling")}
-              >
-                Full schedule
-              </button>
-            </div>
-
-            {schedulePreview.length ? (
-              <div className="event-hq-preview-list">
-                {schedulePreview.map((item) => (
-                  <article
-                    className="event-hq-schedule-row"
-                    key={`${item.kind}-${item.id}`}
-                  >
-                    <div className="event-hq-preview-time">
-                      <strong>{timeLabel(item.starts_at)}</strong>
-                      <span>{dayLabel(item.starts_at)}</span>
-                    </div>
-
-                    <span className={`event-hq-kind ${item.kind}`}>
-                      {item.kind === "activity" ? "Activity" : "Meal"}
-                    </span>
-
-                    <div className="event-hq-schedule-main">
-                      <strong>{item.title}</strong>
-                      <span>
                         {item.kind === "activity"
-                          ? item.meta
-                          : `${item.food_item_count ?? 0} ${
-                              item.food_item_count === 1
-                                ? "food"
-                                : "foods"
-                            }`}
-                      </span>
-                    </div>
+                          ? "Activity"
+                          : "Meal"}
+                      </Badge>
 
-                    <div className="event-hq-schedule-detail">
-                      {item.kind === "activity" ? (
-                        <>
-                          <strong>{item.signup_count ?? 0} signups</strong>
-                          <span>
-                            {item.staff_names.length
-                              ? item.staff_names.join(", ")
-                              : "No staff"}
-                          </span>
-                        </>
-                      ) : (
-                        <strong>
-                          {(item.food_item_count ?? 0) > 0
-                            ? "Food ready"
-                            : "Needs food"}
-                        </strong>
-                      )}
-                    </div>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <div className="app-empty">Nothing scheduled yet.</div>
-            )}
-          </section>
-        </>
-      )}
-    </section>
+                      <Stack gap="0">
+                        <Text fontWeight="600">
+                          {item.title}
+                        </Text>
+
+                        <Text
+                          fontSize="sm"
+                          color="gray.500"
+                        >
+                          {item.kind === "activity"
+                            ? item.meta
+                            : `${item.food_item_count ?? 0} ${
+                                item.food_item_count === 1
+                                  ? "food"
+                                  : "foods"
+                              }`}
+                        </Text>
+                      </Stack>
+
+                      <Stack gap="0">
+                        {item.kind === "activity" ? (
+                          <>
+                            <Text
+                              fontSize="sm"
+                              fontWeight="600"
+                            >
+                              {item.signup_count ?? 0} signups
+                            </Text>
+
+                            <Text
+                              fontSize="xs"
+                              color="gray.500"
+                            >
+                              {item.staff_names.length
+                                ? item.staff_names.join(", ")
+                                : "No staff"}
+                            </Text>
+                          </>
+                        ) : (
+                          <Text
+                            fontSize="sm"
+                            fontWeight="600"
+                          >
+                            {(item.food_item_count ?? 0) > 0
+                              ? "Food ready"
+                              : "Needs food"}
+                          </Text>
+                        )}
+                      </Stack>
+                    </Grid>
+                  ))}
+                </Stack>
+              ) : (
+                <Box p="6">
+                  <Text color="gray.500">
+                    Nothing scheduled yet.
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          </Stack>
+        )}
+      </Stack>
+    </Box>
   );
 }
