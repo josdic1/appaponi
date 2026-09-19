@@ -4,6 +4,19 @@ import {
   type FormEvent,
 } from "react";
 
+import {
+  Box,
+  Button,
+  Grid,
+  HStack,
+  Input,
+  NativeSelect,
+  Stack,
+  Text,
+  Textarea,
+  chakra,
+} from "@chakra-ui/react";
+
 import type {
   HouseholdMember,
 } from "@appoponi/shared/schemas/householdMembers";
@@ -579,261 +592,1017 @@ export default function MemberServicesPanel({
   }
 
   return (
-    <section className="member-services">
-      <div className="member-services-title">
-        <div>
-          <h2>Food & services</h2>
-          {registration && <span>{registration.event_name}</span>}
-        </div>
-      </div>
+    <Box
+      as="section"
+      mt="18px"
+    >
+      <Box
+        display="flex"
+        alignItems="flex-end"
+        justifyContent="space-between"
+        gap="12px"
+        mb="20px"
+        css={{
+          "@media (max-width: 760px)": {
+            alignItems: "stretch",
+            flexDirection: "column",
+          },
+        }}
+      >
+        <Stack gap="3px">
+          <Text
+            as="h2"
+            m="0"
+            fontSize="22px"
+            fontWeight="700"
+            letterSpacing="-0.03em"
+          >
+            Food &amp; services
+          </Text>
 
-      <div className="app-tabs" role="tablist" aria-label="Food and services">
-        <button type="button" className={view === "meals" ? "active" : ""} onClick={() => setView("meals")}>Meals</button>
-        <button type="button" className={view === "snacks" ? "active" : ""} onClick={() => setView("snacks")}>Snacks</button>
-        <button type="button" className={view === "after-hours" ? "active" : ""} onClick={() => setView("after-hours")}>After-hours</button>
-        <button type="button" className={view === "babysitting" ? "active" : ""} onClick={() => setView("babysitting")}>Babysitting</button>
-        <button type="button" className={view === "notices" ? "active" : ""} onClick={() => setView("notices")}>Notices</button>
-      </div>
+          {registration && (
+            <Text
+              as="span"
+              color="#6d7169"
+              fontSize="11px"
+            >
+              {registration.event_name}
+            </Text>
+          )}
+        </Stack>
+      </Box>
 
-      {(!online ||
-        usingCachedData) && (
-        <div className="app-alert app-alert-warning">
-          Offline · showing the last
-          saved food, services, and
-          notices. Changes are
-          unavailable.
-        </div>
+      <HStack
+        role="tablist"
+        aria-label="Food and services"
+        gap="8px"
+        mb="18px"
+        overflowX="auto"
+        css={{
+          scrollbarWidth: "none",
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+        }}
+      >
+        {([
+          ["meals", "Meals"],
+          ["snacks", "Snacks"],
+          ["after-hours", "After-hours"],
+          ["babysitting", "Babysitting"],
+          ["notices", "Notices"],
+        ] as const).map(([key, label]) => {
+          const active = view === key;
+
+          return (
+            <Button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              minH="34px"
+              h="34px"
+              flex="0 0 auto"
+              borderWidth="1px"
+              borderColor={
+                active
+                  ? "#b7ddcf"
+                  : "#dddcd5"
+              }
+              borderRadius="8px"
+              bg={
+                active
+                  ? "#e7f3ef"
+                  : "#ffffff"
+              }
+              px="12px"
+              color={
+                active
+                  ? "#005d41"
+                  : "#6d7169"
+              }
+              fontSize="12px"
+              fontWeight="650"
+              _hover={{
+                borderColor: active
+                  ? "#b7ddcf"
+                  : "#c8c7bf",
+                color: active
+                  ? "#005d41"
+                  : "#171915",
+              }}
+              onClick={() => setView(key)}
+            >
+              {label}
+            </Button>
+          );
+        })}
+      </HStack>
+
+      {(!online || usingCachedData) && (
+        <Box
+          mb="16px"
+          px="12px"
+          py="10px"
+          borderWidth="1px"
+          borderColor="#e1d4a8"
+          borderRadius="8px"
+          bg="#fff9e9"
+          color="#6a5821"
+          fontSize="12px"
+          fontWeight="650"
+        >
+          Offline · showing the last saved food, services, and
+          notices. Changes are unavailable.
+        </Box>
       )}
 
       {error && (
-        <div className="app-alert app-alert-danger app-alert-sticky" role="alert">
+        <Box
+          role="alert"
+          position="sticky"
+          top="76px"
+          zIndex="24"
+          mb="16px"
+          px="12px"
+          py="10px"
+          borderWidth="1px"
+          borderColor="transparent"
+          borderRadius="8px"
+          bg="#fff0ef"
+          color="#b63a33"
+          fontSize="12px"
+          fontWeight="650"
+        >
           {error}
-        </div>
+        </Box>
       )}
 
       {view === "meals" && (
-        <section className="app-card member-card member-meals-day-view">
-          <div className="app-card-head member-meals-head">
-            <div>
-              <strong>Meals</strong>
-              <span>What is being served, one day at a time.</span>
-            </div>
-          </div>
+        <Box
+          as="section"
+          mb="16px"
+          overflow="hidden"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="#ffffff"
+        >
+          <Box
+            minH="58px"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap="14px"
+            px="16px"
+            py="13px"
+            borderBottomWidth="1px"
+            borderColor="#dddcd5"
+          >
+            <Stack
+              minW="0"
+              gap="3px"
+            >
+              <Text as="strong">
+                Meals
+              </Text>
+
+              <Text
+                color="#6d7169"
+                fontSize="11px"
+              >
+                What is being served, one day at a time.
+              </Text>
+            </Stack>
+          </Box>
 
           {mealDays.length > 0 && (
-            <div className="member-meal-day-filter app-day-rail" aria-label="Meal day">
+            <HStack
+              aria-label="Meal day"
+              minW="0"
+              gap="4px"
+              overflowX="auto"
+              px="12px"
+              py="8px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+              bg="#fbfaf7"
+              css={{
+                scrollbarWidth: "none",
+                "&::-webkit-scrollbar": {
+                  display: "none",
+                },
+              }}
+            >
               {mealDays.map(([key, date]) => {
-                const today = localDayKey(new Date().toISOString());
+                const today = localDayKey(
+                  new Date().toISOString(),
+                );
+                const active =
+                  selectedMealDay === key;
+
                 return (
-                  <button
+                  <Button
                     key={key}
                     type="button"
-                    className={selectedMealDay === key ? "active" : ""}
-                    onClick={() => setMealDay(key)}
+                    minW="72px"
+                    minH="48px"
+                    h="auto"
+                    display="block"
+                    flex="0 0 auto"
+                    borderWidth="1px"
+                    borderColor={
+                      active
+                        ? "#9ccfbd"
+                        : "#dddcd5"
+                    }
+                    borderRadius="8px"
+                    bg={
+                      active
+                        ? "#e7f3ef"
+                        : "#ffffff"
+                    }
+                    px="10px"
+                    py="6px"
+                    color={
+                      active
+                        ? "#005d41"
+                        : "#6d7169"
+                    }
+                    css={{
+                      "@media (max-width: 640px)": {
+                        minWidth: "62px",
+                      },
+                    }}
+                    onClick={() =>
+                      setMealDay(key)
+                    }
                   >
-                    <span>{date.toLocaleDateString([], { weekday: "short" })}</span>
-                    <strong>{date.getDate()}</strong>
-                    {key === today && <small>Today</small>}
-                  </button>
+                    <Text
+                      as="span"
+                      display="block"
+                      fontSize="10px"
+                      fontWeight="750"
+                      letterSpacing="0.05em"
+                      textTransform="uppercase"
+                    >
+                      {date.toLocaleDateString([], {
+                        weekday: "short",
+                      })}
+                    </Text>
+
+                    <Text
+                      as="strong"
+                      display="block"
+                      mt="1px"
+                      color="#171915"
+                      fontSize="15px"
+                    >
+                      {date.getDate()}
+                    </Text>
+
+                    {key === today && (
+                      <Text
+                        as="small"
+                        display="block"
+                        mt="1px"
+                        color="#005d41"
+                        fontSize="9px"
+                        fontWeight="750"
+                      >
+                        Today
+                      </Text>
+                    )}
+                  </Button>
                 );
               })}
-            </div>
+            </HStack>
           )}
 
           {visibleMeals.length ? (
-            <div className="member-meal-timeline">
+            <Grid>
               {visibleMeals.map((meal) => (
-                <article className="member-meal-service" key={meal.id}>
-                  <time>
-                    {new Date(meal.starts_at).toLocaleTimeString([], {
+                <Grid
+                  as="article"
+                  key={meal.id}
+                  templateColumns="78px minmax(0, 1fr)"
+                  gap="10px"
+                  px="14px"
+                  py="12px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                  css={{
+                    "&:last-child": {
+                      borderBottomWidth: "0",
+                    },
+                    "@media (max-width: 640px)": {
+                      gridTemplateColumns:
+                        "66px minmax(0, 1fr)",
+                    },
+                  }}
+                >
+                  <Text
+                    as="time"
+                    fontWeight="800"
+                  >
+                    {new Date(
+                      meal.starts_at,
+                    ).toLocaleTimeString([], {
                       hour: "numeric",
                       minute: "2-digit",
                     })}
-                  </time>
-                  <div>
-                    <strong>{meal.title ?? meal.meal_type_name}</strong>
-                    {meal.items.length ? (
-                      <p>{meal.items.map((item) => item.name).join(" · ")}</p>
-                    ) : (
-                      <p>Menu not set yet.</p>
-                    )}
-                  </div>
-                </article>
+                  </Text>
+
+                  <Box>
+                    <Text
+                      as="strong"
+                      display="block"
+                    >
+                      {meal.title ??
+                        meal.meal_type_name}
+                    </Text>
+
+                    <Text
+                      as="p"
+                      display="block"
+                      mt="4px"
+                      mb="0"
+                      color="#6d7169"
+                      fontSize="12px"
+                      lineHeight="1.45"
+                    >
+                      {meal.items.length
+                        ? meal.items
+                            .map(
+                              (item) =>
+                                item.name,
+                            )
+                            .join(" · ")
+                        : "Menu not set yet."}
+                    </Text>
+                  </Box>
+                </Grid>
               ))}
-            </div>
+            </Grid>
           ) : (
-            <div className="app-empty">No meals scheduled for this day.</div>
+            <Box
+              px="20px"
+              py="32px"
+              color="#6d7169"
+              textAlign="center"
+              fontSize="12px"
+            >
+              No meals scheduled for this day.
+            </Box>
           )}
-        </section>
+        </Box>
       )}
 
-      {(view === "snacks" || view === "after-hours") && (
-        <section className="app-card member-card member-food-workspace">
-          <div className="app-card-head">
-            <div>
-              <strong>{selectedOfferingType === "SNACK" ? "Snacks" : "After-hours food"}</strong>
-              <span>{selectedOfferingType === "SNACK" ? "Tap an available snack to request pickup." : "Tap an available item to order pickup or delivery."}</span>
-            </div>
-          </div>
-
-          <div className="member-food-catalog">
-            {eventFoodOfferings.length ? (
-              eventFoodOfferings.map((item) => (
-                <button
-                  type="button"
-                  className={`member-food-item${showFoodOrder && foodItemId === item.item_id ? " selected" : ""}`}
-                  key={item.id}
-                  onClick={() => {
-                    setFoodItemId(item.item_id);
-                    setShowFoodOrder(true);
-                  }}
-                >
-                  <span>
-                    <strong>{item.name}</strong>
-                    <small>{item.description ?? (selectedOfferingType === "SNACK" ? "Pickup" : "After-hours")}</small>
-                  </span>
-                  <b>Choose</b>
-                </button>
-              ))
-            ) : (
-              <div className="app-empty">
-                {selectedOfferingType === "SNACK" ? "No snacks are currently offered." : "No after-hours items are currently offered."}
-              </div>
-            )}
-          </div>
-
-          {showFoodOrder && selectedFoodOffering && (
-            <form
-              className="member-service-form member-food-order-form"
-              onSubmit={submitFood}
+      {(view === "snacks" ||
+        view === "after-hours") && (
+        <Box
+          as="section"
+          mb="16px"
+          overflow="hidden"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="#ffffff"
+        >
+          <Box
+            minH="58px"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap="14px"
+            px="16px"
+            py="13px"
+            borderBottomWidth="1px"
+            borderColor="#dddcd5"
+          >
+            <Stack
+              minW="0"
+              gap="3px"
             >
-              <div className="member-food-order-selection">
-                <span>Selected</span>
-                <strong>{selectedFoodOffering.name}</strong>
-                <button
-                  type="button"
-                  className="app-button"
-                  onClick={() => {
-                    setShowFoodOrder(false);
-                    setFoodItemId("");
+              <Text as="strong">
+                {selectedOfferingType === "SNACK"
+                  ? "Snacks"
+                  : "After-hours food"}
+              </Text>
+
+              <Text
+                color="#6d7169"
+                fontSize="11px"
+              >
+                {selectedOfferingType === "SNACK"
+                  ? "Tap an available snack to request pickup."
+                  : "Tap an available item to order pickup or delivery."}
+              </Text>
+            </Stack>
+          </Box>
+
+          <Grid
+            templateColumns="repeat(2, minmax(0, 1fr))"
+            css={{
+              "@media (max-width: 640px)": {
+                gridTemplateColumns: "1fr",
+              },
+            }}
+          >
+            {eventFoodOfferings.length ? (
+              eventFoodOfferings.map(
+                (item, index) => {
+                  const selected =
+                    showFoodOrder &&
+                    foodItemId ===
+                      item.item_id;
+
+                  return (
+                    <Button
+                      type="button"
+                      key={item.id}
+                      minH="64px"
+                      h="auto"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      gap="12px"
+                      border="0"
+                      borderRightWidth={
+                        index % 2 === 0
+                          ? "1px"
+                          : "0"
+                      }
+                      borderBottomWidth="1px"
+                      borderColor="#dddcd5"
+                      borderRadius="0"
+                      bg={
+                        selected
+                          ? "#e7f3ef"
+                          : "#ffffff"
+                      }
+                      px="14px"
+                      py="11px"
+                      color="#171915"
+                      textAlign="left"
+                      _hover={{
+                        bg: "#e7f3ef",
+                      }}
+                      css={{
+                        "@media (max-width: 640px)": {
+                          borderRightWidth: "0",
+                        },
+                      }}
+                      onClick={() => {
+                        setFoodItemId(
+                          item.item_id,
+                        );
+                        setShowFoodOrder(
+                          true,
+                        );
+                      }}
+                    >
+                      <Stack
+                        minW="0"
+                        gap="3px"
+                        alignItems="flex-start"
+                      >
+                        <Text
+                          as="strong"
+                          fontWeight="700"
+                        >
+                          {item.name}
+                        </Text>
+
+                        <Text
+                          as="small"
+                          color="#6d7169"
+                          fontSize="10px"
+                        >
+                          {item.description ??
+                            (selectedOfferingType ===
+                            "SNACK"
+                              ? "Pickup"
+                              : "After-hours")}
+                        </Text>
+                      </Stack>
+
+                      <Text
+                        as="b"
+                        flex="0 0 auto"
+                        color="#005d41"
+                        fontSize="10px"
+                      >
+                        Choose
+                      </Text>
+                    </Button>
+                  );
+                },
+              )
+            ) : (
+              <Box
+                gridColumn="1 / -1"
+                px="20px"
+                py="32px"
+                color="#6d7169"
+                textAlign="center"
+                fontSize="12px"
+              >
+                {selectedOfferingType === "SNACK"
+                  ? "No snacks are currently offered."
+                  : "No after-hours items are currently offered."}
+              </Box>
+            )}
+          </Grid>
+
+          {showFoodOrder &&
+            selectedFoodOffering && (
+              <Grid
+                as="form"
+                onSubmit={submitFood}
+                templateColumns="repeat(2, minmax(0, 1fr))"
+                gap="12px"
+                m="0"
+                p="12px"
+                borderTopWidth="1px"
+                borderBottomWidth="1px"
+                borderColor="#dddcd5"
+                bg="#fbfaf7"
+                css={{
+                  "@media (max-width: 640px)": {
+                    gridTemplateColumns: "1fr",
+                  },
+                }}
+              >
+                <Grid
+                  gridColumn="1 / -1"
+                  templateColumns="auto minmax(0, 1fr) auto"
+                  alignItems="center"
+                  gap="10px"
+                  pb="10px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                  css={{
+                    "@media (max-width: 640px)": {
+                      gridColumn: "1",
+                      gridTemplateColumns:
+                        "1fr auto",
+                    },
                   }}
                 >
-                  Change
-                </button>
-              </div>
+                  <Text
+                    as="span"
+                    color="#6d7169"
+                    fontSize="10px"
+                    fontWeight="750"
+                    textTransform="uppercase"
+                    css={{
+                      "@media (max-width: 640px)": {
+                        gridColumn: "1 / -1",
+                      },
+                    }}
+                  >
+                    Selected
+                  </Text>
 
-              <label>
-                <span>For</span>
-                <select value={requesterId} onChange={(e) => setRequesterId(e.target.value)}>
-                  <option value="">Household</option>
-                  {household.map((person) => (
-                    <option key={person.id} value={person.id}>{person.full_name}</option>
-                  ))}
-                </select>
-              </label>
+                  <Text as="strong">
+                    {selectedFoodOffering.name}
+                  </Text>
 
-              <label>
-                <span>Quantity</span>
-                <input className="app-control-number" type="number" min="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-              </label>
+                  <Button
+                    type="button"
+                    minH="34px"
+                    h="34px"
+                    borderWidth="1px"
+                    borderColor="#dddcd5"
+                    borderRadius="8px"
+                    bg="#ffffff"
+                    px="11px"
+                    color="#171915"
+                    fontSize="12px"
+                    fontWeight="650"
+                    _hover={{
+                      borderColor: "#c8c7bf",
+                      bg: "#fbfaf7",
+                    }}
+                    onClick={() => {
+                      setShowFoodOrder(false);
+                      setFoodItemId("");
+                    }}
+                  >
+                    Change
+                  </Button>
+                </Grid>
 
-              {selectedOfferingType === "AFTER_HOURS" && (
-                <label>
-                  <span>How</span>
-                  <select value={fulfillment} onChange={(e) => setFulfillment(e.target.value as "pickup" | "delivery")}>
-                    <option value="pickup">Pickup</option>
-                    <option value="delivery">Delivery</option>
-                  </select>
-                </label>
-              )}
-
-              {selectedOfferingType === "AFTER_HOURS" && fulfillment === "delivery" && (
-                <label className="member-food-delivery-field">
-                  <span>Delivery location</span>
-                  <input value={deliveryLocation} onChange={(e) => setDeliveryLocation(e.target.value)} />
-                </label>
-              )}
-
-              <div className="member-food-order-actions">
-                <button
-                  className="app-button"
-                  type="button"
-                  onClick={() => {
-                    setShowFoodOrder(false);
-                    setFoodItemId("");
-                  }}
+                <Stack
+                  as="label"
+                  gap="6px"
+                  minW="0"
                 >
-                  Cancel
-                </button>
-                <button className="app-button app-button-primary" type="submit" disabled={changesUnavailable}>
-                  {selectedOfferingType === "SNACK" ? "Request pickup" : "Place order"}
-                </button>
-              </div>
-            </form>
-          )}
+                  <Text
+                    as="span"
+                    color="#6d7169"
+                    fontSize="11px"
+                    fontWeight="700"
+                  >
+                    For
+                  </Text>
 
-          {eventFoodOrders.length > 0 && (
-            <div className="member-food-orders">
-              <div className="member-subhead">Your requests</div>
-              {eventFoodOrders.map((order) => (
-                <div className="member-service-row" key={order.id}>
-                  <span>
-                    <strong>
-                      {order.items
-                        .map((item) => `${item.quantity}× ${item.item_name}`)
-                        .join(" · ")}
-                    </strong>
-                    <small>
-                      {order.fulfillment}
-                      {order.delivery_location
-                        ? ` · ${order.delivery_location}`
-                        : ""}
-                    </small>
-                  </span>
+                  <NativeSelect.Root>
+                    <NativeSelect.Field
+                      value={requesterId}
+                      minH="40px"
+                      borderColor="#c8c7bf"
+                      borderRadius="8px"
+                      bg="#ffffff"
+                      onChange={(e) =>
+                        setRequesterId(
+                          e.target.value,
+                        )
+                      }
+                    >
+                      <option value="">
+                        Household
+                      </option>
 
-                  <span className="member-service-actions">
-                    <b>{order.status}</b>
-                    {order.status === "open" && (
-                      <button
-                        className="app-button"
-                        type="button"
-                        disabled={changesUnavailable}
-                        onClick={() =>
-                          void run(() => cancelFoodOrder(order.id))
+                      {household.map(
+                        (person) => (
+                          <option
+                            key={person.id}
+                            value={person.id}
+                          >
+                            {person.full_name}
+                          </option>
+                        ),
+                      )}
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                </Stack>
+
+                <Stack
+                  as="label"
+                  gap="6px"
+                  minW="0"
+                >
+                  <Text
+                    as="span"
+                    color="#6d7169"
+                    fontSize="11px"
+                    fontWeight="700"
+                  >
+                    Quantity
+                  </Text>
+
+                  <Input
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    w="96px"
+                    maxW="100%"
+                    minH="40px"
+                    borderColor="#c8c7bf"
+                    borderRadius="8px"
+                    bg="#ffffff"
+                    px="11px"
+                    _focus={{
+                      borderColor: "#007854",
+                      boxShadow:
+                        "0 0 0 3px #e7f3ef",
+                    }}
+                    onChange={(e) =>
+                      setQuantity(
+                        e.target.value,
+                      )
+                    }
+                  />
+                </Stack>
+
+                {selectedOfferingType ===
+                  "AFTER_HOURS" && (
+                  <Stack
+                    as="label"
+                    gap="6px"
+                    minW="0"
+                  >
+                    <Text
+                      as="span"
+                      color="#6d7169"
+                      fontSize="11px"
+                      fontWeight="700"
+                    >
+                      How
+                    </Text>
+
+                    <NativeSelect.Root>
+                      <NativeSelect.Field
+                        value={fulfillment}
+                        minH="40px"
+                        borderColor="#c8c7bf"
+                        borderRadius="8px"
+                        bg="#ffffff"
+                        onChange={(e) =>
+                          setFulfillment(
+                            e.target.value as
+                              | "pickup"
+                              | "delivery",
+                          )
                         }
                       >
-                        Cancel
-                      </button>
-                    )}
-                  </span>
-                </div>
-              ))}
-            </div>
+                        <option value="pickup">
+                          Pickup
+                        </option>
+                        <option value="delivery">
+                          Delivery
+                        </option>
+                      </NativeSelect.Field>
+                      <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                  </Stack>
+                )}
+
+                {selectedOfferingType ===
+                  "AFTER_HOURS" &&
+                  fulfillment ===
+                    "delivery" && (
+                    <Stack
+                      as="label"
+                      gridColumn="1 / -1"
+                      gap="6px"
+                      minW="0"
+                      css={{
+                        "@media (max-width: 640px)": {
+                          gridColumn: "1",
+                        },
+                      }}
+                    >
+                      <Text
+                        as="span"
+                        color="#6d7169"
+                        fontSize="11px"
+                        fontWeight="700"
+                      >
+                        Delivery location
+                      </Text>
+
+                      <Input
+                        value={
+                          deliveryLocation
+                        }
+                        minH="40px"
+                        borderColor="#c8c7bf"
+                        borderRadius="8px"
+                        bg="#ffffff"
+                        px="11px"
+                        _focus={{
+                          borderColor:
+                            "#007854",
+                          boxShadow:
+                            "0 0 0 3px #e7f3ef",
+                        }}
+                        onChange={(e) =>
+                          setDeliveryLocation(
+                            e.target.value,
+                          )
+                        }
+                      />
+                    </Stack>
+                  )}
+
+                <HStack
+                  gridColumn="1 / -1"
+                  justifyContent="flex-end"
+                  gap="8px"
+                  css={{
+                    "@media (max-width: 640px)": {
+                      gridColumn: "1",
+                    },
+                  }}
+                >
+                  <Button
+                    type="button"
+                    minH="34px"
+                    borderWidth="1px"
+                    borderColor="#dddcd5"
+                    borderRadius="8px"
+                    bg="#ffffff"
+                    px="11px"
+                    fontSize="12px"
+                    fontWeight="650"
+                    _hover={{
+                      borderColor: "#c8c7bf",
+                      bg: "#fbfaf7",
+                    }}
+                    onClick={() => {
+                      setShowFoodOrder(false);
+                      setFoodItemId("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    disabled={changesUnavailable}
+                    minH="34px"
+                    borderWidth="1px"
+                    borderColor="#007854"
+                    borderRadius="8px"
+                    bg="#007854"
+                    px="14px"
+                    color="#ffffff"
+                    fontSize="12px"
+                    fontWeight="750"
+                    _hover={{
+                      borderColor: "#005d41",
+                      bg: "#005d41",
+                    }}
+                  >
+                    {selectedOfferingType ===
+                    "SNACK"
+                      ? "Request pickup"
+                      : "Place order"}
+                  </Button>
+                </HStack>
+              </Grid>
+            )}
+
+          {eventFoodOrders.length > 0 && (
+            <Box
+              borderTopWidth="1px"
+              borderColor="#dddcd5"
+            >
+              <Box
+                px="14px"
+                py="9px"
+                borderBottomWidth="1px"
+                borderColor="#dddcd5"
+                bg="#fbfaf7"
+                color="#6d7169"
+                fontSize="10px"
+                fontWeight="800"
+                letterSpacing="0.05em"
+                textTransform="uppercase"
+              >
+                Your requests
+              </Box>
+
+              {eventFoodOrders.map(
+                (order) => (
+                  <Box
+                    key={order.id}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    gap="12px"
+                    px="14px"
+                    py="12px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    css={{
+                      "&:last-child": {
+                        borderBottomWidth: "0",
+                      },
+                      "@media (max-width: 620px)": {
+                        alignItems:
+                          "flex-start",
+                        flexDirection:
+                          "column",
+                      },
+                    }}
+                  >
+                    <Stack gap="3px">
+                      <Text as="strong">
+                        {order.items
+                          .map(
+                            (item) =>
+                              `${item.quantity}× ${item.item_name}`,
+                          )
+                          .join(" · ")}
+                      </Text>
+
+                      <Text
+                        as="small"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {order.fulfillment}
+                        {order.delivery_location
+                          ? ` · ${order.delivery_location}`
+                          : ""}
+                      </Text>
+                    </Stack>
+
+                    <HStack
+                      gap="8px"
+                      flexWrap="wrap"
+                    >
+                      <Text
+                        as="b"
+                        textTransform="capitalize"
+                      >
+                        {order.status}
+                      </Text>
+
+                      {order.status ===
+                        "open" && (
+                        <Button
+                          type="button"
+                          disabled={
+                            changesUnavailable
+                          }
+                          minH="34px"
+                          borderWidth="1px"
+                          borderColor="#dddcd5"
+                          borderRadius="8px"
+                          bg="#ffffff"
+                          px="11px"
+                          fontSize="12px"
+                          fontWeight="650"
+                          _hover={{
+                            borderColor:
+                              "#c8c7bf",
+                            bg: "#fbfaf7",
+                          }}
+                          onClick={() =>
+                            void run(() =>
+                              cancelFoodOrder(
+                                order.id,
+                              ),
+                            )
+                          }
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </HStack>
+                  </Box>
+                ),
+              )}
+            </Box>
           )}
-        </section>
+        </Box>
       )}
 
       {view === "babysitting" && (
         <>
-          <section className="app-card member-card">
-            <div className="app-card-head">
-              <div>
-                <strong>
-                  Request babysitting
-                </strong>
-              </div>
-            </div>
-
-            <form
-              className="member-service-form member-babysitting-form"
-              onSubmit={
-                submitBabysitting
-              }
+          <Box
+            as="section"
+            mb="16px"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+          >
+            <Box
+              minH="58px"
+              display="flex"
+              alignItems="center"
+              px="16px"
+              py="13px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
             >
-              <fieldset className="app-choice-field app-form-span">
-                <legend>Who needs a sitter?</legend>
+              <Text as="strong">
+                Request babysitting
+              </Text>
+            </Box>
 
-                <div className="app-choice-grid">
+            <Grid
+              as="form"
+              onSubmit={submitBabysitting}
+              templateColumns="repeat(2, minmax(0, 1fr))"
+              gap="12px"
+              p="16px"
+              css={{
+                "@media (max-width: 760px)": {
+                  gridTemplateColumns: "1fr",
+                },
+              }}
+            >
+              <Box
+                as="fieldset"
+                minW="0"
+                gridColumn="1 / -1"
+                m="0"
+                p="0"
+                border="0"
+              >
+                <Text
+                  as="legend"
+                  mb="8px"
+                  color="#6d7169"
+                  fontSize="11px"
+                  fontWeight="700"
+                >
+                  Who needs a sitter?
+                </Text>
+
+                <Grid
+                  templateColumns="repeat(auto-fit, minmax(140px, 1fr))"
+                  gap="8px"
+                >
                   {household.map(
                     (person) => {
                       const selected =
@@ -842,99 +1611,227 @@ export default function MemberServicesPanel({
                         );
 
                       return (
-                        <button
+                        <Button
                           type="button"
                           key={person.id}
-                          className={`app-button app-choice-button ${selected ? "selected" : ""}`}
-                          aria-pressed={selected}
+                          aria-pressed={
+                            selected
+                          }
+                          w="full"
+                          minW="0"
+                          minH="40px"
+                          borderWidth="1px"
+                          borderColor={
+                            selected
+                              ? "#9ccfbd"
+                              : "#dddcd5"
+                          }
+                          borderRadius="8px"
+                          bg={
+                            selected
+                              ? "#e7f3ef"
+                              : "#ffffff"
+                          }
+                          color={
+                            selected
+                              ? "#005d41"
+                              : "#171915"
+                          }
+                          px="11px"
+                          fontSize="12px"
+                          fontWeight="650"
                           onClick={() =>
                             toggleBabyMember(
                               person.id,
                             )
                           }
                         >
-                          {
-                            person.full_name
-                          }
-                        </button>
+                          {person.full_name}
+                        </Button>
                       );
                     },
                   )}
-                </div>
-              </fieldset>
+                </Grid>
+              </Box>
 
-              <label>
-                <span>Starts</span>
+              <Stack
+                as="label"
+                gap="6px"
+                minW="0"
+              >
+                <Text
+                  as="span"
+                  color="#6d7169"
+                  fontSize="11px"
+                  fontWeight="700"
+                >
+                  Starts
+                </Text>
 
                 <HumanDateTimeInput
                   value={babyStart}
                   onChange={setBabyStart}
                 />
-              </label>
+              </Stack>
 
-              <label>
-                <span>Ends</span>
+              <Stack
+                as="label"
+                gap="6px"
+                minW="0"
+              >
+                <Text
+                  as="span"
+                  color="#6d7169"
+                  fontSize="11px"
+                  fontWeight="700"
+                >
+                  Ends
+                </Text>
 
                 <HumanDateTimeInput
                   value={babyEnd}
                   onChange={setBabyEnd}
                   defaultDate={babyStart}
                 />
-              </label>
+              </Stack>
 
-              <label className="app-form-span">
-                <span>Notes</span>
+              <Stack
+                as="label"
+                gridColumn="1 / -1"
+                gap="6px"
+                minW="0"
+              >
+                <Text
+                  as="span"
+                  color="#6d7169"
+                  fontSize="11px"
+                  fontWeight="700"
+                >
+                  Notes
+                </Text>
 
-                <textarea
+                <Textarea
                   rows={2}
+                  minH="72px"
+                  resize="vertical"
                   placeholder="Anything the sitter should know"
                   value={babyNotes}
+                  borderColor="#c8c7bf"
+                  borderRadius="8px"
+                  bg="#ffffff"
+                  px="11px"
+                  py="10px"
+                  _focus={{
+                    borderColor: "#007854",
+                    boxShadow:
+                      "0 0 0 3px #e7f3ef",
+                  }}
                   onChange={(e) =>
                     setBabyNotes(
                       e.target.value,
                     )
                   }
                 />
-              </label>
+              </Stack>
 
-              <div className="service-form-actions app-form-span">
-                <button
-                  className="app-button app-button-primary"
+              <HStack
+                gridColumn="1 / -1"
+                justifyContent="flex-end"
+              >
+                <Button
                   type="submit"
                   disabled={
                     changesUnavailable
                   }
+                  minH="34px"
+                  borderWidth="1px"
+                  borderColor="#007854"
+                  borderRadius="8px"
+                  bg="#007854"
+                  px="14px"
+                  color="#ffffff"
+                  fontSize="12px"
+                  fontWeight="750"
+                  _hover={{
+                    borderColor: "#005d41",
+                    bg: "#005d41",
+                  }}
+                  css={{
+                    "@media (max-width: 620px)": {
+                      width: "100%",
+                    },
+                  }}
                 >
                   Request sitter
-                </button>
-              </div>
-            </form>
-          </section>
+                </Button>
+              </HStack>
+            </Grid>
+          </Box>
 
-          <section className="app-card member-card">
-            <div className="app-card-head">
-              <div>
-                <strong>
-                  Requests
-                </strong>
-              </div>
-            </div>
+          <Box
+            as="section"
+            mb="16px"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+          >
+            <Box
+              minH="58px"
+              display="flex"
+              alignItems="center"
+              px="16px"
+              py="13px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+            >
+              <Text as="strong">
+                Requests
+              </Text>
+            </Box>
 
             {eventBabysitting.length ? (
               eventBabysitting.map(
                 (request) => (
-                  <div
-                    className="app-record-row"
+                  <Box
                     key={request.id}
+                    minH="64px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    gap="12px"
+                    px="14px"
+                    py="12px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    css={{
+                      "&:last-child": {
+                        borderBottomWidth: "0",
+                      },
+                      "@media (max-width: 620px)": {
+                        alignItems:
+                          "flex-start",
+                        flexDirection:
+                          "column",
+                      },
+                    }}
                   >
-                    <div className="app-record-copy">
-                      <strong>
+                    <Stack
+                      minW="0"
+                      gap="3px"
+                    >
+                      <Text as="strong">
                         {request.member_names.join(
                           ", ",
                         )}
-                      </strong>
+                      </Text>
 
-                      <span>
+                      <Text
+                        as="span"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
                         {new Date(
                           request.starts_at,
                         ).toLocaleString([], {
@@ -951,13 +1848,37 @@ export default function MemberServicesPanel({
                           hour: "numeric",
                           minute: "2-digit",
                         })}
-                      </span>
-                    </div>
+                      </Text>
+                    </Stack>
 
-                    <div className="app-record-actions">
-                      <span className="app-status-pill">
+                    <HStack
+                      gap="8px"
+                      flexWrap="wrap"
+                      css={{
+                        "@media (max-width: 620px)": {
+                          width: "100%",
+                          justifyContent:
+                            "space-between",
+                        },
+                      }}
+                    >
+                      <Box
+                        as="span"
+                        display="inline-flex"
+                        alignItems="center"
+                        minH="26px"
+                        px="9px"
+                        borderWidth="1px"
+                        borderColor="#dddcd5"
+                        borderRadius="999px"
+                        bg="#fbfaf7"
+                        color="#6d7169"
+                        fontSize="10px"
+                        fontWeight="750"
+                        textTransform="capitalize"
+                      >
                         {request.status}
-                      </span>
+                      </Box>
 
                       {[
                         "pending",
@@ -965,12 +1886,24 @@ export default function MemberServicesPanel({
                       ].includes(
                         request.status,
                       ) && (
-                        <button
-                          className="app-button"
+                        <Button
                           type="button"
                           disabled={
                             changesUnavailable
                           }
+                          minH="34px"
+                          borderWidth="1px"
+                          borderColor="#dddcd5"
+                          borderRadius="8px"
+                          bg="#ffffff"
+                          px="11px"
+                          fontSize="12px"
+                          fontWeight="650"
+                          _hover={{
+                            borderColor:
+                              "#c8c7bf",
+                            bg: "#fbfaf7",
+                          }}
                           onClick={() =>
                             void run(() =>
                               cancelBabysittingRequest(
@@ -980,38 +1913,73 @@ export default function MemberServicesPanel({
                           }
                         >
                           Cancel
-                        </button>
+                        </Button>
                       )}
-                    </div>
-                  </div>
+                    </HStack>
+                  </Box>
                 ),
               )
             ) : (
-              <div className="app-empty">
+              <Box
+                px="20px"
+                py="32px"
+                color="#6d7169"
+                textAlign="center"
+                fontSize="12px"
+              >
                 No babysitting requests.
-              </div>
+              </Box>
             )}
-          </section>
+          </Box>
         </>
       )}
 
       {view === "notices" && (
         <>
           {preferences && (
-            <section className="app-card member-card">
-              <div className="app-card-head">
-                <div>
-                  <strong>
+            <Box
+              as="section"
+              mb="16px"
+              overflow="hidden"
+              borderWidth="1px"
+              borderColor="#dddcd5"
+              borderRadius="12px"
+              bg="#ffffff"
+            >
+              <Box
+                minH="58px"
+                display="flex"
+                alignItems="center"
+                px="16px"
+                py="13px"
+                borderBottomWidth="1px"
+                borderColor="#dddcd5"
+              >
+                <Stack
+                  minW="0"
+                  gap="3px"
+                >
+                  <Text as="strong">
                     Notifications
-                  </strong>
-                  <span>
-                    Automatic reminders arrive 30 minutes before activities and meals. Camp notices follow the categories you keep on.
-                  </span>
-                </div>
-              </div>
+                  </Text>
 
-              <div className="preference-list">
-                {[
+                  <Text
+                    as="span"
+                    color="#6d7169"
+                    fontSize="11px"
+                  >
+                    Automatic reminders arrive 30 minutes before activities and meals.
+                    Camp notices follow the categories you keep on.
+                  </Text>
+                </Stack>
+              </Box>
+
+              <Stack
+                gap="0"
+                px="14px"
+                py="6px"
+              >
+                {([
                   [
                     "activity_reminders",
                     "Activity reminders · 30 min before",
@@ -1028,14 +1996,33 @@ export default function MemberServicesPanel({
                     "general_notifications",
                     "General notices",
                   ],
-                ].map(
+                ] as const).map(
                   ([key, label]) => (
-                    <label key={key}>
-                      <span>
+                    <HStack
+                      as="label"
+                      key={key}
+                      minH="42px"
+                      justifyContent="space-between"
+                      gap="14px"
+                      borderBottomWidth="1px"
+                      borderColor="#dddcd5"
+                      color="#171915"
+                      fontSize="12px"
+                      css={{
+                        "&:last-child": {
+                          borderBottomWidth:
+                            "0",
+                        },
+                      }}
+                    >
+                      <Text
+                        as="span"
+                        minW="0"
+                      >
                         {label}
-                      </span>
+                      </Text>
 
-                      <input
+                      <chakra.input
                         type="checkbox"
                         disabled={
                           changesUnavailable
@@ -1048,66 +2035,111 @@ export default function MemberServicesPanel({
                             >
                           ] as boolean
                         }
+                        w="16px"
+                        h="16px"
+                        minH="16px"
+                        flex="0 0 auto"
+                        m="0"
+                        accentColor="#007854"
                         onChange={(e) =>
                           void changePreference(
-                            key as
-                              | "activity_reminders"
-                              | "meal_reminders"
-                              | "special_notifications"
-                              | "general_notifications",
-                            e.target
-                              .checked,
+                            key,
+                            e.target.checked,
                           )
                         }
                       />
-                    </label>
+                    </HStack>
                   ),
                 )}
-              </div>
-            </section>
+              </Stack>
+            </Box>
           )}
 
-          <section className="app-card member-card">
-            <div className="app-card-head">
-              <div>
-                <strong>
-                  Notices
-                </strong>
-              </div>
-            </div>
+          <Box
+            as="section"
+            mb="16px"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+          >
+            <Box
+              minH="58px"
+              display="flex"
+              alignItems="center"
+              px="16px"
+              py="13px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+            >
+              <Text as="strong">
+                Notices
+              </Text>
+            </Box>
 
             {eventNotifications.length ? (
               eventNotifications.map(
                 (notice) => (
-                  <article
-                    className={
-                      notice.read_at
-                        ? "member-notice"
-                        : "member-notice unread"
-                    }
+                  <Stack
+                    as="article"
                     key={notice.id}
+                    gap="4px"
+                    px="14px"
+                    py="12px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    css={{
+                      "&:last-child": {
+                        borderBottomWidth: "0",
+                      },
+                    }}
                   >
-                    <strong>
+                    <Text as="strong">
                       {notice.title}
-                    </strong>
+                    </Text>
 
-                    <span>
+                    <Text
+                      as="span"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
                       {notice.body}
-                    </span>
+                    </Text>
 
-                    <div className="member-notice-foot">
-                      <small>
+                    <HStack
+                      justifyContent="space-between"
+                      gap="10px"
+                    >
+                      <Text
+                        as="small"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
                         {new Date(
                           notice.created_at,
                         ).toLocaleString()}
-                      </small>
+                      </Text>
 
                       {!notice.read_at && (
-                        <button
+                        <Button
                           type="button"
                           disabled={
                             changesUnavailable
                           }
+                          minH="34px"
+                          borderWidth="1px"
+                          borderColor="#dddcd5"
+                          borderRadius="8px"
+                          bg="#ffffff"
+                          px="11px"
+                          fontSize="12px"
+                          fontWeight="650"
+                          _hover={{
+                            borderColor:
+                              "#c8c7bf",
+                            bg: "#fbfaf7",
+                          }}
                           onClick={() =>
                             void run(() =>
                               markNotificationRead(
@@ -1117,20 +2149,26 @@ export default function MemberServicesPanel({
                           }
                         >
                           Mark read
-                        </button>
+                        </Button>
                       )}
-                    </div>
-                  </article>
+                    </HStack>
+                  </Stack>
                 ),
               )
             ) : (
-              <div className="app-empty">
+              <Box
+                px="20px"
+                py="32px"
+                color="#6d7169"
+                textAlign="center"
+                fontSize="12px"
+              >
                 No notices.
-              </div>
+              </Box>
             )}
-          </section>
+          </Box>
         </>
       )}
-    </section>
+    </Box>
   );
 }
