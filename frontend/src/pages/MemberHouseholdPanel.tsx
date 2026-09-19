@@ -3,6 +3,17 @@ import {
   useState,
 } from "react";
 
+import {
+  Box,
+  Button,
+  Grid,
+  HStack,
+  Input,
+  NativeSelect,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
 import type {
   HouseholdMember,
   MemberRole,
@@ -293,40 +304,89 @@ export default function MemberHouseholdPanel({
   }
 
   return (
-    <section className="app-card member-card member-household-card">
-      <div className="app-card-head member-household-head">
-        <div>
-          <strong>
+    <Box
+      as="section"
+      mb="16px"
+      overflow="hidden"
+      borderWidth="1px"
+      borderColor="#dddcd5"
+      borderRadius="12px"
+      bg="#ffffff"
+    >
+      <Box
+        minH="58px"
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        gap="12px"
+        px="16px"
+        py="13px"
+        borderBottomWidth="1px"
+        borderColor="#dddcd5"
+      >
+        <Stack minW="0" gap="3px">
+          <Text as="strong">
             Your household
-          </strong>
+          </Text>
 
-          <span>
+          <Text
+            as="span"
+            color="#6d7169"
+            fontSize="11px"
+          >
             {household.length}{" "}
             {household.length === 1
               ? "person"
               : "people"}
-          </span>
-        </div>
+          </Text>
+        </Stack>
 
-        <button
-          className="app-button"
+        <Button
           type="button"
-          disabled={
-            disabled || busy
-          }
+          disabled={disabled || busy}
+          minH="34px"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="8px"
+          bg="#ffffff"
+          px="11px"
+          fontSize="12px"
+          fontWeight="650"
+          _hover={{
+            borderColor: "#c8c7bf",
+            bg: "#fbfaf7",
+          }}
           onClick={beginAdd}
         >
           Add person
-        </button>
-      </div>
+        </Button>
+      </Box>
 
-      <div className="member-household-name">
+      <Box
+        minH="60px"
+        display="flex"
+        alignItems="center"
+        gap="10px"
+        px="16px"
+        py="10px"
+        borderBottomWidth="1px"
+        borderColor="#dddcd5"
+        bg="#fbfaf7"
+      >
         {editingHouseholdName ? (
           <>
-            <input
-              value={
-                householdNameDraft
-              }
+            <Input
+              value={householdNameDraft}
+              flex="1"
+              minH="40px"
+              borderColor="#c8c7bf"
+              borderRadius="8px"
+              bg="#ffffff"
+              px="11px"
+              _focus={{
+                borderColor: "#007854",
+                boxShadow: "0 0 0 3px #e7f3ef",
+              }}
               onChange={(event) =>
                 setHouseholdNameDraft(
                   event.target.value,
@@ -334,315 +394,556 @@ export default function MemberHouseholdPanel({
               }
             />
 
-            <button
-              className="app-button"
+            <Button
               type="button"
               disabled={
                 busy ||
                 !householdNameDraft.trim()
               }
+              minH="34px"
+              borderWidth="1px"
+              borderColor="#dddcd5"
+              borderRadius="8px"
+              bg="#ffffff"
+              px="11px"
+              fontSize="12px"
+              fontWeight="650"
               onClick={() =>
                 void saveHouseholdName()
               }
             >
               Save
-            </button>
+            </Button>
 
-            <button
-              className="app-button"
+            <Button
               type="button"
               disabled={busy}
+              minH="34px"
+              borderWidth="1px"
+              borderColor="#dddcd5"
+              borderRadius="8px"
+              bg="#ffffff"
+              px="11px"
+              fontSize="12px"
+              fontWeight="650"
               onClick={() => {
                 setHouseholdNameDraft(
                   householdName,
                 );
-                setEditingHouseholdName(
-                  false,
-                );
+                setEditingHouseholdName(false);
               }}
             >
               Cancel
-            </button>
+            </Button>
           </>
         ) : (
           <>
-            <div>
-              <small>
+            <Stack
+              minW="0"
+              flex="1"
+              gap="3px"
+            >
+              <Text
+                as="small"
+                color="#6d7169"
+                fontSize="10px"
+                fontWeight="700"
+                letterSpacing="0.05em"
+                textTransform="uppercase"
+              >
                 Household name
-              </small>
+              </Text>
 
-              <strong>
+              <Text as="strong">
                 {householdName}
-              </strong>
-            </div>
+              </Text>
+            </Stack>
 
-            <button
-              className="app-button"
+            <Button
               type="button"
-              disabled={
-                disabled || busy
-              }
+              disabled={disabled || busy}
+              minH="34px"
+              borderWidth="1px"
+              borderColor="#dddcd5"
+              borderRadius="8px"
+              bg="#ffffff"
+              px="11px"
+              fontSize="12px"
+              fontWeight="650"
               onClick={() =>
-                setEditingHouseholdName(
-                  true,
-                )
+                setEditingHouseholdName(true)
               }
             >
               Edit
-            </button>
+            </Button>
           </>
         )}
-      </div>
+      </Box>
 
-      <div className="member-household-people">
-        {household.map(
-          (person) => (
-            <div
-              className="member-household-person"
-              key={person.id}
+      <Stack gap="0">
+        {household.map((person) => (
+          <Box
+            key={person.id}
+            minH="72px"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap="16px"
+            px="16px"
+            py="11px"
+            borderBottomWidth="1px"
+            borderColor="#dddcd5"
+            css={{
+              "&:last-child": {
+                borderBottomWidth: "0",
+              },
+              "@media (max-width: 620px)": {
+                alignItems: "flex-start",
+                flexDirection: "column",
+              },
+            }}
+          >
+            <HStack
+              minW="0"
+              flex="1"
+              gap="11px"
             >
-              <div className="member-household-person-main">
-                <div className="member-household-avatar">
-                  {person.full_name
-                    .trim()
-                    .charAt(0)
-                    .toUpperCase()}
-                </div>
+              <Box
+                w="34px"
+                h="34px"
+                flex="0 0 auto"
+                display="grid"
+                placeItems="center"
+                borderRadius="999px"
+                bg="#e7f3ef"
+                color="#005d41"
+                fontSize="11px"
+                fontWeight="800"
+              >
+                {person.full_name
+                  .trim()
+                  .charAt(0)
+                  .toUpperCase()}
+              </Box>
 
-                <div className="member-household-person-copy">
-                  <div className="member-household-person-title">
-                    <strong>
-                      {person.full_name}
-                    </strong>
+              <Stack
+                minW="0"
+                gap="4px"
+              >
+                <HStack
+                  gap="7px"
+                  flexWrap="wrap"
+                >
+                  <Text as="strong">
+                    {person.full_name}
+                  </Text>
 
-                    <span className={`member-household-role ${person.member_role}`}>
-                      {roleLabel(
-                        person.member_role,
-                      )}
-                    </span>
-                  </div>
+                  <Box
+                    as="span"
+                    display="inline-flex"
+                    alignItems="center"
+                    w="fit-content"
+                    minH="22px"
+                    px="7px"
+                    borderWidth="1px"
+                    borderColor={
+                      person.member_role === "primary"
+                        ? "#b7ddcf"
+                        : "#dddcd5"
+                    }
+                    borderRadius="999px"
+                    bg={
+                      person.member_role === "primary"
+                        ? "#e7f3ef"
+                        : "#fbfaf7"
+                    }
+                    color={
+                      person.member_role === "primary"
+                        ? "#005d41"
+                        : "#6d7169"
+                    }
+                    fontSize="9px"
+                    fontWeight="800"
+                    letterSpacing="0.03em"
+                    textTransform="capitalize"
+                  >
+                    {roleLabel(
+                      person.member_role,
+                    )}
+                  </Box>
+                </HStack>
 
-                  <small>
-                    {[
-                      person.email,
-                      person.phone,
-                      person
-                        .dietary_restrictions,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ") ||
-                      "No additional details"}
-                  </small>
-                </div>
-              </div>
+                <Text
+                  as="small"
+                  color="#6d7169"
+                  fontSize="11px"
+                >
+                  {[
+                    person.email,
+                    person.phone,
+                    person.dietary_restrictions,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") ||
+                    "No additional details"}
+                </Text>
+              </Stack>
+            </HStack>
 
-              <div className="member-household-person-actions">
-                <button
-                  className="app-button"
+            <HStack
+              flex="0 0 auto"
+              gap="7px"
+              flexWrap="wrap"
+              css={{
+                "@media (max-width: 620px)": {
+                  width: "100%",
+                  "& > button": {
+                    flex: "1 1 auto",
+                  },
+                },
+              }}
+            >
+              <Button
+                type="button"
+                disabled={disabled || busy}
+                minH="34px"
+                borderWidth="1px"
+                borderColor="#dddcd5"
+                borderRadius="8px"
+                bg="#ffffff"
+                px="11px"
+                fontSize="12px"
+                fontWeight="650"
+                onClick={() =>
+                  beginEdit(person)
+                }
+              >
+                Edit
+              </Button>
+
+              {person.member_role ===
+                "adult" && (
+                <Button
                   type="button"
-                  disabled={
-                    disabled ||
-                    busy
-                  }
+                  disabled={disabled || busy}
+                  minH="34px"
+                  borderWidth="1px"
+                  borderColor="#b7ddcf"
+                  borderRadius="8px"
+                  bg="#ffffff"
+                  px="11px"
+                  color="#005d41"
+                  fontSize="12px"
+                  fontWeight="650"
                   onClick={() =>
-                    beginEdit(person)
+                    void makePrimary(person)
                   }
                 >
-                  Edit
-                </button>
+                  Make default lead
+                </Button>
+              )}
 
-                {person.member_role ===
-                  "adult" && (
-                  <button
-                    type="button"
-                    className="app-button member-household-primary-action"
-                    disabled={
-                      disabled ||
-                      busy
-                    }
-                    onClick={() =>
-                      void makePrimary(
-                        person,
-                      )
-                    }
-                  >
-                    Make default lead
-                  </button>
-                )}
-
-                {person.member_role !==
-                  "primary" && (
-                  <button
-                    type="button"
-                    className="app-button app-button-danger member-household-remove-action"
-                    disabled={
-                      disabled ||
-                      busy
-                    }
-                    onClick={() =>
-                      void removePerson(
-                        person,
-                      )
-                    }
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
-            </div>
-          ),
-        )}
-      </div>
+              {person.member_role !==
+                "primary" && (
+                <Button
+                  type="button"
+                  disabled={disabled || busy}
+                  minH="34px"
+                  borderWidth="1px"
+                  borderColor="#dddcd5"
+                  borderRadius="8px"
+                  bg="#ffffff"
+                  px="11px"
+                  color="#b63a33"
+                  fontSize="12px"
+                  fontWeight="650"
+                  _hover={{
+                    borderColor: "#b63a33",
+                    bg: "#fff0ef",
+                  }}
+                  onClick={() =>
+                    void removePerson(person)
+                  }
+                >
+                  Remove
+                </Button>
+              )}
+            </HStack>
+          </Box>
+        ))}
+      </Stack>
 
       {(adding || editingId) && (
-        <div className="member-household-form">
-          <div className="member-household-form-head">
-            <div>
-              <strong>
+        <Box
+          maxW="720px"
+          m="14px 16px 16px"
+          p="16px"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="10px"
+          bg="#fbfaf7"
+          css={{
+            "@media (max-width: 620px)": {
+              margin: "10px",
+              padding: "14px",
+            },
+          }}
+        >
+          <Box mb="14px">
+            <Stack gap="3px">
+              <Text as="strong">
                 {editingId
                   ? "Edit person"
                   : "Add person"}
-              </strong>
+              </Text>
 
-              <span>
+              <Text
+                as="span"
+                color="#6d7169"
+                fontSize="11px"
+              >
                 {editingId
                   ? "Update this household profile."
                   : "Add an Adult or Child to your household."}
-              </span>
-            </div>
-          </div>
+              </Text>
+            </Stack>
+          </Box>
 
-          <div className="member-household-form-grid">
-            <label>
-              <span>
+          <Grid
+            templateColumns="repeat(2, minmax(0, 1fr))"
+            gap="12px"
+            css={{
+              "@media (max-width: 620px)": {
+                gridTemplateColumns: "1fr",
+              },
+            }}
+          >
+            <Stack as="label" gap="6px">
+              <Text
+                as="span"
+                color="#6d7169"
+                fontSize="11px"
+                fontWeight="700"
+              >
                 Full name
-              </span>
+              </Text>
 
-              <input
+              <Input
                 autoFocus
-                value={
-                  draft.full_name
-                }
+                value={draft.full_name}
+                minH="40px"
+                borderColor="#c8c7bf"
+                borderRadius="8px"
+                bg="#ffffff"
+                px="11px"
+                _focus={{
+                  borderColor: "#007854",
+                  boxShadow:
+                    "0 0 0 3px #e7f3ef",
+                }}
                 onChange={(event) =>
-                  setDraft(
-                    (current) => ({
-                      ...current,
-                      full_name:
-                        event.target
-                          .value,
-                    }),
-                  )
+                  setDraft((current) => ({
+                    ...current,
+                    full_name:
+                      event.target.value,
+                  }))
                 }
               />
-            </label>
+            </Stack>
 
             {!editingId && (
-              <label>
-                <span>Role</span>
+              <Stack as="label" gap="6px">
+                <Text
+                  as="span"
+                  color="#6d7169"
+                  fontSize="11px"
+                  fontWeight="700"
+                >
+                  Role
+                </Text>
 
-                <select
-                  value={
-                    draft.member_role
-                  }
-                  onChange={(event) =>
-                    setDraft(
-                      (current) => ({
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    value={draft.member_role}
+                    minH="40px"
+                    borderColor="#c8c7bf"
+                    borderRadius="8px"
+                    bg="#ffffff"
+                    onChange={(event) =>
+                      setDraft((current) => ({
                         ...current,
                         member_role:
                           event.target
                             .value as
                             | "adult"
                             | "child",
-                      }),
-                    )
-                  }
-                >
-                  <option value="adult">
-                    Adult
-                  </option>
+                      }))
+                    }
+                  >
+                    <option value="adult">
+                      Adult
+                    </option>
 
-                  <option value="child">
-                    Child
-                  </option>
-                </select>
-              </label>
+                    <option value="child">
+                      Child
+                    </option>
+                  </NativeSelect.Field>
+
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Stack>
             )}
 
-            <label>
-              <span>Email</span>
+            <Stack as="label" gap="6px">
+              <Text
+                as="span"
+                color="#6d7169"
+                fontSize="11px"
+                fontWeight="700"
+              >
+                Email
+              </Text>
 
-              <input
+              <Input
                 type="email"
                 value={draft.email}
+                minH="40px"
+                borderColor="#c8c7bf"
+                borderRadius="8px"
+                bg="#ffffff"
+                px="11px"
+                _focus={{
+                  borderColor: "#007854",
+                  boxShadow:
+                    "0 0 0 3px #e7f3ef",
+                }}
                 onChange={(event) =>
-                  setDraft(
-                    (current) => ({
-                      ...current,
-                      email:
-                        event.target
-                          .value,
-                    }),
-                  )
+                  setDraft((current) => ({
+                    ...current,
+                    email: event.target.value,
+                  }))
                 }
               />
-            </label>
+            </Stack>
 
-            <label>
-              <span>Phone</span>
+            <Stack as="label" gap="6px">
+              <Text
+                as="span"
+                color="#6d7169"
+                fontSize="11px"
+                fontWeight="700"
+              >
+                Phone
+              </Text>
 
-              <input
+              <Input
                 value={draft.phone}
+                minH="40px"
+                borderColor="#c8c7bf"
+                borderRadius="8px"
+                bg="#ffffff"
+                px="11px"
+                _focus={{
+                  borderColor: "#007854",
+                  boxShadow:
+                    "0 0 0 3px #e7f3ef",
+                }}
                 onChange={(event) =>
-                  setDraft(
-                    (current) => ({
-                      ...current,
-                      phone:
-                        event.target
-                          .value,
-                    }),
-                  )
+                  setDraft((current) => ({
+                    ...current,
+                    phone: event.target.value,
+                  }))
                 }
               />
-            </label>
+            </Stack>
 
-            <label className="member-household-dietary">
-              <span>
+            <Stack
+              as="label"
+              gridColumn="1 / -1"
+              gap="6px"
+              css={{
+                "@media (max-width: 620px)": {
+                  gridColumn: "auto",
+                },
+              }}
+            >
+              <Text
+                as="span"
+                color="#6d7169"
+                fontSize="11px"
+                fontWeight="700"
+              >
                 Dietary notes
-              </span>
+              </Text>
 
-              <input
+              <Input
                 value={
-                  draft
-                    .dietary_restrictions
+                  draft.dietary_restrictions
                 }
+                minH="40px"
+                borderColor="#c8c7bf"
+                borderRadius="8px"
+                bg="#ffffff"
+                px="11px"
+                _focus={{
+                  borderColor: "#007854",
+                  boxShadow:
+                    "0 0 0 3px #e7f3ef",
+                }}
                 onChange={(event) =>
-                  setDraft(
-                    (current) => ({
-                      ...current,
-                      dietary_restrictions:
-                        event.target
-                          .value,
-                    }),
-                  )
+                  setDraft((current) => ({
+                    ...current,
+                    dietary_restrictions:
+                      event.target.value,
+                  }))
                 }
               />
-            </label>
-          </div>
+            </Stack>
+          </Grid>
 
           {error && (
-            <div className="app-alert app-alert-danger">
+            <Box
+              mt="14px"
+              px="12px"
+              py="10px"
+              borderRadius="8px"
+              bg="#fff0ef"
+              color="#b63a33"
+              fontSize="12px"
+              fontWeight="650"
+            >
               {error}
-            </div>
+            </Box>
           )}
 
-          <div className="member-household-form-actions">
-            <button
+          <HStack
+            mt="14px"
+            gap="8px"
+            css={{
+              "@media (max-width: 620px)": {
+                width: "100%",
+              },
+            }}
+          >
+            <Button
               type="button"
-              className="app-button app-button-primary"
               disabled={
                 busy ||
                 !draft.full_name.trim()
               }
+              minH="34px"
+              borderWidth="1px"
+              borderColor="#007854"
+              borderRadius="8px"
+              bg="#007854"
+              px="14px"
+              color="#ffffff"
+              fontSize="12px"
+              fontWeight="750"
+              _hover={{
+                borderColor: "#005d41",
+                bg: "#005d41",
+              }}
               onClick={() =>
                 void savePerson()
               }
@@ -650,29 +951,44 @@ export default function MemberHouseholdPanel({
               {busy
                 ? "Saving…"
                 : "Save changes"}
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
-              className="app-button"
               disabled={busy}
-              onClick={
-                closePersonForm
-              }
+              minH="34px"
+              borderWidth="1px"
+              borderColor="#dddcd5"
+              borderRadius="8px"
+              bg="#ffffff"
+              px="11px"
+              fontSize="12px"
+              fontWeight="650"
+              onClick={closePersonForm}
             >
               Cancel
-            </button>
-          </div>
-        </div>
+            </Button>
+          </HStack>
+        </Box>
       )}
 
       {error &&
         !adding &&
         !editingId && (
-          <div className="app-alert app-alert-danger member-household-error">
+          <Box
+            mx="16px"
+            mb="16px"
+            px="12px"
+            py="10px"
+            borderRadius="8px"
+            bg="#fff0ef"
+            color="#b63a33"
+            fontSize="12px"
+            fontWeight="650"
+          >
             {error}
-          </div>
+          </Box>
         )}
-    </section>
+    </Box>
   );
 }
