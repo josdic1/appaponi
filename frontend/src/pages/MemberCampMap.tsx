@@ -5,6 +5,12 @@ import {
   type KeyboardEvent,
 } from "react";
 
+import {
+  Box,
+  Text,
+  chakra,
+} from "@chakra-ui/react";
+
 import type {
   EventRegistration,
 } from "@appoponi/shared/schemas/registration";
@@ -64,21 +70,34 @@ function InteractiveFeature({
       : undefined;
 
   return (
-    <g
-      className={`member-map-place member-map-place-${feature.kind} ${
-        selected
-          ? "selected"
-          : ""
-      }`}
+    <chakra.g
       role="button"
       tabIndex={0}
-      aria-label={
-        feature.name
-      }
+      aria-label={feature.name}
+      cursor="pointer"
+      outline="none"
+      css={{
+        "& rect, & ellipse": {
+          fill: "transparent",
+          stroke: selected
+            ? "#007854"
+            : "transparent",
+          strokeWidth: selected
+            ? 2.25
+            : 1.5,
+          vectorEffect:
+            "non-scaling-stroke",
+        },
+        "&:hover rect, &:hover ellipse, &:focus-visible rect, &:focus-visible ellipse":
+          {
+            fill: "transparent",
+            stroke: selected
+              ? "#007854"
+              : "#9ccfbd",
+          },
+      }}
       onClick={onSelect}
-      onKeyDown={(
-        event,
-      ) =>
+      onKeyDown={(event) =>
         keyActivates(
           event,
           onSelect,
@@ -118,8 +137,7 @@ function InteractiveFeature({
           transform={featureTransform}
         />
       )}
-
-    </g>
+    </chakra.g>
   );
 }
 
@@ -185,52 +203,97 @@ export default function MemberCampMap({
           : null;
 
   return (
-    <section className="app-card member-card member-map-card">
-      <div className="app-card-head member-map-head">
-        <div>
-          <strong>
+    <Box
+      as="section"
+      mb="18px"
+      overflow="hidden"
+      borderWidth="1px"
+      borderColor="#dddcd5"
+      borderRadius="12px"
+      bg="#ffffff"
+    >
+      <Box
+        minH="58px"
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        gap="12px"
+        px="16px"
+        py="13px"
+        borderBottomWidth="1px"
+        borderColor="#dddcd5"
+      >
+        <Box
+          minW="0"
+          display="flex"
+          flexDirection="column"
+          gap="3px"
+        >
+          <Text
+            as="strong"
+            fontWeight="700"
+          >
             Camp map
-          </strong>
+          </Text>
 
-          <span>
+          <Text
+            as="span"
+            color="#6d7169"
+            fontSize="11px"
+          >
             {registration.cabin_name && assignedCabinSlot
               ? `${registration.cabin_name} is highlighted. Use Map from your itinerary to locate meals and activities.`
               : registration.cabin_name
                 ? `${registration.cabin_name} is assigned; its map location has not been set yet.`
                 : "Use Map from your itinerary to locate meals and activities."}
-          </span>
-        </div>
-      </div>
+          </Text>
+        </Box>
+      </Box>
 
-      <div className="member-map-shell">
-        <svg
-          className="member-map-svg"
+      <Box
+        position="relative"
+        overflow="hidden"
+        p="8px"
+        bg="#fbfaf7"
+      >
+        <chakra.svg
           viewBox={`0 0 ${CAMP_MAP_WIDTH} ${CAMP_MAP_HEIGHT}`}
           role="img"
           aria-label="Camp Mataponi map"
+          w="min(100%, 820px)"
+          h="auto"
+          display="block"
+          mx="auto"
+          maxH="650px"
+          overflow="hidden"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="#ffffff"
+          css={{
+            "@media (max-width: 760px)": {
+              maxHeight: "none",
+            },
+          }}
         >
           <CampMapBase />
 
-          <g className="member-map-cabin-slots">
+          <g>
             {CAMP_MAP_CABINS.map((slot) => (
               <CampCabinShape
                 key={slot.id}
                 slot={slot}
-                className="member-map-cabin-slot"
+                state="hidden"
               />
             ))}
           </g>
 
-          <g className="member-map-places">
+          <g>
             {CAMP_MAP_FEATURES.map(
               (feature) => (
                 <InteractiveFeature
-                  key={
-                    feature.id
-                  }
-                  feature={
-                    feature
-                  }
+                  key={feature.id}
+                  feature={feature}
                   selected={
                     selectedId ===
                     feature.id
@@ -247,24 +310,18 @@ export default function MemberCampMap({
             {registration
               .cabin_name &&
               assignedCabinSlot && (
-                <g
-                  className={`member-map-assigned-cabin ${
-                    selectedId ===
-                    "your-cabin"
-                      ? "selected"
-                      : ""
-                  }`}
+                <chakra.g
                   role="button"
                   tabIndex={0}
                   aria-label={`Your cabin: ${registration.cabin_name}`}
+                  cursor="pointer"
+                  outline="none"
                   onClick={() =>
                     setSelectedId(
                       "your-cabin",
                     )
                   }
-                  onKeyDown={(
-                    event,
-                  ) =>
+                  onKeyDown={(event) =>
                     keyActivates(
                       event,
                       () =>
@@ -276,10 +333,10 @@ export default function MemberCampMap({
                 >
                   <CampCabinShape
                     slot={assignedCabinSlot}
-                    className="member-map-assigned-cabin-shape"
+                    state="selected"
                   />
 
-                  <text
+                  <chakra.text
                     x={
                       assignedCabinSlot.x +
                       assignedCabinSlot.width /
@@ -289,64 +346,98 @@ export default function MemberCampMap({
                       assignedCabinSlot.y -
                       12
                     }
+                    fill="#005d41"
+                    fontSize="11px"
+                    fontWeight="800"
+                    textAnchor="middle"
+                    paintOrder="stroke"
+                    stroke="#f8f7f2"
+                    strokeWidth="4px"
+                    pointerEvents="none"
                   >
                     {
                       registration
                         .cabin_name
                     }
-                  </text>
-                </g>
+                  </chakra.text>
+                </chakra.g>
               )}
           </g>
-        </svg>
-      </div>
+        </chakra.svg>
+      </Box>
 
-      <div
-        className="member-map-detail"
+      <Box
+        minH="46px"
+        display="flex"
+        flexDirection="column"
+        gap="2px"
+        px="14px"
+        py="10px"
+        borderTopWidth="1px"
+        borderColor="#dddcd5"
         aria-live="polite"
       >
         {selectedName ? (
           <>
-            <strong>
+            <Text
+              as="strong"
+              fontWeight="700"
+            >
               {selectedName}
-            </strong>
+            </Text>
 
-            <span>
-              {
-                selectedDescription
-              }
-            </span>
+            <Text
+              as="span"
+              color="#6d7169"
+              fontSize="10px"
+            >
+              {selectedDescription}
+            </Text>
           </>
         ) : registration
             .cabin_name ? (
           <>
-            <strong>
+            <Text
+              as="strong"
+              fontWeight="700"
+            >
               Your cabin:{" "}
               {
                 registration
                   .cabin_name
               }
-            </strong>
+            </Text>
 
-            <span>
+            <Text
+              as="span"
+              color="#6d7169"
+              fontSize="10px"
+            >
               {assignedCabinSlot
                 ? "Highlighted on the map."
                 : "Assigned to your household. An admin still needs to set its map location."}
-            </span>
+            </Text>
           </>
         ) : (
           <>
-            <strong>
+            <Text
+              as="strong"
+              fontWeight="700"
+            >
               Camp Mataponi
-            </strong>
+            </Text>
 
-            <span>
+            <Text
+              as="span"
+              color="#6d7169"
+              fontSize="10px"
+            >
               Tap a place for
               details.
-            </span>
+            </Text>
           </>
         )}
-      </div>
-    </section>
+      </Box>
+    </Box>
   );
 }
