@@ -3,6 +3,13 @@ import {
   useState,
 } from "react";
 
+import {
+  Box,
+  Button,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
 import type {
   HouseholdMember,
 } from "@appoponi/shared/schemas/householdMembers";
@@ -62,37 +69,86 @@ export default function MemberHouseholdGate() {
 
   if (error) {
     return (
-      <main className="login-page">
-        <section className="login-card">
-          <div className="login-heading">
-            <h1>
+      <Box
+        as="main"
+        minH="100vh"
+        display="grid"
+        placeItems="center"
+        p="24px"
+        bg="#f6f5f1"
+      >
+        <Stack
+          as="section"
+          w="full"
+          maxW="390px"
+          gap="16px"
+          p="28px"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="#ffffff"
+        >
+          <Box
+            mt="26px"
+            mb="4px"
+          >
+            <Text
+              as="h1"
+              m="0"
+              fontSize="26px"
+              lineHeight="1.1"
+              letterSpacing="-0.04em"
+              fontWeight="700"
+            >
               Could not load household
-            </h1>
+            </Text>
 
-            <p>{error}</p>
-          </div>
+            <Text
+              mt="8px"
+              mb="0"
+              color="#6d7169"
+            >
+              {error}
+            </Text>
+          </Box>
 
-          <button
-            className="app-button app-button-primary app-button-block"
+          <Button
             type="button"
+            w="full"
+            minH="34px"
+            borderWidth="1px"
+            borderColor="#007854"
+            borderRadius="8px"
+            bg="#007854"
+            px="14px"
+            color="#ffffff"
+            fontSize="12px"
+            fontWeight="750"
+            _hover={{
+              borderColor: "#005d41",
+              bg: "#005d41",
+            }}
             onClick={() =>
               void refresh()
             }
           >
             Try again
-          </button>
+          </Button>
 
-          <button
-            className="household-setup-signout"
+          <Button
             type="button"
+            minH="38px"
+            border="0"
+            bg="transparent"
+            color="#6d7169"
             onClick={() =>
               void logout()
             }
           >
             Sign out
-          </button>
-        </section>
-      </main>
+          </Button>
+        </Stack>
+      </Box>
     );
   }
 
