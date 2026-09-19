@@ -4,6 +4,14 @@ import {
   useState,
 } from "react";
 
+import {
+  Box,
+  Button,
+  Input,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
 import type {
   MemberDirectoryHousehold,
 } from "@appoponi/shared/schemas/registration";
@@ -203,39 +211,130 @@ export default function MemberDirectory({
   }
 
   return (
-    <section className="app-card member-card member-directory-card">
-      <div className="app-card-head member-directory-head">
-        <div>
-          <strong>Who&apos;s here</strong>
-          <span>
+    <Box
+      as="section"
+      mb="0"
+      overflow="hidden"
+      borderWidth="1px"
+      borderColor="#dddcd5"
+      borderRadius="12px"
+      bg="#ffffff"
+    >
+      <Box
+        minH="58px"
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        gap="14px"
+        px="16px"
+        py="13px"
+        borderBottomWidth="1px"
+        borderColor="#dddcd5"
+      >
+        <Stack
+          minW="0"
+          gap="3px"
+        >
+          <Text
+            as="strong"
+            fontWeight="700"
+          >
+            Who&apos;s here
+          </Text>
+
+          <Text
+            as="span"
+            color="#6d7169"
+            fontSize="11px"
+          >
             {loading
               ? "Loading directory…"
-              : `${countLabel(households.length, "household", "households")} · ${countLabel(totalPeople, "guest", "guests")}`}
+              : `${countLabel(
+                  households.length,
+                  "household",
+                  "households",
+                )} · ${countLabel(
+                  totalPeople,
+                  "guest",
+                  "guests",
+                )}`}
             {usingCachedDirectory
               ? " · saved copy"
               : ""}
-          </span>
-        </div>
-      </div>
+          </Text>
+        </Stack>
+      </Box>
 
       {ownHousehold?.cabin_name && (
-        <div className="member-directory-privacy">
-          <div>
-            <strong>Cabin in directory</strong>
-            <span>
+        <Box
+          minH="62px"
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          gap="14px"
+          pl="16px"
+          pr="14px"
+          py="10px"
+          borderBottomWidth="1px"
+          borderColor="#dddcd5"
+          bg="#fbfaf7"
+          css={{
+            "@media (max-width: 700px)": {
+              alignItems: "flex-start",
+              flexDirection: "column",
+            },
+          }}
+        >
+          <Stack
+            minW="0"
+            gap="3px"
+          >
+            <Text
+              as="strong"
+              fontSize="11px"
+              fontWeight="700"
+            >
+              Cabin in directory
+            </Text>
+
+            <Text
+              as="span"
+              color="#6d7169"
+              fontSize="10px"
+              lineHeight="1.4"
+            >
               {ownHousehold.cabin_shared
                 ? `${ownHousehold.cabin_name} is visible to other households at this event.`
                 : `${ownHousehold.cabin_name} is visible only to your household.`}
-            </span>
-          </div>
+            </Text>
+          </Stack>
 
-          <button
+          <Button
             type="button"
-            className="app-button"
             disabled={
               changesUnavailable ||
               sharingBusy
             }
+            minH="34px"
+            h="34px"
+            flex="0 0 auto"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="8px"
+            bg="#ffffff"
+            px="11px"
+            color="#171915"
+            fontSize="12px"
+            fontWeight="650"
+            _hover={{
+              borderColor: "#c8c7bf",
+              bg: "#fbfaf7",
+            }}
+            css={{
+              "@media (max-width: 700px)": {
+                width: "100%",
+              },
+            }}
             onClick={() =>
               void toggleCabinSharing()
             }
@@ -245,53 +344,118 @@ export default function MemberDirectory({
               : ownHousehold.cabin_shared
                 ? "Hide cabin"
                 : "Share cabin"}
-          </button>
-        </div>
+          </Button>
+        </Box>
       )}
 
       {households.length > 4 && (
-        <div className="member-directory-search">
-          <input
+        <Box
+          px="12px"
+          py="10px"
+          borderBottomWidth="1px"
+          borderColor="#dddcd5"
+        >
+          <Input
             aria-label="Search event directory"
             type="search"
             placeholder="Find a household or guest"
             value={search}
+            w="full"
+            minH="40px"
+            borderColor="#c8c7bf"
+            borderRadius="8px"
+            bg="#ffffff"
+            px="11px"
+            color="#171915"
+            _focus={{
+              borderColor: "#007854",
+              boxShadow:
+                "0 0 0 3px #e7f3ef",
+            }}
             onChange={(event) =>
               setSearch(event.target.value)
             }
           />
-        </div>
+        </Box>
       )}
 
       {error && (
-        <div className="app-alert app-alert-danger member-directory-error">
+        <Box
+          role="alert"
+          mx="12px"
+          my="10px"
+          px="12px"
+          py="10px"
+          borderWidth="1px"
+          borderColor="transparent"
+          borderRadius="8px"
+          bg="#fff0ef"
+          color="#b63a33"
+          fontSize="12px"
+          fontWeight="650"
+        >
           {error}
-        </div>
+        </Box>
       )}
 
       {!loading &&
       !error &&
       filteredHouseholds.length === 0 ? (
-        <div className="app-empty app-empty-compact">
+        <Box
+          px="14px"
+          py="16px"
+          color="#6d7169"
+          textAlign="left"
+          fontSize="12px"
+        >
           {search
             ? "No households or guests match that search."
             : "No households are in this event yet."}
-        </div>
+        </Box>
       ) : (
-        <div className="member-directory-list">
+        <Stack gap="0">
           {filteredHouseholds.map(
             (item) => (
-              <article
-                className="member-directory-household"
+              <Box
+                as="article"
                 key={item.registration_id}
+                minW="0"
+                px="14px"
+                pt="12px"
+                pb="13px"
+                borderBottomWidth="1px"
+                borderColor="#dddcd5"
+                css={{
+                  "&:last-child": {
+                    borderBottomWidth: "0",
+                  },
+                }}
               >
-                <div className="member-directory-household-head">
-                  <div>
-                    <strong>
+                <Box
+                  display="flex"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  gap="12px"
+                >
+                  <Stack
+                    minW="0"
+                    gap="2px"
+                  >
+                    <Text
+                      as="strong"
+                      overflow="hidden"
+                      fontWeight="700"
+                      textOverflow="ellipsis"
+                      whiteSpace="nowrap"
+                    >
                       {item.household_name}
-                    </strong>
+                    </Text>
 
-                    <span>
+                    <Text
+                      as="span"
+                      color="#6d7169"
+                      fontSize="10px"
+                    >
                       {countLabel(
                         item.members.length,
                         "guest",
@@ -300,42 +464,98 @@ export default function MemberDirectory({
                       {item.is_own_household
                         ? " · Your household"
                         : ""}
-                    </span>
-                  </div>
+                    </Text>
+                  </Stack>
 
                   {item.cabin_name && (
-                    <small>
+                    <Text
+                      as="small"
+                      flex="0 0 auto"
+                      pt="2px"
+                      color="#6d7169"
+                      fontSize="10px"
+                      fontWeight="750"
+                      css={{
+                        "@media (max-width: 700px)": {
+                          maxWidth: "42%",
+                          overflow: "hidden",
+                          textOverflow:
+                            "ellipsis",
+                          whiteSpace: "nowrap",
+                        },
+                      }}
+                    >
                       {item.cabin_name}
-                    </small>
+                    </Text>
                   )}
-                </div>
+                </Box>
 
                 {item.members.length ? (
-                  <div className="member-directory-people">
+                  <Box
+                    display="flex"
+                    flexWrap="wrap"
+                    gap="6px 12px"
+                    mt="8px"
+                  >
                     {item.members.map(
                       (member) => (
-                        <span
-                          key={member.attendee_id}
+                        <Box
+                          as="span"
+                          key={
+                            member.attendee_id
+                          }
+                          position="relative"
+                          pl="9px"
+                          fontSize="11px"
+                          css={{
+                            "&::before": {
+                              content: '""',
+                              width: "3px",
+                              height: "3px",
+                              position:
+                                "absolute",
+                              left: "0",
+                              top: "0.55em",
+                              borderRadius:
+                                "50%",
+                              background:
+                                "#c8c7bf",
+                            },
+                          }}
                         >
                           {member.full_name}
-                        </span>
+                        </Box>
                       ),
                     )}
-                  </div>
+                  </Box>
                 ) : (
-                  <div className="member-directory-no-guests">
+                  <Text
+                    mt="8px"
+                    color="#6d7169"
+                    fontSize="10px"
+                  >
                     Guest names not selected yet.
-                  </div>
+                  </Text>
                 )}
-              </article>
+              </Box>
             ),
           )}
-        </div>
+        </Stack>
       )}
 
-      <div className="member-directory-privacy-note">
-        The directory shares household and attending guest names only. Contact and dietary details stay private.
-      </div>
-    </section>
+      <Box
+        px="14px"
+        py="10px"
+        borderTopWidth="1px"
+        borderColor="#dddcd5"
+        bg="#fbfaf7"
+        color="#6d7169"
+        fontSize="10px"
+        lineHeight="1.45"
+      >
+        The directory shares household and attending guest names only.
+        Contact and dietary details stay private.
+      </Box>
+    </Box>
   );
 }
