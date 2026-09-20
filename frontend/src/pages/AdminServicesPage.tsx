@@ -37,6 +37,8 @@ import {
 import HumanDateTimeInput from "../components/HumanDateTimeInput";
 import { humanDateTimeToIso } from "../lib/humanDateTime";
 
+import { AdminPageHeader } from "../components/AdminUi";
+
 type View = "orders" | "babysitting" | "notifications";
 
 type Props = {
@@ -172,26 +174,11 @@ export default function AdminServicesPage({ activeEventId = "" }: Props) {
   return (
     <Box as="section" minW="0">
       <Box mb="4">
-        <Text
-          fontSize="xs"
-          fontWeight="800"
-          letterSpacing="0.08em"
-          color="#6d7169"
-        >
-          ADMIN
-        </Text>
-
-        <Text
-          as="h1"
-          fontSize="2xl"
-          fontWeight="700"
-        >
-          Services
-        </Text>
-
-        <Text color="#6d7169">
-          Manage guest requests and communication. Food planning lives in Meal planning.
-        </Text>
+        <AdminPageHeader
+          eyebrow="Admin"
+          title="Services"
+          description="Manage guest requests and communication. Food planning lives in Meal planning."
+        />
       </Box>
 
       <HStack

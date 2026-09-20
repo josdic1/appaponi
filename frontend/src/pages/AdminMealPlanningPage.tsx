@@ -61,6 +61,8 @@ import { loadEvents } from "../api/operations";
 import HumanDateTimeInput from "../components/HumanDateTimeInput";
 import { humanDateTimeToIso } from "../lib/humanDateTime";
 
+import { AdminPageHeader } from "../components/AdminUi";
+
 type Props = {
   activeEventId?: string;
   focusRequest?: {
@@ -633,84 +635,55 @@ export default function AdminMealPlanningPage({
         md: undefined,
       }}
     >
-      <Box
-        display="flex"
-        flexDirection={{
-          base: "column",
-          lg: "row",
-        }}
-        alignItems={{
-          base: "flex-start",
-          lg: "flex-end",
-        }}
-        justifyContent="space-between"
-        gap="18px"
-        mb="4"
-      >
-        <Box>
-          <Text
-            fontSize="xs"
-            fontWeight="800"
-            letterSpacing="0.08em"
-            color="gray.500"
-          >
-            ADMIN
-          </Text>
+      <Box mb="4">
+        <AdminPageHeader
+          eyebrow="Admin"
+          title="Meal planning"
+          description="Plan each food service, then use the same food library for meals, receptions, and after-hours."
+          action={
+            <Grid
+              templateColumns={{
+                base: "auto minmax(0, 1fr) auto",
+              }}
+              alignItems="center"
+              gap="2"
+              minH="40px"
+              w={{
+                base: "full",
+                lg: "auto",
+              }}
+            >
+              <Text
+                fontSize="10px"
+                fontWeight="800"
+                textTransform="uppercase"
+                letterSpacing="0.08em"
+                color="gray.500"
+              >
+                Menu
+              </Text>
 
-          <Text
-            as="h1"
-            fontSize="2xl"
-            fontWeight="700"
-          >
-            Meal planning
-          </Text>
+              <Text
+                fontWeight="700"
+                minW="0"
+              >
+                {currentMenu?.name ?? "No menu"}
+              </Text>
 
-          <Text color="gray.600">
-            Plan each food service, then use the same food library for meals, receptions, and after-hours.
-          </Text>
-        </Box>
-
-        <Grid
-          templateColumns={{
-            base: "auto minmax(0, 1fr) auto",
-          }}
-          alignItems="center"
-          gap="2"
-          minH="40px"
-          w={{
-            base: "full",
-            lg: "auto",
-          }}
-        >
-          <Text
-            fontSize="10px"
-            fontWeight="800"
-            textTransform="uppercase"
-            letterSpacing="0.08em"
-            color="#6d7169"
-          >
-            Menu
-          </Text>
-
-          <Text
-            fontWeight="700"
-            minW="0"
-          >
-            {currentMenu?.name ?? "No menu"}
-          </Text>
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() =>
-              setShowMenuPicker(
-                (open) => !open,
-              )
-            }
-          >
-            Change
-          </Button>
-        </Grid>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setShowMenuPicker(
+                    (open) => !open,
+                  )
+                }
+              >
+                Change
+              </Button>
+            </Grid>
+          }
+        />
       </Box>
 
       {showMenuPicker && (
