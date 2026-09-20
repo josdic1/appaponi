@@ -819,13 +819,7 @@ export default function AdminPage() {
         ) : section === "services" ? (
           <AdminServicesPage activeEventId={activeEventId} />
         ) : (
-          <Box
-            px={{ base: "4", md: "6" }}
-            py="6"
-            maxW="1400px"
-            mx="auto"
-            w="full"
-          >
+          <Box w="full">
             <Stack gap="6">
               <Box
                 display="flex"

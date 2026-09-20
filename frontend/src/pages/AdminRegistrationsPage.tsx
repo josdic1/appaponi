@@ -163,10 +163,6 @@ export default function AdminRegistrationsPage({
   return (
     <Box
       as="section"
-      px={{ base: "4", md: "6" }}
-      py="6"
-      maxW="1400px"
-      mx="auto"
       w="full"
     >
       <Stack gap="6">
