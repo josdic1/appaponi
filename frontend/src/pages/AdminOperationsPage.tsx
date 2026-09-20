@@ -4,7 +4,6 @@ import {
   Button,
   Field,
   Grid,
-  Heading,
   HStack,
   Input,
   NativeSelect,
@@ -60,6 +59,8 @@ import HumanDateTimeInput from "../components/HumanDateTimeInput";
 import {
   humanDateTimeToIso,
 } from "../lib/humanDateTime";
+
+import { AdminPageHeader } from "../components/AdminUi";
 
 type View =
   | "areas"
@@ -733,25 +734,11 @@ export default function AdminOperationsPage() {
       w="full"
     >
       <Stack gap="6">
-        <Stack gap="1">
-          <Text
-            fontSize="xs"
-            fontWeight="700"
-            color="green.700"
-            letterSpacing="wide"
-            textTransform="uppercase"
-          >
-            Admin
-          </Text>
-
-          <Heading as="h1" size="2xl">
-            Events & libraries
-          </Heading>
-
-          <Text color="gray.600">
-            Build events from reusable places and activities.
-          </Text>
-        </Stack>
+        <AdminPageHeader
+          eyebrow="Admin"
+          title="Events & libraries"
+          description="Build events from reusable places and activities."
+        />
 
         <HStack
           gap="2"

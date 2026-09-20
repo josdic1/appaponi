@@ -5,7 +5,6 @@ import {
   Button,
   Field,
   Grid,
-  Heading,
   HStack,
   Input,
   NativeSelect,
@@ -63,6 +62,8 @@ import HumanDateTimeInput from "../components/HumanDateTimeInput";
 import {
   humanDateTimeToIso,
 } from "../lib/humanDateTime";
+
+import { AdminPageHeader } from "../components/AdminUi";
 
 type Props = {
   activeEventId?: string;
@@ -381,25 +382,11 @@ export default function AdminSchedulingPage({
           justifyContent="space-between"
           gap="5"
         >
-          <Stack gap="1">
-            <Text
-              fontSize="xs"
-              fontWeight="700"
-              color="green.700"
-              letterSpacing="wide"
-              textTransform="uppercase"
-            >
-              Admin
-            </Text>
-
-            <Heading as="h1" size="2xl">
-              Schedule
-            </Heading>
-
-            <Text color="gray.600">
-              See the event first. Add activities or change staffing only when you need to.
-            </Text>
-          </Stack>
+          <AdminPageHeader
+            eyebrow="Admin"
+            title="Schedule"
+            description="See the event first. Add activities or change staffing only when you need to."
+          />
 
           <Stack
             gap="3"

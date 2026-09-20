@@ -62,6 +62,8 @@ import { loadEvents } from "../api/operations";
 
 import { useAuth } from "../hooks/useAuth";
 
+import { AdminPageHeader } from "../components/AdminUi";
+
 type Section =
   | "event"
   | "households"
@@ -832,25 +834,11 @@ export default function AdminPage() {
                 justifyContent="space-between"
                 gap="4"
               >
-                <Stack gap="1">
-                  <Text
-                    fontSize="xs"
-                    fontWeight="700"
-                    color="green.700"
-                    letterSpacing="wide"
-                    textTransform="uppercase"
-                  >
-                    Admin
-                  </Text>
-
-                  <Heading as="h1" size="2xl">
-                    Accounts & households
-                  </Heading>
-
-                  <Text color="gray.600">
-                    Manage logins and the people inside each member household.
-                  </Text>
-                </Stack>
+                <AdminPageHeader
+                  eyebrow="Admin"
+                  title="Accounts & households"
+                  description="Manage logins and the people inside each member household."
+                />
 
                 <Button
                   type="button"

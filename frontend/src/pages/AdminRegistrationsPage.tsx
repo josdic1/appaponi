@@ -5,7 +5,6 @@ import {
   Button,
   Field,
   Grid,
-  Heading,
   HStack,
   Input,
   NativeSelect,
@@ -43,6 +42,8 @@ import {
 import {
   loadEvents,
 } from "../api/operations";
+
+import { AdminPageHeader } from "../components/AdminUi";
 
 type Props = {
   activeEventId?: string;
@@ -182,25 +183,11 @@ export default function AdminRegistrationsPage({
           justifyContent="space-between"
           gap="4"
         >
-          <Stack gap="1">
-            <Text
-              fontSize="xs"
-              fontWeight="700"
-              color="green.700"
-              letterSpacing="wide"
-              textTransform="uppercase"
-            >
-              Admin
-            </Text>
-
-            <Heading as="h1" size="2xl">
-              Guests + cabins
-            </Heading>
-
-            <Text color="gray.600">
-              See who is coming, where each household is staying, and the physical cabin location together.
-            </Text>
-          </Stack>
+          <AdminPageHeader
+            eyebrow="Admin"
+            title="Guests + cabins"
+            description="See who is coming, where each household is staying, and the physical cabin location together."
+          />
 
           <Button
             type="button"

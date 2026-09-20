@@ -28,6 +28,14 @@ import {
   loadEvents,
 } from "../api/operations";
 
+import {
+  AdminMetricCard,
+  AdminPageHeader,
+  AdminSectionCard,
+  AdminSectionHeader,
+} from "../components/AdminUi";
+
+
 type Destination =
   | "operations"
   | "scheduling"
@@ -413,71 +421,43 @@ export default function AdminEventHqPage({
       w="full"
     >
       <Stack gap="6">
-        <Box
-          display="flex"
-          flexDirection={{ base: "column", md: "row" }}
-          alignItems={{ base: "stretch", md: "flex-end" }}
-          justifyContent="space-between"
-          gap="4"
-        >
-          <Stack gap="1">
-            <Text
-              fontSize="xs"
-              fontWeight="700"
-              color="green.700"
-              letterSpacing="wide"
-              textTransform="uppercase"
-            >
-              Event HQ
-            </Text>
+        <AdminPageHeader
+          eyebrow="Event HQ"
+          title={hq?.event.name ?? "Event HQ"}
+          description={
+            hq
+              ? `${hq.event.event_type_name} · ${eventDateRange(hq.event)}`
+              : undefined
+          }
+          action={
+            events.length > 1 ? (
+              <Box w={{ base: "full", md: "280px" }}>
+                <Text fontSize="sm" fontWeight="600" mb="1">
+                  Event
+                </Text>
 
-            <Heading as="h1" size="2xl">
-              {hq?.event.name ?? "Event HQ"}
-            </Heading>
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    value={selectedEventId}
+                    onChange={(event) => {
+                      const next = event.target.value;
+                      setSelectedEventId(next);
+                      onActiveEventChange?.(next);
+                    }}
+                  >
+                    {events.map((event) => (
+                      <option key={event.id} value={event.id}>
+                        {event.name}
+                      </option>
+                    ))}
+                  </NativeSelect.Field>
 
-            {hq && (
-              <Text color="gray.600">
-                {hq.event.event_type_name}
-                {" · "}
-                {eventDateRange(hq.event)}
-              </Text>
-            )}
-          </Stack>
-
-          {events.length > 1 && (
-            <Box w={{ base: "full", md: "280px" }}>
-              <Text
-                fontSize="sm"
-                fontWeight="600"
-                mb="1"
-              >
-                Event
-              </Text>
-
-              <NativeSelect.Root>
-                <NativeSelect.Field
-                  value={selectedEventId}
-                  onChange={(event) => {
-                    const next = event.target.value;
-                    setSelectedEventId(next);
-                    onActiveEventChange?.(next);
-                  }}
-                >
-                  {events.map((event) => (
-                    <option
-                      key={event.id}
-                      value={event.id}
-                    >
-                      {event.name}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            </Box>
-          )}
-        </Box>
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Box>
+            ) : undefined
+          }
+        />
 
         {error && (
           <Alert.Root status="error">
@@ -542,126 +522,33 @@ export default function AdminEventHqPage({
               }}
               gap="4"
             >
-              <Box
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="xl"
-                bg="white"
-                p="4"
-              >
-                <Text
-                  fontSize="sm"
-                  color="gray.500"
-                >
-                  Guests
-                </Text>
+              <AdminMetricCard
+                label="Guests"
+                value={`${hq.metrics.people}/${hq.metrics.paid_spots}`}
+                detail="attending / paid"
+              />
 
-                <Text
-                  fontSize="2xl"
-                  fontWeight="700"
-                >
-                  {hq.metrics.people}/
-                  {hq.metrics.paid_spots}
-                </Text>
+              <AdminMetricCard
+                label="Cabins"
+                value={`${hq.metrics.cabins_assigned}/${hq.metrics.households}`}
+                detail="households placed"
+              />
 
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                >
-                  attending / paid
-                </Text>
-              </Box>
+              <AdminMetricCard
+                label="Staffing"
+                value={`${Math.max(
+                  hq.metrics.activities -
+                    hq.metrics.unstaffed_activities,
+                  0,
+                )}/${hq.metrics.activities}`}
+                detail="activities covered"
+              />
 
-              <Box
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="xl"
-                bg="white"
-                p="4"
-              >
-                <Text
-                  fontSize="sm"
-                  color="gray.500"
-                >
-                  Cabins
-                </Text>
-
-                <Text
-                  fontSize="2xl"
-                  fontWeight="700"
-                >
-                  {hq.metrics.cabins_assigned}/
-                  {hq.metrics.households}
-                </Text>
-
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                >
-                  households placed
-                </Text>
-              </Box>
-
-              <Box
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="xl"
-                bg="white"
-                p="4"
-              >
-                <Text
-                  fontSize="sm"
-                  color="gray.500"
-                >
-                  Staffing
-                </Text>
-
-                <Text
-                  fontSize="2xl"
-                  fontWeight="700"
-                >
-                  {Math.max(
-                    hq.metrics.activities -
-                      hq.metrics.unstaffed_activities,
-                    0,
-                  )}
-                  /{hq.metrics.activities}
-                </Text>
-
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                >
-                  activities covered
-                </Text>
-              </Box>
-
-              <Box
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="xl"
-                bg="white"
-                p="4"
-              >
-                <Text
-                  fontSize="sm"
-                  color="gray.500"
-                >
-                  Food
-                </Text>
-
-                <Text
-                  fontSize="2xl"
-                  fontWeight="700"
-                >
-                  {hq.metrics.meals}
-                </Text>
-
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                >
-                  {hq.metrics.meals === 0
+              <AdminMetricCard
+                label="Food"
+                value={hq.metrics.meals}
+                detail={
+                  hq.metrics.meals === 0
                     ? "no food services scheduled"
                     : hq.metrics.food_services_unready === 0
                       ? "services · food ready"
@@ -669,9 +556,9 @@ export default function AdminEventHqPage({
                           hq.metrics.food_services_unready === 1
                             ? "service needs food"
                             : "services need food"
-                        }`}
-                </Text>
-              </Box>
+                        }`
+                }
+              />
             </SimpleGrid>
 
             <Grid
@@ -682,42 +569,18 @@ export default function AdminEventHqPage({
               gap="5"
               alignItems="start"
             >
-              <Box
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="xl"
-                bg="white"
-                overflow="hidden"
-              >
-                <Box
-                  display="flex"
-                  alignItems="flex-start"
-                  justifyContent="space-between"
-                  gap="4"
-                  px="5"
-                  py="4"
-                  borderBottomWidth="1px"
-                  borderColor="gray.200"
-                >
-                  <Box>
-                    <Text fontWeight="700">
-                      At a glance
-                    </Text>
-
-                    <Text
-                      fontSize="sm"
-                      color="gray.500"
-                    >
-                      What needs attention before or during this event.
-                    </Text>
-                  </Box>
-
-                  {hq.metrics.unread_notices > 0 && (
-                    <Badge colorPalette="orange">
-                      {hq.metrics.unread_notices} unread notices
-                    </Badge>
-                  )}
-                </Box>
+              <AdminSectionCard>
+                <AdminSectionHeader
+                  title="At a glance"
+                  description="What needs attention before or during this event."
+                  action={
+                    hq.metrics.unread_notices > 0 ? (
+                      <Badge colorPalette="orange">
+                        {hq.metrics.unread_notices} unread notices
+                      </Badge>
+                    ) : undefined
+                  }
+                />
 
                 {attention.length ? (
                   <Stack gap="0">
@@ -787,49 +650,25 @@ export default function AdminEventHqPage({
                     </Text>
                   </Box>
                 )}
-              </Box>
+              </AdminSectionCard>
 
-              <Box
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="xl"
-                bg="white"
-                overflow="hidden"
-              >
-                <Box
-                  display="flex"
-                  alignItems="flex-start"
-                  justifyContent="space-between"
-                  gap="4"
-                  px="5"
-                  py="4"
-                  borderBottomWidth="1px"
-                  borderColor="gray.200"
-                >
-                  <Box>
-                    <Text fontWeight="700">
-                      Households
-                    </Text>
-
-                    <Text
-                      fontSize="sm"
-                      color="gray.500"
+              <AdminSectionCard>
+                <AdminSectionHeader
+                  title="Households"
+                  description="Registration and cabin snapshot."
+                  action={
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        onNavigate("registrations")
+                      }
                     >
-                      Registration and cabin snapshot.
-                    </Text>
-                  </Box>
-
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      onNavigate("registrations")
-                    }
-                  >
-                    Manage
-                  </Button>
-                </Box>
+                      Manage
+                    </Button>
+                  }
+                />
 
                 <Stack gap="0">
                   {hq.registrations.map(
@@ -872,58 +711,26 @@ export default function AdminEventHqPage({
                     ),
                   )}
                 </Stack>
-              </Box>
+              </AdminSectionCard>
             </Grid>
 
-            <Box
-              borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="xl"
-              bg="white"
-              overflow="hidden"
-            >
-              <Box
-                display="flex"
-                flexDirection={{
-                  base: "column",
-                  md: "row",
-                }}
-                alignItems={{
-                  base: "stretch",
-                  md: "flex-start",
-                }}
-                justifyContent="space-between"
-                gap="4"
-                px="5"
-                py="4"
-                borderBottomWidth="1px"
-                borderColor="gray.200"
-              >
-                <Box>
-                  <Text fontWeight="700">
-                    Schedule preview
-                  </Text>
-
-                  <Text
-                    fontSize="sm"
-                    color="gray.500"
+            <AdminSectionCard>
+              <AdminSectionHeader
+                title="Schedule preview"
+                description="The first few things happening in this event. Open Scheduling for the full calendar."
+                action={
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      onNavigate("scheduling")
+                    }
                   >
-                    The first few things happening in this event. Open
-                    Scheduling for the full calendar.
-                  </Text>
-                </Box>
-
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    onNavigate("scheduling")
-                  }
-                >
-                  Full schedule
-                </Button>
-              </Box>
+                    Full schedule
+                  </Button>
+                }
+              />
 
               {schedulePreview.length ? (
                 <Stack gap="0">
@@ -1026,7 +833,7 @@ export default function AdminEventHqPage({
                   </Text>
                 </Box>
               )}
-            </Box>
+            </AdminSectionCard>
           </Stack>
         )}
       </Stack>

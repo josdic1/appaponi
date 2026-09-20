@@ -6,7 +6,6 @@ import {
   Checkbox,
   Field,
   Grid,
-  Heading,
   HStack,
   Input,
   NativeSelect,
@@ -46,6 +45,8 @@ import {
 import {
   loadScheduling,
 } from "../api/scheduling";
+
+import { AdminPageHeader } from "../components/AdminUi";
 
 export default function AdminStaffPage() {
   const [accounts, setAccounts] =
@@ -306,26 +307,11 @@ export default function AdminStaffPage() {
       w="full"
     >
       <Stack gap="6">
-        <Stack gap="1">
-          <Text
-            fontSize="xs"
-            fontWeight="700"
-            color="green.700"
-            letterSpacing="wide"
-            textTransform="uppercase"
-          >
-            Admin
-          </Text>
-
-          <Heading as="h1" size="2xl">
-            Staff
-          </Heading>
-
-          <Text color="gray.600">
-            Staff profiles connect login accounts to camp staffing and
-            scheduling.
-          </Text>
-        </Stack>
+        <AdminPageHeader
+          eyebrow="Admin"
+          title="Staff"
+          description="Staff profiles connect login accounts to camp staffing and scheduling."
+        />
 
         {error && (
           <Alert.Root status="error">
