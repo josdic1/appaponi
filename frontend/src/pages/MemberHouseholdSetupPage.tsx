@@ -3,6 +3,14 @@ import {
 } from "react";
 
 import {
+  Box,
+  Button,
+  Input,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
+import {
   setupOwnHousehold,
 } from "../api/member";
 
@@ -89,144 +97,189 @@ export default function MemberHouseholdSetupPage({
   }
 
   return (
-    <main className="login-page">
-      <section className="login-card household-setup-card">
-        <div className="login-brand">
-          <div className="brand-mark">
-            A
-          </div>
-
-          <div>
-            <div className="brand-name">
-              Appaponi
-            </div>
-
-            <div className="brand-sub">
-              Household setup
-            </div>
-          </div>
-        </div>
-
-        <div className="login-heading">
-          <h1>
-            Set up your household
-          </h1>
-
-          <p>
-            Add the household name
-            and your own profile.
-            You&apos;ll become the default
-            household lead. The login
-            still belongs to the household.
-          </p>
-        </div>
-
-        <form
-          className="household-setup-form"
-          onSubmit={submit}
+    <Box
+      as="main"
+      minH="100vh"
+      display="grid"
+      placeItems="center"
+      p="24px"
+      bg="#f6f5f1"
+    >
+      <Box
+        as="section"
+        w="full"
+        maxW="520px"
+        p="28px"
+        borderWidth="1px"
+        borderColor="#dddcd5"
+        borderRadius="12px"
+        bg="#ffffff"
+      >
+        <Stack
+          direction="row"
+          alignItems="center"
+          gap="10px"
         >
-          <label>
-            <span>
-              Household name
-            </span>
+          <Box
+            w="28px"
+            h="28px"
+            display="grid"
+            placeItems="center"
+            flex="0 0 auto"
+            borderRadius="8px"
+            bg="#007854"
+            color="#ffffff"
+            fontSize="12px"
+            fontWeight="800"
+          >
+            A
+          </Box>
 
-            <input
-              autoFocus
-              required
-              value={householdName}
-              placeholder="Dicker Family"
-              onChange={(event) =>
-                setHouseholdName(
-                  event.target.value,
-                )
-              }
-            />
-          </label>
+          <Box>
+            <Text
+              fontSize="15px"
+              fontWeight="760"
+              letterSpacing="-0.03em"
+            >
+              Appaponi
+            </Text>
 
-          <label>
-            <span>Your full name</span>
+            <Text
+              mt="3px"
+              color="#6d7169"
+              fontSize="11px"
+            >
+              Household setup
+            </Text>
+          </Box>
+        </Stack>
 
-            <input
-              required
-              value={fullName}
-              placeholder="Josh Dicker"
-              onChange={(event) =>
-                setFullName(
-                  event.target.value,
-                )
-              }
-            />
-          </label>
+        <Box mt="26px" mb="4px">
+          <Text
+            as="h1"
+            m="0"
+            fontSize="26px"
+            lineHeight="1.1"
+            letterSpacing="-0.04em"
+            fontWeight="700"
+          >
+            Set up your household
+          </Text>
 
-          <label>
-            <span>Email</span>
+          <Text
+            mt="8px"
+            mb="0"
+            color="#6d7169"
+          >
+            Add the household name and your own profile.
+            You&apos;ll become the default household lead. The login
+            still belongs to the household.
+          </Text>
+        </Box>
 
-            <input
-              type="email"
-              value={email}
-              onChange={(event) =>
-                setEmail(
-                  event.target.value,
-                )
-              }
-            />
-          </label>
+        <form onSubmit={submit}>
+          <Stack
+            gap="14px"
+            mt="16px"
+          >
+          {[
+            ["Household name", householdName, setHouseholdName, "Dicker Family", undefined],
+            ["Your full name", fullName, setFullName, "Josh Dicker", undefined],
+            ["Email", email, setEmail, "", "email"],
+            ["Phone", phone, setPhone, "", undefined],
+            ["Dietary notes", dietary, setDietary, "", undefined],
+          ].map(([label, value, setter, placeholder, type], index) => (
+            <Stack
+              as="label"
+              gap="6px"
+              key={label as string}
+            >
+              <Text
+                as="span"
+                color="#6d7169"
+                fontSize="11px"
+                fontWeight="700"
+              >
+                {label as string}
+              </Text>
 
-          <label>
-            <span>Phone</span>
-
-            <input
-              value={phone}
-              onChange={(event) =>
-                setPhone(
-                  event.target.value,
-                )
-              }
-            />
-          </label>
-
-          <label>
-            <span>
-              Dietary notes
-            </span>
-
-            <input
-              value={dietary}
-              onChange={(event) =>
-                setDietary(
-                  event.target.value,
-                )
-              }
-            />
-          </label>
+              <Input
+                autoFocus={index === 0}
+                required={index < 2}
+                type={(type as string | undefined) ?? "text"}
+                value={value as string}
+                placeholder={placeholder as string}
+                minH="40px"
+                borderColor="#c8c7bf"
+                borderRadius="8px"
+                bg="#ffffff"
+                px="11px"
+                _focus={{
+                  borderColor: "#007854",
+                  boxShadow: "0 0 0 3px #e7f3ef",
+                }}
+                onChange={(event) =>
+                  (setter as React.Dispatch<React.SetStateAction<string>>)(
+                    event.target.value,
+                  )
+                }
+              />
+            </Stack>
+          ))}
 
           {error && (
-            <div className="app-alert app-alert-danger">
+            <Box
+              role="alert"
+              px="12px"
+              py="10px"
+              borderRadius="8px"
+              bg="#fff0ef"
+              color="#b63a33"
+              fontSize="12px"
+              fontWeight="650"
+            >
               {error}
-            </div>
+            </Box>
           )}
 
-          <button
-            className="app-button app-button-primary app-button-block"
+          <Button
             type="submit"
             disabled={saving}
+            w="full"
+            minH="34px"
+            borderWidth="1px"
+            borderColor="#007854"
+            borderRadius="8px"
+            bg="#007854"
+            px="14px"
+            color="#ffffff"
+            fontSize="12px"
+            fontWeight="750"
+            _hover={{
+              borderColor: "#005d41",
+              bg: "#005d41",
+            }}
           >
             {saving
               ? "Saving…"
               : "Create household"}
-          </button>
+          </Button>
 
-          <button
-            className="household-setup-signout"
+          <Button
             type="button"
+            minH="38px"
+            border="0"
+            bg="transparent"
+            color="#6d7169"
             onClick={() =>
               void logout()
             }
           >
             Sign out
-          </button>
+          </Button>
+          </Stack>
         </form>
-      </section>
-    </main>
+      </Box>
+    </Box>
   );
 }
