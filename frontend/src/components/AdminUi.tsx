@@ -4,7 +4,9 @@ import type {
 
 import {
   Box,
+  Button,
   Heading,
+  HStack,
   Stack,
   Text,
 } from "@chakra-ui/react";
@@ -188,5 +190,58 @@ export function AdminMetricCard({
         </Text>
       )}
     </Box>
+  );
+}
+
+type ViewToggleOption = {
+  value: string;
+  label: string;
+};
+
+type ViewToggleProps = {
+  value: string;
+  options: readonly ViewToggleOption[];
+  onChange: (value: string) => void;
+  label: string;
+};
+
+export function AdminViewToggle({
+  value,
+  options,
+  onChange,
+  label,
+}: ViewToggleProps) {
+  return (
+    <HStack
+      role="group"
+      aria-label={label}
+      gap="1"
+      p="1"
+      w="fit-content"
+      borderWidth="1px"
+      borderColor="gray.200"
+      borderRadius="lg"
+      bg="gray.50"
+    >
+      {options.map((option) => {
+        const active = value === option.value;
+
+        return (
+          <Button
+            key={option.value}
+            type="button"
+            size="sm"
+            minH="32px"
+            px="3"
+            variant={active ? "solid" : "ghost"}
+            colorPalette={active ? "green" : undefined}
+            aria-pressed={active}
+            onClick={() => onChange(option.value)}
+          >
+            {option.label}
+          </Button>
+        );
+      })}
+    </HStack>
   );
 }

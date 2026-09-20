@@ -63,11 +63,24 @@ import {
   humanDateTimeToIso,
 } from "../lib/humanDateTime";
 
-import { AdminPageHeader } from "../components/AdminUi";
+import {
+  AdminPageHeader,
+  AdminViewToggle,
+} from "../components/AdminUi";
+
+import {
+  AdminScheduleCalendarView,
+  AdminScheduleDailyView,
+} from "../components/AdminScheduleViews";
 
 type Props = {
   activeEventId?: string;
 };
+
+type ScheduleView =
+  | "daily"
+  | "itinerary"
+  | "calendar";
 
 function scheduleDayKey(value: string) {
   const date = new Date(value);
@@ -148,6 +161,9 @@ export default function AdminSchedulingPage({
   const [scheduleCapacity, setScheduleCapacity] =
     useState("");
   const [isAddingActivity, setIsAddingActivity] = useState(false);
+
+  const [scheduleView, setScheduleView] =
+    useState<ScheduleView>("itinerary");
 
   const [editingActivityId, setEditingActivityId] =
     useState<string | null>(null);
@@ -589,6 +605,78 @@ export default function AdminSchedulingPage({
         )}
 
         <Box
+          display="flex"
+          flexDirection={{
+            base: "column",
+            sm: "row",
+          }}
+          alignItems={{
+            base: "stretch",
+            sm: "center",
+          }}
+          justifyContent="space-between"
+          gap="3"
+        >
+          <AdminViewToggle
+            label="Schedule view"
+            value={scheduleView}
+            options={[
+              {
+                value: "daily",
+                label: "Daily",
+              },
+              {
+                value: "itinerary",
+                label: "Itinerary",
+              },
+              {
+                value: "calendar",
+                label: "Calendar",
+              },
+            ]}
+            onChange={(value) => {
+              if (
+                value === "daily" ||
+                value === "itinerary" ||
+                value === "calendar"
+              ) {
+                setScheduleView(value);
+              }
+            }}
+          />
+
+          <Text
+            fontSize="sm"
+            color="gray.500"
+          >
+            {visibleEventActivities.length} scheduled activities
+          </Text>
+        </Box>
+
+        {scheduleView === "daily" && (
+          <AdminScheduleDailyView
+            activities={visibleEventActivities}
+            assignments={eventActivityStaff}
+            onSelectActivity={(activityId) => {
+              setEditingActivityId(activityId);
+              setScheduleView("itinerary");
+            }}
+          />
+        )}
+
+        {scheduleView === "calendar" && (
+          <AdminScheduleCalendarView
+            activities={visibleEventActivities}
+            assignments={eventActivityStaff}
+            onSelectActivity={(activityId) => {
+              setEditingActivityId(activityId);
+              setScheduleView("itinerary");
+            }}
+          />
+        )}
+
+        {scheduleView === "itinerary" && (
+        <Box
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="xl"
@@ -959,6 +1047,8 @@ export default function AdminSchedulingPage({
             </Box>
           )}
         </Box>
+        )}
+
 
         <Box
           borderWidth="1px"
