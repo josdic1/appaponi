@@ -14,8 +14,18 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  BedDouble,
+  BellRing,
+  CalendarDays,
+  CalendarRange,
+  ClipboardList,
+  UserRoundCog,
+  UsersRound,
+  UtensilsCrossed,
+} from "lucide-react";
 
-import AppSectionStack from "../components/AppSectionStack";
+import AdminWorkspace from "../components/AdminWorkspace";
 import AdminEventHqPage from "./AdminEventHqPage";
 import AdminStaffPage from "./AdminStaffPage";
 import AdminOperationsPage from "./AdminOperationsPage";
@@ -646,61 +656,66 @@ export default function AdminPage() {
         </HStack>
       </Box>
 
-      <AppSectionStack
-        label="Admin sections"
-        items={[
-            {
-              id: "event",
-              label: "Event HQ",
-              active: section === "event",
-              onClick: () => setSection("event"),
-            },
-            {
-              id: "households",
-              label: "Accounts",
-              active: section === "households",
-              onClick: () => setSection("households"),
-            },
-            {
-              id: "staff",
-              label: "Staff",
-              active: section === "staff",
-              onClick: () => setSection("staff"),
-            },
-            {
-              id: "operations",
-              label: "Operations",
-              active: section === "operations",
-              onClick: () => setSection("operations"),
-            },
-            {
-              id: "scheduling",
-              label: "Scheduling",
-              active: section === "scheduling",
-              onClick: () => setSection("scheduling"),
-            },
-            {
-              id: "registrations",
-              label: "Guests + cabins",
-              active: section === "registrations",
-              onClick: () => setSection("registrations"),
-            },
-            {
-              id: "meals",
-              label: "Meal planning",
-              active: section === "meals",
-              onClick: () => setSection("meals"),
-            },
-            {
-              id: "services",
-              label: "Services",
-              active: section === "services",
-              onClick: () => setSection("services"),
-            },
+      <AdminWorkspace
+        sections={[
+          {
+            id: "event",
+            label: "Event HQ",
+            icon: CalendarDays,
+            active: section === "event",
+            onClick: () => setSection("event"),
+          },
+          {
+            id: "households",
+            label: "Accounts",
+            icon: UsersRound,
+            active: section === "households",
+            onClick: () => setSection("households"),
+          },
+          {
+            id: "staff",
+            label: "Staff",
+            icon: UserRoundCog,
+            active: section === "staff",
+            onClick: () => setSection("staff"),
+          },
+          {
+            id: "operations",
+            label: "Operations",
+            icon: ClipboardList,
+            active: section === "operations",
+            onClick: () => setSection("operations"),
+          },
+          {
+            id: "scheduling",
+            label: "Scheduling",
+            icon: CalendarRange,
+            active: section === "scheduling",
+            onClick: () => setSection("scheduling"),
+          },
+          {
+            id: "registrations",
+            label: "Guests + cabins",
+            icon: BedDouble,
+            active: section === "registrations",
+            onClick: () => setSection("registrations"),
+          },
+          {
+            id: "meals",
+            label: "Meal planning",
+            icon: UtensilsCrossed,
+            active: section === "meals",
+            onClick: () => setSection("meals"),
+          },
+          {
+            id: "services",
+            label: "Services",
+            icon: BellRing,
+            active: section === "services",
+            onClick: () => setSection("services"),
+          },
         ]}
-      />
-
-      <main>
+      >
         {activeEvent &&
           ["scheduling", "registrations", "meals", "services"].includes(
             section,
@@ -1879,7 +1894,7 @@ export default function AdminPage() {
             </Stack>
           </Box>
         )}
-      </main>
+      </AdminWorkspace>
     </div>
   );
 }
