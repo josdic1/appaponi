@@ -427,7 +427,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="admin-page has-section-rail">
+    <div>
       <Box
         as="header"
         display="flex"
@@ -700,7 +700,7 @@ export default function AdminPage() {
         ]}
       />
 
-      <main className="admin-main">
+      <main>
         {activeEvent &&
           ["scheduling", "registrations", "meals", "services"].includes(
             section,

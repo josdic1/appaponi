@@ -499,7 +499,7 @@ export default function AdminCabinsPanel({
                   <g key={slot.id}>
                     <CampCabinShape
                       slot={slot}
-                      className="cabin-overview-glyph"
+
                       state={
                         assignment
                           ? "assigned"
@@ -1197,7 +1197,7 @@ export default function AdminCabinsPanel({
                       >
                         <CampCabinShape
                           slot={slot}
-                          className="cabin-picker-glyph"
+
                           state={
                             unavailable
                               ? "unavailable"

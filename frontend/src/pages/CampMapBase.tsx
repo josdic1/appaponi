@@ -169,9 +169,9 @@ export function CampCabinShape({
 
 export default function CampMapBase() {
   return (
-    <g className="member-map-base" aria-hidden="true">
+    <g aria-hidden="true">
       <image
-        className="camp-map-artwork"
+
         href={campMapArtwork}
         x="0"
         y="0"
@@ -180,7 +180,7 @@ export default function CampMapBase() {
         preserveAspectRatio="xMidYMid meet"
       />
       <rect
-        className="camp-map-artwork-wash"
+
         x="0"
         y="0"
         width={CAMP_MAP_WIDTH}
