@@ -3,6 +3,16 @@ import {
   useState,
 } from "react";
 
+import {
+  Box,
+  Button,
+  Grid,
+  HStack,
+  Stack,
+  Text,
+  chakra,
+} from "@chakra-ui/react";
+
 import type {
   StaffParticipant,
   StaffScheduledActivity,
@@ -792,11 +802,27 @@ export default function StaffPage() {
     );
 
   return (
-    <div className="member-app has-section-rail">
-      <header className="member-header">
-        <button
+    <Box
+      minH="100vh"
+      bg="#f6f5f1"
+    >
+      <Box
+        as="header"
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        gap="4"
+        px={{ base: "4", md: "6" }}
+        py="3"
+        bg="white"
+        borderBottomWidth="1px"
+        borderColor="gray.200"
+      >
+        <Button
           type="button"
-          className="app-home-brand member-home-brand"
+          variant="ghost"
+          h="auto"
+          p="1"
           aria-label="Appaponi home"
           onClick={() =>
             window.scrollTo({
@@ -805,33 +831,49 @@ export default function StaffPage() {
             })
           }
         >
-          <div className="brand-mark">
-            A
-          </div>
+          <HStack gap="3">
+            <Box
+              w="9"
+              h="9"
+              display="grid"
+              placeItems="center"
+              borderRadius="md"
+              bg="green.700"
+              color="white"
+              fontWeight="700"
+            >
+              A
+            </Box>
 
-          <div>
-            <strong>
-              Appaponi
-            </strong>
+            <Stack
+              gap="0"
+              alignItems="flex-start"
+            >
+              <Text fontWeight="700">
+                Appaponi
+              </Text>
 
-            <span>
-              Staff ·{" "}
-              {staffProfile?.full_name ??
-                account?.username}
-            </span>
-          </div>
-        </button>
+              <Text
+                fontSize="xs"
+                color="gray.500"
+              >
+                Staff ·{" "}
+                {staffProfile?.full_name ??
+                  account?.username}
+              </Text>
+            </Stack>
+          </HStack>
+        </Button>
 
-        <button
+        <Button
           type="button"
-          className="app-button"
-          onClick={() =>
-            void logout()
-          }
+          size="sm"
+          variant="outline"
+          onClick={() => void logout()}
         >
           Sign out
-        </button>
-      </header>
+        </Button>
+      </Box>
 
       <AppSectionStack
         label="Staff sections"
@@ -839,22 +881,19 @@ export default function StaffPage() {
           {
             id: "today",
             label: "Today",
-            targetId:
-              "staff-today",
+            targetId: "staff-today",
           },
           {
             id: "notices",
             label: unreadNotifications.length
               ? `Notices · ${unreadNotifications.length}`
               : "Notices",
-            targetId:
-              "staff-notices",
+            targetId: "staff-notices",
           },
           {
             id: "schedule",
             label: "Schedule",
-            targetId:
-              "staff-schedule",
+            targetId: "staff-schedule",
           },
           ...(hasBabysitting
             ? [
@@ -869,12 +908,38 @@ export default function StaffPage() {
         ]}
       />
 
-      <main className="member-main">
+      <Box
+        as="main"
+        w="full"
+        maxW="1400px"
+        mx="auto"
+        px={{ base: "4", md: "6" }}
+        py={{ base: "5", md: "7" }}
+      >
         {(!online ||
           usingCachedData ||
           pendingActions.length > 0 ||
           syncing) && (
-          <div className="app-alert app-alert-warning app-alert-sticky">
+          <Box
+            position="sticky"
+            top="76px"
+            zIndex="24"
+            mb="16px"
+            px="12px"
+            py="10px"
+            borderWidth="1px"
+            borderColor="#e1d4a8"
+            borderRadius="8px"
+            bg="#fff9e9"
+            color="#6a5821"
+            fontSize="12px"
+            fontWeight="650"
+            css={{
+              "@media (max-width: 760px)": {
+                top: "122px",
+              },
+            }}
+          >
             {syncing
               ? "Syncing attendance…"
               : !online || usingCachedData
@@ -882,216 +947,882 @@ export default function StaffPage() {
                 : "Attendance changes are waiting to sync."}
 
             {pendingActions.length > 0 && (
-              <span className="staff-sync-count">
+              <Text
+                as="span"
+                fontWeight="800"
+              >
                 {" "}
                 {pendingActions.length}{" "}
                 pending
-              </span>
+              </Text>
             )}
-          </div>
+          </Box>
         )}
 
-        <div
+        <Box
           id="staff-today"
-          className="member-title member-scroll-target"
+          mb="20px"
+          css={{
+            scrollMarginTop: "84px",
+            "@media (max-width: 760px)": {
+              scrollMarginTop: "128px",
+            },
+          }}
         >
-          <h1>Today</h1>
+          <Text
+            as="h1"
+            m="0"
+            fontSize={{ base: "27px", md: "30px" }}
+            lineHeight="1.05"
+            letterSpacing="-0.045em"
+            fontWeight="700"
+          >
+            Today
+          </Text>
 
-          <p>
+          <Text
+            mt="7px"
+            mb="0"
+            color="#6d7169"
+            fontSize="13px"
+            lineHeight="1.45"
+          >
             What is happening now, what is next, and what needs your action.
-          </p>
-        </div>
+          </Text>
+        </Box>
 
         {error && (
-          <div className="app-alert app-alert-danger app-alert-sticky">
+          <Box
+            position="sticky"
+            top="76px"
+            zIndex="24"
+            mb="16px"
+            px="12px"
+            py="10px"
+            borderWidth="1px"
+            borderColor="transparent"
+            borderRadius="8px"
+            bg="#fff0ef"
+            color="#b63a33"
+            fontSize="12px"
+            fontWeight="650"
+            css={{
+              "@media (max-width: 760px)": {
+                top: "122px",
+              },
+            }}
+          >
             {error}
-          </div>
+          </Box>
         )}
 
-        <div className="staff-today-grid">
-          <section className="app-card staff-today-card">
-            <div className="app-card-head">
-              <div>
-                <strong>Now</strong>
-                <span>Active assignments.</span>
-              </div>
-              <span className="app-status-pill">
-                {activeActivities.length + activeBabysitting.length}
-              </span>
-            </div>
+        <Grid
+          className="staff-today-grid"
+          gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+          alignItems="start"
+          gap="12px"
+          mb="24px"
+          css={{
+            "@media (max-width: 1050px)": {
+              gridTemplateColumns: "1fr",
+            },
+          }}
+        >
+          <Box
+            as="section"
+            minW="0"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+          >
+            <HStack
+              minH="58px"
+              justifyContent="space-between"
+              gap="14px"
+              px="16px"
+              py="13px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+            >
+              <Stack
+                minW="0"
+                gap="3px"
+              >
+                <Text as="strong">
+                  Now
+                </Text>
 
-            {activeActivities.map((activity) => {
-              const people = participants.filter(
-                (person) =>
-                  person.event_activity_id === activity.id,
-              );
-              const missing = people.filter(
-                (person) => !person.checked_in_at,
-              ).length;
+                <Text
+                  as="span"
+                  color="#6d7169"
+                  fontSize="11px"
+                >
+                  Active assignments.
+                </Text>
+              </Stack>
 
-              return (
-                <div className="app-record-row" key={`now-activity-${activity.id}`}>
-                  <div className="app-record-copy">
-                    <strong>{activity.activity_name}</strong>
-                    <span>{staffActivityTimeRange(activity.starts_at, activity.ends_at)}</span>
-                    <small>{activity.area_name}{missing > 0 ? ` · ${missing} to mark present` : " · Attendance complete"}</small>
-                  </div>
-                  <div className="app-record-actions">
-                    <button
-                      type="button"
-                      className="app-button"
-                      onClick={() =>
-                        document.getElementById(`staff-activity-${activity.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
-                      }
+              <Box
+                display="inline-flex"
+                alignItems="center"
+                minH="26px"
+                flex="0 0 auto"
+                px="9px"
+                borderWidth="1px"
+                borderColor="#dddcd5"
+                borderRadius="999px"
+                bg="#fbfaf7"
+                color="#6d7169"
+                fontSize="11px"
+              >
+                {activeActivities.length +
+                  activeBabysitting.length}
+              </Box>
+            </HStack>
+
+            {activeActivities.map(
+              (activity) => {
+                const people =
+                  participants.filter(
+                    (person) =>
+                      person.event_activity_id ===
+                      activity.id,
+                  );
+
+                const missing =
+                  people.filter(
+                    (person) =>
+                      !person.checked_in_at,
+                  ).length;
+
+                return (
+                  <Box
+                    key={`now-activity-${activity.id}`}
+                    minH="72px"
+                    display="flex"
+                    alignItems="flex-start"
+                    justifyContent="space-between"
+                    gap="12px"
+                    px="14px"
+                    py="12px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    css={{
+                      "&:last-child": {
+                        borderBottomWidth: "0",
+                      },
+                      "@media (max-width: 760px)": {
+                        flexDirection: "column",
+                      },
+                    }}
+                  >
+                    <Stack
+                      minW="0"
+                      gap="3px"
                     >
-                      Attendance
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                      <Text as="strong">
+                        {activity.activity_name}
+                      </Text>
 
-            {activeBabysitting.map((request) => (
-              <div className="app-record-row" key={`now-babysitting-${request.id}`}>
-                <div className="app-record-copy">
-                  <strong>Babysitting · {request.member_names.join(", ")}</strong>
-                  <span>{staffActivityTimeRange(request.starts_at, request.ends_at)}</span>
-                  <small>{request.username}</small>
-                </div>
-                <span className="app-status-pill">{request.status}</span>
-              </div>
-            ))}
+                      <Text
+                        as="span"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {staffActivityTimeRange(
+                          activity.starts_at,
+                          activity.ends_at,
+                        )}
+                      </Text>
 
-            {activeActivities.length === 0 && activeBabysitting.length === 0 && (
-              <div className="app-empty app-empty-compact">Nothing assigned right now.</div>
+                      <Text
+                        as="small"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {activity.area_name}
+                        {missing > 0
+                          ? ` · ${missing} to mark present`
+                          : " · Attendance complete"}
+                      </Text>
+                    </Stack>
+
+                    <HStack
+                      flex="0 0 auto"
+                      gap="8px"
+                      flexWrap="wrap"
+                      css={{
+                        "@media (max-width: 760px)": {
+                          width: "100%",
+                          justifyContent:
+                            "space-between",
+                        },
+                      }}
+                    >
+                      <Button
+                        type="button"
+                        minH="34px"
+                        borderWidth="1px"
+                        borderColor="#dddcd5"
+                        borderRadius="8px"
+                        bg="#ffffff"
+                        px="11px"
+                        fontSize="12px"
+                        fontWeight="650"
+                        _hover={{
+                          borderColor:
+                            "#c8c7bf",
+                          bg: "#fbfaf7",
+                        }}
+                        onClick={() =>
+                          document
+                            .getElementById(
+                              `staff-activity-${activity.id}`,
+                            )
+                            ?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            })
+                        }
+                      >
+                        Attendance
+                      </Button>
+                    </HStack>
+                  </Box>
+                );
+              },
             )}
-          </section>
 
-          <section className="app-card staff-today-card">
-            <div className="app-card-head">
-              <div>
-                <strong>Next</strong>
-                <span>Upcoming timed work.</span>
-              </div>
-              <span className="app-status-pill">
+            {activeBabysitting.map(
+              (request) => (
+                <Box
+                  key={`now-babysitting-${request.id}`}
+                  minH="72px"
+                  display="flex"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  gap="12px"
+                  px="14px"
+                  py="12px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                  css={{
+                    "&:last-child": {
+                      borderBottomWidth: "0",
+                    },
+                    "@media (max-width: 760px)": {
+                      flexDirection: "column",
+                    },
+                  }}
+                >
+                  <Stack
+                    minW="0"
+                    gap="3px"
+                  >
+                    <Text as="strong">
+                      Babysitting ·{" "}
+                      {request.member_names.join(
+                        ", ",
+                      )}
+                    </Text>
+
+                    <Text
+                      as="span"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {staffActivityTimeRange(
+                        request.starts_at,
+                        request.ends_at,
+                      )}
+                    </Text>
+
+                    <Text
+                      as="small"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {request.username}
+                    </Text>
+                  </Stack>
+
+                  <Box
+                    display="inline-flex"
+                    alignItems="center"
+                    minH="26px"
+                    flex="0 0 auto"
+                    px="9px"
+                    borderWidth="1px"
+                    borderColor="#dddcd5"
+                    borderRadius="999px"
+                    bg="#fbfaf7"
+                    color="#6d7169"
+                    fontSize="11px"
+                  >
+                    {request.status}
+                  </Box>
+                </Box>
+              ),
+            )}
+
+            {activeActivities.length ===
+              0 &&
+              activeBabysitting.length ===
+                0 && (
+                <Box
+                  px="14px"
+                  py="16px"
+                  color="#6d7169"
+                  textAlign="left"
+                  fontSize="12px"
+                >
+                  Nothing assigned right now.
+                </Box>
+              )}
+          </Box>
+
+          <Box
+            as="section"
+            minW="0"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+          >
+            <HStack
+              minH="58px"
+              justifyContent="space-between"
+              gap="14px"
+              px="16px"
+              py="13px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+            >
+              <Stack
+                minW="0"
+                gap="3px"
+              >
+                <Text as="strong">
+                  Next
+                </Text>
+
+                <Text
+                  as="span"
+                  color="#6d7169"
+                  fontSize="11px"
+                >
+                  Upcoming timed work.
+                </Text>
+              </Stack>
+
+              <Box
+                display="inline-flex"
+                alignItems="center"
+                minH="26px"
+                px="9px"
+                borderWidth="1px"
+                borderColor="#dddcd5"
+                borderRadius="999px"
+                bg="#fbfaf7"
+                color="#6d7169"
+                fontSize="11px"
+              >
                 {upcomingTimedWork.length}
-              </span>
-            </div>
+              </Box>
+            </HStack>
 
             {upcomingTimedWork.length ? (
-              upcomingTimedWork.map((item) => (
-                <div className="app-record-row" key={item.key}>
-                  <div className="app-record-copy">
-                    <strong>{item.title}</strong>
-                    <span>{staffActivityTimeRange(item.starts_at, item.ends_at)}</span>
-                    <small>{item.kind} · {item.detail}</small>
-                  </div>
-                </div>
-              ))
+              upcomingTimedWork.map(
+                (item) => (
+                  <Box
+                    key={item.key}
+                    minH="72px"
+                    display="flex"
+                    alignItems="flex-start"
+                    justifyContent="space-between"
+                    gap="12px"
+                    px="14px"
+                    py="12px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    css={{
+                      "&:last-child": {
+                        borderBottomWidth: "0",
+                      },
+                      "@media (max-width: 760px)": {
+                        flexDirection: "column",
+                      },
+                    }}
+                  >
+                    <Stack
+                      minW="0"
+                      gap="3px"
+                    >
+                      <Text as="strong">
+                        {item.title}
+                      </Text>
+
+                      <Text
+                        as="span"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {staffActivityTimeRange(
+                          item.starts_at,
+                          item.ends_at,
+                        )}
+                      </Text>
+
+                      <Text
+                        as="small"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {item.kind} ·{" "}
+                        {item.detail}
+                      </Text>
+                    </Stack>
+                  </Box>
+                ),
+              )
             ) : (
-              <div className="app-empty app-empty-compact">No upcoming timed work.</div>
+              <Box
+                px="14px"
+                py="16px"
+                color="#6d7169"
+                textAlign="left"
+                fontSize="12px"
+              >
+                No upcoming timed work.
+              </Box>
             )}
-          </section>
+          </Box>
 
-          <section className="app-card staff-today-card staff-needs-action-card">
-            <div className="app-card-head">
-              <div>
-                <strong>Needs action</strong>
-                <span>Work waiting on you.</span>
-              </div>
-              <span className="app-status-pill">
-                {openFoodOrders.length + babysittingToComplete.length + attendanceToFinish.length}
-              </span>
-            </div>
+          <Box
+            as="section"
+            minW="0"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+          >
+            <HStack
+              minH="58px"
+              justifyContent="space-between"
+              gap="14px"
+              px="16px"
+              py="13px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+            >
+              <Stack
+                minW="0"
+                gap="3px"
+              >
+                <Text as="strong">
+                  Needs action
+                </Text>
 
-            {openFoodOrders.map((order) => (
-              <div className="app-record-row" key={`food-order-${order.id}`}>
-                <div className="app-record-copy">
-                  <strong>{foodOrderTitle(order)}</strong>
-                  <span>{foodOrderItems(order)}</span>
-                  <small>
-                    {order.username}
-                    {order.delivery_location ? ` · ${order.delivery_location}` : ""}
-                  </small>
-                </div>
-                <div className="app-record-actions">
-                  <button
-                    type="button"
-                    className="app-button app-button-primary"
-                    disabled={!online}
-                    onClick={() => void markFoodOrderFulfilled(order.id)}
+                <Text
+                  as="span"
+                  color="#6d7169"
+                  fontSize="11px"
+                >
+                  Work waiting on you.
+                </Text>
+              </Stack>
+
+              <Box
+                display="inline-flex"
+                alignItems="center"
+                minH="26px"
+                px="9px"
+                borderWidth="1px"
+                borderColor="#dddcd5"
+                borderRadius="999px"
+                bg="#fbfaf7"
+                color="#6d7169"
+                fontSize="11px"
+              >
+                {openFoodOrders.length +
+                  babysittingToComplete.length +
+                  attendanceToFinish.length}
+              </Box>
+            </HStack>
+
+            {openFoodOrders.map(
+              (order) => (
+                <Box
+                  key={`food-order-${order.id}`}
+                  minH="72px"
+                  display="flex"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  gap="12px"
+                  px="14px"
+                  py="12px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                  css={{
+                    "&:last-child": {
+                      borderBottomWidth: "0",
+                    },
+                    "@media (max-width: 760px)": {
+                      flexDirection: "column",
+                    },
+                  }}
+                >
+                  <Stack
+                    minW="0"
+                    gap="3px"
                   >
-                    Mark fulfilled
-                  </button>
-                </div>
-              </div>
-            ))}
+                    <Text as="strong">
+                      {foodOrderTitle(
+                        order,
+                      )}
+                    </Text>
 
-            {babysittingToComplete.map((request) => (
-              <div className="app-record-row" key={`complete-babysitting-${request.id}`}>
-                <div className="app-record-copy">
-                  <strong>Complete babysitting</strong>
-                  <span>{request.member_names.join(", ")}</span>
-                  <small>{staffActivityTimeRange(request.starts_at, request.ends_at)} · {request.username}</small>
-                </div>
-                <div className="app-record-actions">
-                  <button
-                    type="button"
-                    className="app-button app-button-primary"
-                    disabled={!online}
-                    onClick={() => void markBabysittingComplete(request.id)}
+                    <Text
+                      as="span"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {foodOrderItems(
+                        order,
+                      )}
+                    </Text>
+
+                    <Text
+                      as="small"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {order.username}
+                      {order.delivery_location
+                        ? ` · ${order.delivery_location}`
+                        : ""}
+                    </Text>
+                  </Stack>
+
+                  <HStack
+                    flex="0 0 auto"
+                    gap="8px"
+                    flexWrap="wrap"
+                    css={{
+                      "@media (max-width: 760px)": {
+                        width: "100%",
+                        justifyContent:
+                          "space-between",
+                      },
+                    }}
                   >
-                    Complete
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {attendanceToFinish.map(({ activity, missing }) => (
-              <div className="app-record-row" key={`attendance-${activity.id}`}>
-                <div className="app-record-copy">
-                  <strong>{activity.activity_name}</strong>
-                  <span>{missing} {missing === 1 ? "person" : "people"} still not marked present</span>
-                  <small>{staffActivityTimeRange(activity.starts_at, activity.ends_at)}</small>
-                </div>
-                <div className="app-record-actions">
-                  <button
-                    type="button"
-                    className="app-button"
-                    onClick={() =>
-                      document.getElementById(`staff-activity-${activity.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
-                    }
-                  >
-                    Review
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {openFoodOrders.length === 0 && babysittingToComplete.length === 0 && attendanceToFinish.length === 0 && (
-              <div className="app-empty app-empty-compact">Nothing needs action.</div>
+                    <Button
+                      type="button"
+                      disabled={!online}
+                      minH="34px"
+                      borderWidth="1px"
+                      borderColor="#007854"
+                      borderRadius="8px"
+                      bg="#007854"
+                      px="14px"
+                      color="#ffffff"
+                      fontSize="12px"
+                      fontWeight="750"
+                      _hover={{
+                        borderColor:
+                          "#005d41",
+                        bg: "#005d41",
+                      }}
+                      _disabled={{
+                        cursor: "default",
+                        opacity: 0.55,
+                      }}
+                      onClick={() =>
+                        void markFoodOrderFulfilled(
+                          order.id,
+                        )
+                      }
+                    >
+                      Mark fulfilled
+                    </Button>
+                  </HStack>
+                </Box>
+              ),
             )}
-          </section>
-        </div>
 
-        <section
+            {babysittingToComplete.map(
+              (request) => (
+                <Box
+                  key={`complete-babysitting-${request.id}`}
+                  minH="72px"
+                  display="flex"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  gap="12px"
+                  px="14px"
+                  py="12px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                  css={{
+                    "&:last-child": {
+                      borderBottomWidth: "0",
+                    },
+                    "@media (max-width: 760px)": {
+                      flexDirection: "column",
+                    },
+                  }}
+                >
+                  <Stack
+                    minW="0"
+                    gap="3px"
+                  >
+                    <Text as="strong">
+                      Complete babysitting
+                    </Text>
+
+                    <Text
+                      as="span"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {request.member_names.join(
+                        ", ",
+                      )}
+                    </Text>
+
+                    <Text
+                      as="small"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {staffActivityTimeRange(
+                        request.starts_at,
+                        request.ends_at,
+                      )}{" "}
+                      · {request.username}
+                    </Text>
+                  </Stack>
+
+                  <HStack
+                    flex="0 0 auto"
+                    gap="8px"
+                    flexWrap="wrap"
+                    css={{
+                      "@media (max-width: 760px)": {
+                        width: "100%",
+                        justifyContent:
+                          "space-between",
+                      },
+                    }}
+                  >
+                    <Button
+                      type="button"
+                      disabled={!online}
+                      minH="34px"
+                      borderWidth="1px"
+                      borderColor="#007854"
+                      borderRadius="8px"
+                      bg="#007854"
+                      px="14px"
+                      color="#ffffff"
+                      fontSize="12px"
+                      fontWeight="750"
+                      _hover={{
+                        borderColor:
+                          "#005d41",
+                        bg: "#005d41",
+                      }}
+                      _disabled={{
+                        cursor: "default",
+                        opacity: 0.55,
+                      }}
+                      onClick={() =>
+                        void markBabysittingComplete(
+                          request.id,
+                        )
+                      }
+                    >
+                      Complete
+                    </Button>
+                  </HStack>
+                </Box>
+              ),
+            )}
+
+            {attendanceToFinish.map(
+              ({ activity, missing }) => (
+                <Box
+                  key={`attendance-${activity.id}`}
+                  minH="72px"
+                  display="flex"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  gap="12px"
+                  px="14px"
+                  py="12px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                  css={{
+                    "&:last-child": {
+                      borderBottomWidth: "0",
+                    },
+                    "@media (max-width: 760px)": {
+                      flexDirection: "column",
+                    },
+                  }}
+                >
+                  <Stack
+                    minW="0"
+                    gap="3px"
+                  >
+                    <Text as="strong">
+                      {activity.activity_name}
+                    </Text>
+
+                    <Text
+                      as="span"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {missing}{" "}
+                      {missing === 1
+                        ? "person"
+                        : "people"}{" "}
+                      still not marked present
+                    </Text>
+
+                    <Text
+                      as="small"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {staffActivityTimeRange(
+                        activity.starts_at,
+                        activity.ends_at,
+                      )}
+                    </Text>
+                  </Stack>
+
+                  <HStack
+                    flex="0 0 auto"
+                    gap="8px"
+                    flexWrap="wrap"
+                    css={{
+                      "@media (max-width: 760px)": {
+                        width: "100%",
+                        justifyContent:
+                          "space-between",
+                      },
+                    }}
+                  >
+                    <Button
+                      type="button"
+                      minH="34px"
+                      borderWidth="1px"
+                      borderColor="#dddcd5"
+                      borderRadius="8px"
+                      bg="#ffffff"
+                      px="11px"
+                      fontSize="12px"
+                      fontWeight="650"
+                      _hover={{
+                        borderColor:
+                          "#c8c7bf",
+                        bg: "#fbfaf7",
+                      }}
+                      onClick={() =>
+                        document
+                          .getElementById(
+                            `staff-activity-${activity.id}`,
+                          )
+                          ?.scrollIntoView({
+                            behavior:
+                              "smooth",
+                            block: "start",
+                          })
+                      }
+                    >
+                      Review
+                    </Button>
+                  </HStack>
+                </Box>
+              ),
+            )}
+
+            {openFoodOrders.length ===
+              0 &&
+              babysittingToComplete.length ===
+                0 &&
+              attendanceToFinish.length ===
+                0 && (
+                <Box
+                  px="14px"
+                  py="16px"
+                  color="#6d7169"
+                  textAlign="left"
+                  fontSize="12px"
+                >
+                  Nothing needs action.
+                </Box>
+              )}
+          </Box>
+        </Grid>
+
+        <Box
+          as="section"
           id="staff-notices"
-          className="app-card member-card member-scroll-target"
+          mb="16px"
+          overflow="hidden"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="#ffffff"
+          css={{
+            scrollMarginTop: "84px",
+            "@media (max-width: 760px)": {
+              scrollMarginTop: "128px",
+            },
+          }}
         >
-          <div className="app-card-head">
-            <div>
-              <strong>Notices</strong>
-              <span>
+          <HStack
+            minH="58px"
+            justifyContent="space-between"
+            gap="14px"
+            px="16px"
+            py="13px"
+            borderBottomWidth="1px"
+            borderColor="#dddcd5"
+          >
+            <Stack
+              minW="0"
+              gap="3px"
+            >
+              <Text as="strong">
+                Notices
+              </Text>
+
+              <Text
+                as="span"
+                color="#6d7169"
+                fontSize="11px"
+              >
                 {unreadNotifications.length
                   ? `${unreadNotifications.length} unread`
                   : "You're caught up."}
-              </span>
-            </div>
-          </div>
+              </Text>
+            </Stack>
+          </HStack>
 
           {notificationPreferences && (
-            <div className="preference-list">
-              {[
+            <Stack
+              gap="0"
+              px="14px"
+              py="6px"
+            >
+              {([
                 [
                   "activity_reminders",
                   "Activity reminders · 30 min before",
@@ -1104,193 +1835,632 @@ export default function StaffPage() {
                   "general_notifications",
                   "General notices",
                 ],
-              ].map(([key, label]) => (
-                <label key={key}>
-                  <span>{label}</span>
-                  <input
-                    type="checkbox"
-                    disabled={!online}
-                    checked={
-                      notificationPreferences[
-                        key as
-                          | "activity_reminders"
-                          | "special_notifications"
-                          | "general_notifications"
-                      ]
-                    }
-                    onChange={(event) =>
-                      void changeStaffNotificationPreference(
-                        key as
-                          | "activity_reminders"
-                          | "special_notifications"
-                          | "general_notifications",
-                        event.target.checked,
-                      )
-                    }
-                  />
-                </label>
-              ))}
-            </div>
+              ] as const).map(
+                ([key, label]) => (
+                  <HStack
+                    as="label"
+                    key={key}
+                    minH="42px"
+                    justifyContent="space-between"
+                    gap="14px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    color="#171915"
+                    fontSize="12px"
+                    css={{
+                      "&:last-child": {
+                        borderBottomWidth: "0",
+                      },
+                    }}
+                  >
+                    <Text
+                      as="span"
+                      minW="0"
+                    >
+                      {label}
+                    </Text>
+
+                    <chakra.input
+                      type="checkbox"
+                      disabled={!online}
+                      checked={
+                        notificationPreferences[
+                          key
+                        ]
+                      }
+                      w="16px"
+                      h="16px"
+                      minH="16px"
+                      flex="0 0 auto"
+                      m="0"
+                      accentColor="#007854"
+                      onChange={(event) =>
+                        void changeStaffNotificationPreference(
+                          key,
+                          event.target.checked,
+                        )
+                      }
+                    />
+                  </HStack>
+                ),
+              )}
+            </Stack>
           )}
 
-          <div className="service-record-list">
+          <Stack gap="0">
             {notifications.length ? (
-              notifications.map((notice) => (
-                <div
-                  className="app-record-row"
-                  key={notice.id}
-                >
-                  <div className="app-record-copy">
-                    <strong>{notice.title}</strong>
-                    <span>{notice.body}</span>
-                    <small>
-                      {new Date(
-                        notice.scheduled_for ?? notice.created_at,
-                      ).toLocaleString()}
-                    </small>
-                  </div>
-                  <div className="app-record-actions">
-                    {notice.read_at ? (
-                      <span className="app-status-pill">Read</span>
-                    ) : (
-                      <button
-                        type="button"
-                        className="app-button"
-                        disabled={!online}
-                        onClick={() => void readStaffNotice(notice)}
-                      >
-                        Mark read
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="app-empty app-empty-compact">
-                No notices.
-              </div>
-            )}
-          </div>
-        </section>
+              notifications.map(
+                (notice) => (
+                  <Box
+                    key={notice.id}
+                    minH="64px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    gap="12px"
+                    px="14px"
+                    py="12px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    css={{
+                      "&:last-child": {
+                        borderBottomWidth: "0",
+                      },
+                      "@media (max-width: 760px)": {
+                        alignItems:
+                          "flex-start",
+                        flexDirection:
+                          "column",
+                      },
+                    }}
+                  >
+                    <Stack
+                      minW="0"
+                      gap="3px"
+                    >
+                      <Text as="strong">
+                        {notice.title}
+                      </Text>
 
-        <div
+                      <Text
+                        as="span"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {notice.body}
+                      </Text>
+
+                      <Text
+                        as="small"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {new Date(
+                          notice.scheduled_for ??
+                            notice.created_at,
+                        ).toLocaleString()}
+                      </Text>
+                    </Stack>
+
+                    <HStack
+                      justifyContent="flex-end"
+                      gap="8px"
+                      flexWrap="wrap"
+                      css={{
+                        "@media (max-width: 760px)": {
+                          width: "100%",
+                          justifyContent:
+                            "space-between",
+                        },
+                      }}
+                    >
+                      {notice.read_at ? (
+                        <Box
+                          display="inline-flex"
+                          alignItems="center"
+                          minH="26px"
+                          px="9px"
+                          borderWidth="1px"
+                          borderColor="#dddcd5"
+                          borderRadius="999px"
+                          bg="#fbfaf7"
+                          color="#6d7169"
+                          fontSize="11px"
+                        >
+                          Read
+                        </Box>
+                      ) : (
+                        <Button
+                          type="button"
+                          disabled={!online}
+                          minH="34px"
+                          borderWidth="1px"
+                          borderColor="#dddcd5"
+                          borderRadius="8px"
+                          bg="#ffffff"
+                          px="11px"
+                          fontSize="12px"
+                          fontWeight="650"
+                          _hover={{
+                            borderColor:
+                              "#c8c7bf",
+                            bg: "#fbfaf7",
+                          }}
+                          _disabled={{
+                            cursor:
+                              "default",
+                            opacity: 0.55,
+                          }}
+                          onClick={() =>
+                            void readStaffNotice(
+                              notice,
+                            )
+                          }
+                        >
+                          Mark read
+                        </Button>
+                      )}
+                    </HStack>
+                  </Box>
+                ),
+              )
+            ) : (
+              <Box
+                px="14px"
+                py="16px"
+                color="#6d7169"
+                textAlign="left"
+                fontSize="12px"
+              >
+                No notices.
+              </Box>
+            )}
+          </Stack>
+        </Box>
+
+        <Box
           id="staff-schedule"
-          className="member-title member-scroll-target staff-section-title"
+          mt="24px"
+          mb="20px"
+          css={{
+            scrollMarginTop: "84px",
+            "@media (max-width: 760px)": {
+              scrollMarginTop: "128px",
+            },
+          }}
         >
-          <h2>Schedule</h2>
-          <p>All assigned activities and participant attendance.</p>
-        </div>
+          <Text
+            as="h2"
+            m="0"
+            fontSize="22px"
+            letterSpacing="-0.03em"
+            fontWeight="700"
+          >
+            Schedule
+          </Text>
+
+          <Text
+            mt="7px"
+            mb="0"
+            color="#6d7169"
+            fontSize="13px"
+            lineHeight="1.45"
+          >
+            All assigned activities and participant attendance.
+          </Text>
+        </Box>
 
         {activities.length ? (
           activities.map((activity) => {
-            const people = participants.filter(
-              (person) =>
-                person.event_activity_id === activity.id,
-            );
+            const people =
+              participants.filter(
+                (person) =>
+                  person.event_activity_id ===
+                  activity.id,
+              );
 
-            const presentCount = people.filter(
-              (person) => person.checked_in_at,
-            ).length;
+            const presentCount =
+              people.filter(
+                (person) =>
+                  person.checked_in_at,
+              ).length;
 
             const attendanceLabel =
               people.length === 0
                 ? "No signups"
-                : presentCount === people.length
+                : presentCount ===
+                    people.length
                   ? `${presentCount}/${people.length} present`
                   : `${people.length - presentCount} to mark present`;
 
             return (
-              <section
+              <Box
+                as="section"
                 id={`staff-activity-${activity.id}`}
-                className="app-card member-card staff-activity-card member-scroll-target"
                 key={activity.id}
+                mb="12px"
+                overflow="hidden"
+                borderWidth="1px"
+                borderColor="#dddcd5"
+                borderRadius="12px"
+                bg="#ffffff"
+                css={{
+                  scrollMarginTop: "84px",
+                  "@media (max-width: 760px)": {
+                    scrollMarginTop:
+                      "128px",
+                  },
+                }}
               >
-                <div className="app-card-head staff-activity-head">
-                  <div>
-                    <strong>{activity.activity_name}</strong>
-                    <span>{staffActivityTimeRange(activity.starts_at, activity.ends_at)} · {activity.area_name}</span>
-                    <span>{activity.event_name}</span>
-                  </div>
-                  <span className="app-status-pill">{attendanceLabel}</span>
-                </div>
+                <HStack
+                  minH="72px"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  gap="14px"
+                  px="16px"
+                  py="13px"
+                  borderBottomWidth="1px"
+                  borderColor="#dddcd5"
+                  css={{
+                    "@media (max-width: 760px)": {
+                      alignItems:
+                        "flex-start",
+                      flexDirection:
+                        "column",
+                    },
+                  }}
+                >
+                  <Stack
+                    minW="0"
+                    gap="3px"
+                  >
+                    <Text as="strong">
+                      {activity.activity_name}
+                    </Text>
 
-                <div className="staff-participant-list">
+                    <Text
+                      as="span"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {staffActivityTimeRange(
+                        activity.starts_at,
+                        activity.ends_at,
+                      )}{" "}
+                      · {activity.area_name}
+                    </Text>
+
+                    <Text
+                      as="span"
+                      color="#6d7169"
+                      fontSize="11px"
+                    >
+                      {activity.event_name}
+                    </Text>
+                  </Stack>
+
+                  <Box
+                    display="inline-flex"
+                    alignItems="center"
+                    minH="26px"
+                    flex="0 0 auto"
+                    px="9px"
+                    borderWidth="1px"
+                    borderColor="#dddcd5"
+                    borderRadius="999px"
+                    bg="#fbfaf7"
+                    color="#6d7169"
+                    fontSize="11px"
+                  >
+                    {attendanceLabel}
+                  </Box>
+                </HStack>
+
+                <Stack gap="0">
                   {people.length ? (
                     people.map((person) => (
-                      <div className="app-record-row staff-attendance-row" key={person.signup_id}>
-                        <div className="app-record-copy">
-                          <strong>{person.member_name}</strong>
-                          {pendingActions.some((item) => item.signup_id === person.signup_id) && (
-                            <small>Pending sync</small>
+                      <Box
+                        key={
+                          person.signup_id
+                        }
+                        minH="54px"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        gap="12px"
+                        px="14px"
+                        py="8px"
+                        borderBottomWidth="1px"
+                        borderColor="#dddcd5"
+                        css={{
+                          "&:last-child": {
+                            borderBottomWidth:
+                              "0",
+                          },
+                        }}
+                      >
+                        <Stack
+                          minW="0"
+                          gap="3px"
+                        >
+                          <Text as="strong">
+                            {person.member_name}
+                          </Text>
+
+                          {pendingActions.some(
+                            (item) =>
+                              item.signup_id ===
+                              person.signup_id,
+                          ) && (
+                            <Text
+                              as="small"
+                              color="#6d7169"
+                              fontSize="11px"
+                            >
+                              Pending sync
+                            </Text>
                           )}
-                        </div>
-                        <div className="app-record-actions">
+                        </Stack>
+
+                        <HStack
+                          justifyContent="flex-end"
+                          gap="8px"
+                          flexWrap="wrap"
+                        >
                           {!person.checked_in_at ? (
-                            <button
-                              className="app-button"
+                            <Button
                               type="button"
-                              onClick={() => void markParticipantPresent(person.signup_id)}
+                              minH="34px"
+                              borderWidth="1px"
+                              borderColor="#dddcd5"
+                              borderRadius="8px"
+                              bg="#ffffff"
+                              px="11px"
+                              fontSize="12px"
+                              fontWeight="650"
+                              _hover={{
+                                borderColor:
+                                  "#c8c7bf",
+                                bg: "#fbfaf7",
+                              }}
+                              onClick={() =>
+                                void markParticipantPresent(
+                                  person.signup_id,
+                                )
+                              }
                             >
                               Mark present
-                            </button>
+                            </Button>
                           ) : (
-                            <span className="app-status-pill staff-present-state">Present</span>
+                            <Box
+                              display="inline-flex"
+                              alignItems="center"
+                              minH="26px"
+                              px="9px"
+                              borderWidth="1px"
+                              borderColor="#b7ddcf"
+                              borderRadius="999px"
+                              bg="#e7f3ef"
+                              color="#005d41"
+                              fontSize="11px"
+                            >
+                              Present
+                            </Box>
                           )}
-                        </div>
-                      </div>
+                        </HStack>
+                      </Box>
                     ))
                   ) : (
-                    <div className="app-empty app-empty-compact">No participants signed up.</div>
+                    <Box
+                      px="14px"
+                      py="16px"
+                      color="#6d7169"
+                      textAlign="left"
+                      fontSize="12px"
+                    >
+                      No participants signed up.
+                    </Box>
                   )}
-                </div>
-              </section>
+                </Stack>
+              </Box>
             );
           })
         ) : (
-          <section className="app-card member-card app-empty">No activities assigned.</section>
+          <Box
+            as="section"
+            mb="16px"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+            px="20px"
+            py="32px"
+            color="#6d7169"
+            textAlign="center"
+            fontSize="12px"
+          >
+            No activities assigned.
+          </Box>
         )}
 
         {hasBabysitting && (
-          <section
+          <Box
+            as="section"
             id="staff-babysitting"
-            className="app-card member-card staff-babysitting-card member-scroll-target"
+            mb="12px"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="#dddcd5"
+            borderRadius="12px"
+            bg="#ffffff"
+            css={{
+              scrollMarginTop: "84px",
+              "@media (max-width: 760px)": {
+                scrollMarginTop: "128px",
+              },
+            }}
           >
-            <div className="app-card-head">
-              <div>
-                <strong>Babysitting</strong>
-                <span>All assigned requests.</span>
-              </div>
-            </div>
+            <HStack
+              minH="58px"
+              justifyContent="space-between"
+              gap="14px"
+              px="16px"
+              py="13px"
+              borderBottomWidth="1px"
+              borderColor="#dddcd5"
+            >
+              <Stack
+                minW="0"
+                gap="3px"
+              >
+                <Text as="strong">
+                  Babysitting
+                </Text>
 
-            <div className="staff-babysitting-list">
+                <Text
+                  as="span"
+                  color="#6d7169"
+                  fontSize="11px"
+                >
+                  All assigned requests.
+                </Text>
+              </Stack>
+            </HStack>
+
+            <Stack gap="0">
               {babysitting
-                .filter((request) => request.status !== "cancelled")
+                .filter(
+                  (request) =>
+                    request.status !==
+                    "cancelled",
+                )
                 .map((request) => (
-                  <div className="app-record-row" key={request.id}>
-                    <div className="app-record-copy">
-                      <strong>{request.member_names.join(", ")}</strong>
-                      <span>{staffActivityTimeRange(request.starts_at, request.ends_at)}</span>
-                      <small>{request.username}{request.notes ? ` · ${request.notes}` : ""}</small>
-                    </div>
-                    <div className="app-record-actions">
-                      <span className="app-status-pill">{request.status}</span>
-                      {request.status === "confirmed" && new Date(request.ends_at).getTime() <= now && (
-                        <button
-                          type="button"
-                          className="app-button"
-                          disabled={!online}
-                          onClick={() => void markBabysittingComplete(request.id)}
-                        >
-                          Complete
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                  <Box
+                    key={request.id}
+                    minH="64px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    gap="12px"
+                    px="14px"
+                    py="12px"
+                    borderBottomWidth="1px"
+                    borderColor="#dddcd5"
+                    css={{
+                      "&:last-child": {
+                        borderBottomWidth: "0",
+                      },
+                      "@media (max-width: 760px)": {
+                        alignItems:
+                          "flex-start",
+                        flexDirection:
+                          "column",
+                      },
+                    }}
+                  >
+                    <Stack
+                      minW="0"
+                      gap="3px"
+                    >
+                      <Text as="strong">
+                        {request.member_names.join(
+                          ", ",
+                        )}
+                      </Text>
+
+                      <Text
+                        as="span"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {staffActivityTimeRange(
+                          request.starts_at,
+                          request.ends_at,
+                        )}
+                      </Text>
+
+                      <Text
+                        as="small"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {request.username}
+                        {request.notes
+                          ? ` · ${request.notes}`
+                          : ""}
+                      </Text>
+                    </Stack>
+
+                    <HStack
+                      justifyContent="flex-end"
+                      gap="8px"
+                      flexWrap="wrap"
+                      css={{
+                        "@media (max-width: 760px)": {
+                          width: "100%",
+                          justifyContent:
+                            "space-between",
+                        },
+                      }}
+                    >
+                      <Box
+                        display="inline-flex"
+                        alignItems="center"
+                        minH="26px"
+                        px="9px"
+                        borderWidth="1px"
+                        borderColor="#dddcd5"
+                        borderRadius="999px"
+                        bg="#fbfaf7"
+                        color="#6d7169"
+                        fontSize="11px"
+                      >
+                        {request.status}
+                      </Box>
+
+                      {request.status ===
+                        "confirmed" &&
+                        new Date(
+                          request.ends_at,
+                        ).getTime() <= now && (
+                          <Button
+                            type="button"
+                            disabled={!online}
+                            minH="34px"
+                            borderWidth="1px"
+                            borderColor="#dddcd5"
+                            borderRadius="8px"
+                            bg="#ffffff"
+                            px="11px"
+                            fontSize="12px"
+                            fontWeight="650"
+                            _hover={{
+                              borderColor:
+                                "#c8c7bf",
+                              bg: "#fbfaf7",
+                            }}
+                            _disabled={{
+                              cursor:
+                                "default",
+                              opacity: 0.55,
+                            }}
+                            onClick={() =>
+                              void markBabysittingComplete(
+                                request.id,
+                              )
+                            }
+                          >
+                            Complete
+                          </Button>
+                        )}
+                    </HStack>
+                  </Box>
                 ))}
-            </div>
-          </section>
+            </Stack>
+          </Box>
         )}
-      </main>
-    </div>
+      </Box>
+    </Box>
   );
 }
