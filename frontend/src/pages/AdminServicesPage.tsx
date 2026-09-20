@@ -233,7 +233,7 @@ export default function AdminServicesPage({ activeEventId = "" }: Props) {
               }
               color={
                 active
-                  ? "#005d41"
+                  ? "var(--chakra-colors-green-700)"
                   : "#6d7169"
               }
               onClick={() =>

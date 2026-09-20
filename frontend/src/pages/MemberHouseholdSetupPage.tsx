@@ -127,7 +127,7 @@ export default function MemberHouseholdSetupPage({
             placeItems="center"
             flex="0 0 auto"
             borderRadius="8px"
-            bg="#007854"
+            bg="var(--chakra-colors-green-600)"
             color="#ffffff"
             fontSize="12px"
             fontWeight="800"
@@ -215,7 +215,7 @@ export default function MemberHouseholdSetupPage({
                 bg="#ffffff"
                 px="11px"
                 _focus={{
-                  borderColor: "#007854",
+                  borderColor: "var(--chakra-colors-green-600)",
                   boxShadow: "0 0 0 3px #e7f3ef",
                 }}
                 onChange={(event) =>
@@ -248,16 +248,16 @@ export default function MemberHouseholdSetupPage({
             w="full"
             minH="34px"
             borderWidth="1px"
-            borderColor="#007854"
+            borderColor="var(--chakra-colors-green-600)"
             borderRadius="8px"
-            bg="#007854"
+            bg="var(--chakra-colors-green-600)"
             px="14px"
             color="#ffffff"
             fontSize="12px"
             fontWeight="750"
             _hover={{
-              borderColor: "#005d41",
-              bg: "#005d41",
+              borderColor: "var(--chakra-colors-green-700)",
+              bg: "var(--chakra-colors-green-700)",
             }}
           >
             {saving

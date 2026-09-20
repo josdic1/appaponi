@@ -117,16 +117,16 @@ export default function MemberHouseholdGate() {
             w="full"
             minH="34px"
             borderWidth="1px"
-            borderColor="#007854"
+            borderColor="var(--chakra-colors-green-600)"
             borderRadius="8px"
-            bg="#007854"
+            bg="var(--chakra-colors-green-600)"
             px="14px"
             color="#ffffff"
             fontSize="12px"
             fontWeight="750"
             _hover={{
-              borderColor: "#005d41",
-              bg: "#005d41",
+              borderColor: "var(--chakra-colors-green-700)",
+              bg: "var(--chakra-colors-green-700)",
             }}
             onClick={() =>
               void refresh()

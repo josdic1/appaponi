@@ -790,7 +790,7 @@ export default function MemberPage() {
                   borderColor="#cce5dc"
                 >
                   <Text
-                    color="#005d41"
+                    color="var(--chakra-colors-green-700)"
                     fontSize="10px"
                     fontWeight="800"
                     letterSpacing="0.06em"
@@ -1022,7 +1022,7 @@ export default function MemberPage() {
                           fontWeight="750"
                           color={
                             attendee
-                              ? "#005d41"
+                              ? "var(--chakra-colors-green-700)"
                               : "#6d7169"
                           }
                         >

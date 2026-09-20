@@ -384,7 +384,7 @@ export default function MemberHouseholdPanel({
               bg="#ffffff"
               px="11px"
               _focus={{
-                borderColor: "#007854",
+                borderColor: "var(--chakra-colors-green-600)",
                 boxShadow: "0 0 0 3px #e7f3ef",
               }}
               onChange={(event) =>
@@ -516,7 +516,7 @@ export default function MemberHouseholdPanel({
                 placeItems="center"
                 borderRadius="999px"
                 bg="#e7f3ef"
-                color="#005d41"
+                color="var(--chakra-colors-green-700)"
                 fontSize="11px"
                 fontWeight="800"
               >
@@ -559,7 +559,7 @@ export default function MemberHouseholdPanel({
                     }
                     color={
                       person.member_role === "primary"
-                        ? "#005d41"
+                        ? "var(--chakra-colors-green-700)"
                         : "#6d7169"
                     }
                     fontSize="9px"
@@ -632,7 +632,7 @@ export default function MemberHouseholdPanel({
                   borderRadius="8px"
                   bg="#ffffff"
                   px="11px"
-                  color="#005d41"
+                  color="var(--chakra-colors-green-700)"
                   fontSize="12px"
                   fontWeight="650"
                   onClick={() =>
@@ -737,7 +737,7 @@ export default function MemberHouseholdPanel({
                 bg="#ffffff"
                 px="11px"
                 _focus={{
-                  borderColor: "#007854",
+                  borderColor: "var(--chakra-colors-green-600)",
                   boxShadow:
                     "0 0 0 3px #e7f3ef",
                 }}
@@ -813,7 +813,7 @@ export default function MemberHouseholdPanel({
                 bg="#ffffff"
                 px="11px"
                 _focus={{
-                  borderColor: "#007854",
+                  borderColor: "var(--chakra-colors-green-600)",
                   boxShadow:
                     "0 0 0 3px #e7f3ef",
                 }}
@@ -844,7 +844,7 @@ export default function MemberHouseholdPanel({
                 bg="#ffffff"
                 px="11px"
                 _focus={{
-                  borderColor: "#007854",
+                  borderColor: "var(--chakra-colors-green-600)",
                   boxShadow:
                     "0 0 0 3px #e7f3ef",
                 }}
@@ -886,7 +886,7 @@ export default function MemberHouseholdPanel({
                 bg="#ffffff"
                 px="11px"
                 _focus={{
-                  borderColor: "#007854",
+                  borderColor: "var(--chakra-colors-green-600)",
                   boxShadow:
                     "0 0 0 3px #e7f3ef",
                 }}
@@ -933,16 +933,16 @@ export default function MemberHouseholdPanel({
               }
               minH="34px"
               borderWidth="1px"
-              borderColor="#007854"
+              borderColor="var(--chakra-colors-green-600)"
               borderRadius="8px"
-              bg="#007854"
+              bg="var(--chakra-colors-green-600)"
               px="14px"
               color="#ffffff"
               fontSize="12px"
               fontWeight="750"
               _hover={{
-                borderColor: "#005d41",
-                bg: "#005d41",
+                borderColor: "var(--chakra-colors-green-700)",
+                bg: "var(--chakra-colors-green-700)",
               }}
               onClick={() =>
                 void savePerson()

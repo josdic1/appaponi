@@ -80,7 +80,7 @@ function InteractiveFeature({
         "& rect, & ellipse": {
           fill: "transparent",
           stroke: selected
-            ? "#007854"
+            ? "var(--chakra-colors-green-600)"
             : "transparent",
           strokeWidth: selected
             ? 2.25
@@ -92,7 +92,7 @@ function InteractiveFeature({
           {
             fill: "transparent",
             stroke: selected
-              ? "#007854"
+              ? "var(--chakra-colors-green-600)"
               : "#9ccfbd",
           },
       }}
@@ -346,7 +346,7 @@ export default function MemberCampMap({
                       assignedCabinSlot.y -
                       12
                     }
-                    fill="#005d41"
+                    fill="var(--chakra-colors-green-700)"
                     fontSize="11px"
                     fontWeight="800"
                     textAnchor="middle"

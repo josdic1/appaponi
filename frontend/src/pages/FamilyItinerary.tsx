@@ -212,7 +212,7 @@ export default function FamilyItinerary({
         <Box>
           <Text
             mb="7px"
-            color="#005d41"
+            color="var(--chakra-colors-green-700)"
             fontSize="10px"
             fontWeight="800"
             letterSpacing="0.08em"
@@ -309,13 +309,13 @@ export default function FamilyItinerary({
                 border="0"
                 borderRadius="6px"
                 bg={selected ? "#e7f3ef" : "transparent"}
-                color={selected ? "#005d41" : "#6d7169"}
+                color={selected ? "var(--chakra-colors-green-700)" : "#6d7169"}
                 px="12px"
                 py="0"
                 fontWeight="normal"
                 _hover={{
                   bg: selected ? "#e7f3ef" : "#fbfaf7",
-                  color: selected ? "#005d41" : "#171915",
+                  color: selected ? "var(--chakra-colors-green-700)" : "#171915",
                 }}
                 css={{
                   "@media (max-width: 620px)": {
@@ -457,7 +457,7 @@ export default function FamilyItinerary({
                             borderColor="#b7ddcf"
                             borderRadius="999px"
                             bg="#e7f3ef"
-                            color="#005d41"
+                            color="var(--chakra-colors-green-700)"
                             fontSize="9px"
                             fontWeight="800"
                             letterSpacing="0.03em"
@@ -481,7 +481,7 @@ export default function FamilyItinerary({
                             borderRadius="8px"
                             bg="#e7f3ef"
                             px="7px"
-                            color="#005d41"
+                            color="var(--chakra-colors-green-700)"
                             fontSize="9px"
                             fontWeight="800"
                             _hover={{
@@ -500,7 +500,7 @@ export default function FamilyItinerary({
                             borderRadius="8px"
                             bg="#e7f3ef"
                             px="7px"
-                            color="#005d41"
+                            color="var(--chakra-colors-green-700)"
                             fontSize="9px"
                             fontWeight="800"
                             _hover={{
@@ -620,7 +620,7 @@ export default function FamilyItinerary({
                             borderRadius="8px"
                             bg="#e7f3ef"
                             px="7px"
-                            color="#005d41"
+                            color="var(--chakra-colors-green-700)"
                             fontSize="9px"
                             fontWeight="800"
                             _hover={{
@@ -679,7 +679,7 @@ export default function FamilyItinerary({
                               borderRadius="8px"
                               bg="#fbfaf7"
                               px="8px"
-                              color="#005d41"
+                              color="var(--chakra-colors-green-700)"
                               fontSize="10px"
                               fontWeight="750"
                               onClick={() =>
@@ -736,7 +736,7 @@ export default function FamilyItinerary({
                                     px="8px"
                                     color={
                                       signup
-                                        ? "#005d41"
+                                        ? "var(--chakra-colors-green-700)"
                                         : "#171915"
                                     }
                                     fontSize="10px"

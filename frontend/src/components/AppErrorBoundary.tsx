@@ -81,7 +81,7 @@ export default class AppErrorBoundary extends Component<
               placeItems="center"
               flex="0 0 auto"
               borderRadius="8px"
-              bg="#007854"
+              bg="var(--chakra-colors-green-600)"
               color="#ffffff"
               fontSize="12px"
               fontWeight="800"
@@ -135,16 +135,16 @@ export default class AppErrorBoundary extends Component<
             mt="16px"
             minH="34px"
             borderWidth="1px"
-            borderColor="#007854"
+            borderColor="var(--chakra-colors-green-600)"
             borderRadius="8px"
-            bg="#007854"
+            bg="var(--chakra-colors-green-600)"
             px="14px"
             color="#ffffff"
             fontSize="12px"
             fontWeight="750"
             _hover={{
-              borderColor: "#005d41",
-              bg: "#005d41",
+              borderColor: "var(--chakra-colors-green-700)",
+              bg: "var(--chakra-colors-green-700)",
             }}
             onClick={() =>
               window.location.reload()

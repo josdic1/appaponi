@@ -368,7 +368,7 @@ export default function MemberDirectory({
             px="11px"
             color="#171915"
             _focus={{
-              borderColor: "#007854",
+              borderColor: "var(--chakra-colors-green-600)",
               boxShadow:
                 "0 0 0 3px #e7f3ef",
             }}

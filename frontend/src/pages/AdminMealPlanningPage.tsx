@@ -912,7 +912,7 @@ export default function AdminMealPlanningPage({
                     }
                     color={
                       active
-                        ? "#005d41"
+                        ? "var(--chakra-colors-green-700)"
                         : "#6d7169"
                     }
                     onClick={() =>
@@ -949,7 +949,7 @@ export default function AdminMealPlanningPage({
                         <Text
                           fontSize="9px"
                           fontWeight="750"
-                          color="#005d41"
+                          color="var(--chakra-colors-green-700)"
                         >
                           Today
                         </Text>
@@ -1179,7 +1179,7 @@ export default function AdminMealPlanningPage({
                       color={
                         meal.items.length
                           ? "#6d7169"
-                          : "#005d41"
+                          : "var(--chakra-colors-green-700)"
                       }
                     >
                       {meal.items.length
@@ -1352,7 +1352,7 @@ export default function AdminMealPlanningPage({
                         color={
                           offeringItems.length
                             ? "#6d7169"
-                            : "#005d41"
+                            : "var(--chakra-colors-green-700)"
                         }
                       >
                         {offeringItems.length
@@ -1673,7 +1673,7 @@ export default function AdminMealPlanningPage({
                               }
                               color={
                                 selected
-                                  ? "#005d41"
+                                  ? "var(--chakra-colors-green-700)"
                                   : "#6d7169"
                               }
                               aria-pressed={
@@ -1810,7 +1810,7 @@ export default function AdminMealPlanningPage({
                       }
                       color={
                         active
-                          ? "#005d41"
+                          ? "var(--chakra-colors-green-700)"
                           : "#6d7169"
                       }
                       onClick={() =>
@@ -1856,7 +1856,7 @@ export default function AdminMealPlanningPage({
                   }
                   color={
                     tagFilter === "ALL"
-                      ? "#005d41"
+                      ? "var(--chakra-colors-green-700)"
                       : "#6d7169"
                   }
                   onClick={() =>
@@ -1893,7 +1893,7 @@ export default function AdminMealPlanningPage({
                         }
                         color={
                           active
-                            ? "#005d41"
+                            ? "var(--chakra-colors-green-700)"
                             : "#6d7169"
                         }
                         onClick={() =>
@@ -2113,7 +2113,7 @@ export default function AdminMealPlanningPage({
               }}
               outline={
                 dragOverComposer
-                  ? "2px solid #007854"
+                  ? "2px solid var(--chakra-colors-green-600)"
                   : "none"
               }
               outlineOffset="-2px"
@@ -2213,7 +2213,7 @@ export default function AdminMealPlanningPage({
                 <Text
                   fontSize="11px"
                   fontWeight="800"
-                  color="#005d41"
+                  color="var(--chakra-colors-green-700)"
                 >
                   {mobileSheetOpen
                     ? "Done"
@@ -2366,7 +2366,7 @@ export default function AdminMealPlanningPage({
                           }
                           boxShadow={
                             dragOver
-                              ? "inset 0 2px 0 #007854"
+                              ? "inset 0 2px 0 var(--chakra-colors-green-600)"
                               : "none"
                           }
                           onDragStart={(

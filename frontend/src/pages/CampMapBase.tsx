@@ -128,13 +128,13 @@ export function CampCabinShape({
     assigned: {
       fill: "#ffffff",
       fillOpacity: 0.18,
-      stroke: "#007854",
+      stroke: "var(--chakra-colors-green-600)",
       strokeWidth: 1.8,
     },
     selected: {
       fill: "#e7f3ef",
       fillOpacity: 1,
-      stroke: "#007854",
+      stroke: "var(--chakra-colors-green-600)",
       strokeWidth: 2.1,
     },
     unavailable: {

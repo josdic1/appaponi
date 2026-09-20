@@ -1168,7 +1168,7 @@ export default function AdminCabinsPanel({
                                     fillOpacity:
                                       0.2,
                                     stroke:
-                                      "#007854",
+                                      "var(--chakra-colors-green-600)",
                                   },
                               }
                         }
@@ -1217,7 +1217,7 @@ export default function AdminCabinsPanel({
                               slot.y -
                               8
                             }
-                            fill="#005d41"
+                            fill="var(--chakra-colors-green-700)"
                             fontSize="11px"
                             fontWeight="800"
                             textAnchor="middle"

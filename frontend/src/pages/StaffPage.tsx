@@ -1524,17 +1524,17 @@ export default function StaffPage() {
                       disabled={!online}
                       minH="34px"
                       borderWidth="1px"
-                      borderColor="#007854"
+                      borderColor="var(--chakra-colors-green-600)"
                       borderRadius="8px"
-                      bg="#007854"
+                      bg="var(--chakra-colors-green-600)"
                       px="14px"
                       color="#ffffff"
                       fontSize="12px"
                       fontWeight="750"
                       _hover={{
                         borderColor:
-                          "#005d41",
-                        bg: "#005d41",
+                          "var(--chakra-colors-green-700)",
+                        bg: "var(--chakra-colors-green-700)",
                       }}
                       _disabled={{
                         cursor: "default",
@@ -1623,17 +1623,17 @@ export default function StaffPage() {
                       disabled={!online}
                       minH="34px"
                       borderWidth="1px"
-                      borderColor="#007854"
+                      borderColor="var(--chakra-colors-green-600)"
                       borderRadius="8px"
-                      bg="#007854"
+                      bg="var(--chakra-colors-green-600)"
                       px="14px"
                       color="#ffffff"
                       fontSize="12px"
                       fontWeight="750"
                       _hover={{
                         borderColor:
-                          "#005d41",
-                        bg: "#005d41",
+                          "var(--chakra-colors-green-700)",
+                        bg: "var(--chakra-colors-green-700)",
                       }}
                       _disabled={{
                         cursor: "default",
@@ -1873,7 +1873,7 @@ export default function StaffPage() {
                       minH="16px"
                       flex="0 0 auto"
                       m="0"
-                      accentColor="#007854"
+                      accentColor="var(--chakra-colors-green-600)"
                       onChange={(event) =>
                         void changeStaffNotificationPreference(
                           key,
@@ -2241,7 +2241,7 @@ export default function StaffPage() {
                               borderColor="#b7ddcf"
                               borderRadius="999px"
                               bg="#e7f3ef"
-                              color="#005d41"
+                              color="var(--chakra-colors-green-700)"
                               fontSize="11px"
                             >
                               Present

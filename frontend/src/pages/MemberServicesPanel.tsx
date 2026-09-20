@@ -678,7 +678,7 @@ export default function MemberServicesPanel({
               px="12px"
               color={
                 active
-                  ? "#005d41"
+                  ? "var(--chakra-colors-green-700)"
                   : "#6d7169"
               }
               fontSize="12px"
@@ -688,7 +688,7 @@ export default function MemberServicesPanel({
                   ? "#b7ddcf"
                   : "#c8c7bf",
                 color: active
-                  ? "#005d41"
+                  ? "var(--chakra-colors-green-700)"
                   : "#171915",
               }}
               onClick={() => setView(key)}
@@ -826,7 +826,7 @@ export default function MemberServicesPanel({
                     py="6px"
                     color={
                       active
-                        ? "#005d41"
+                        ? "var(--chakra-colors-green-700)"
                         : "#6d7169"
                     }
                     css={{
@@ -866,7 +866,7 @@ export default function MemberServicesPanel({
                         as="small"
                         display="block"
                         mt="1px"
-                        color="#005d41"
+                        color="var(--chakra-colors-green-700)"
                         fontSize="9px"
                         fontWeight="750"
                       >
@@ -1090,7 +1090,7 @@ export default function MemberServicesPanel({
                       <Text
                         as="b"
                         flex="0 0 auto"
-                        color="#005d41"
+                        color="var(--chakra-colors-green-700)"
                         fontSize="10px"
                       >
                         Choose
@@ -1266,7 +1266,7 @@ export default function MemberServicesPanel({
                     bg="#ffffff"
                     px="11px"
                     _focus={{
-                      borderColor: "#007854",
+                      borderColor: "var(--chakra-colors-green-600)",
                       boxShadow:
                         "0 0 0 3px #e7f3ef",
                     }}
@@ -1356,7 +1356,7 @@ export default function MemberServicesPanel({
                         px="11px"
                         _focus={{
                           borderColor:
-                            "#007854",
+                            "var(--chakra-colors-green-600)",
                           boxShadow:
                             "0 0 0 3px #e7f3ef",
                         }}
@@ -1406,16 +1406,16 @@ export default function MemberServicesPanel({
                     disabled={changesUnavailable}
                     minH="34px"
                     borderWidth="1px"
-                    borderColor="#007854"
+                    borderColor="var(--chakra-colors-green-600)"
                     borderRadius="8px"
-                    bg="#007854"
+                    bg="var(--chakra-colors-green-600)"
                     px="14px"
                     color="#ffffff"
                     fontSize="12px"
                     fontWeight="750"
                     _hover={{
-                      borderColor: "#005d41",
-                      bg: "#005d41",
+                      borderColor: "var(--chakra-colors-green-700)",
+                      bg: "var(--chakra-colors-green-700)",
                     }}
                   >
                     {selectedOfferingType ===
@@ -1634,7 +1634,7 @@ export default function MemberServicesPanel({
                           }
                           color={
                             selected
-                              ? "#005d41"
+                              ? "var(--chakra-colors-green-700)"
                               : "#171915"
                           }
                           px="11px"
@@ -1722,7 +1722,7 @@ export default function MemberServicesPanel({
                   px="11px"
                   py="10px"
                   _focus={{
-                    borderColor: "#007854",
+                    borderColor: "var(--chakra-colors-green-600)",
                     boxShadow:
                       "0 0 0 3px #e7f3ef",
                   }}
@@ -1745,16 +1745,16 @@ export default function MemberServicesPanel({
                   }
                   minH="34px"
                   borderWidth="1px"
-                  borderColor="#007854"
+                  borderColor="var(--chakra-colors-green-600)"
                   borderRadius="8px"
-                  bg="#007854"
+                  bg="var(--chakra-colors-green-600)"
                   px="14px"
                   color="#ffffff"
                   fontSize="12px"
                   fontWeight="750"
                   _hover={{
-                    borderColor: "#005d41",
-                    bg: "#005d41",
+                    borderColor: "var(--chakra-colors-green-700)",
+                    bg: "var(--chakra-colors-green-700)",
                   }}
                   css={{
                     "@media (max-width: 620px)": {
@@ -2040,7 +2040,7 @@ export default function MemberServicesPanel({
                         minH="16px"
                         flex="0 0 auto"
                         m="0"
-                        accentColor="#007854"
+                        accentColor="var(--chakra-colors-green-600)"
                         onChange={(e) =>
                           void changePreference(
                             key,

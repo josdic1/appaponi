@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
+import { appoponiSystem } from "./theme";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 
@@ -19,7 +20,7 @@ if (
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ChakraProvider value={defaultSystem}>
+    <ChakraProvider value={appoponiSystem}>
       <App />
     </ChakraProvider>
   </StrictMode>,
