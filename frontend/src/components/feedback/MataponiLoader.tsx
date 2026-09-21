@@ -4,6 +4,8 @@ import {
   Image,
 } from "@chakra-ui/react";
 
+import { keyframes } from "@emotion/react";
+
 import {
   useEffect,
   useRef,
@@ -11,6 +13,20 @@ import {
 } from "react";
 
 import loaderImage from "../../assets/brand/mataponi-loader-source.png";
+
+const signSwing = keyframes`
+  0% {
+    transform: rotate(-9deg);
+  }
+
+  50% {
+    transform: rotate(9deg);
+  }
+
+  100% {
+    transform: rotate(-9deg);
+  }
+`;
 
 type Props = {
   interactive?: boolean;
@@ -181,22 +197,8 @@ export function MataponiLoader({
           inset="0"
           transformOrigin="50% 24%"
           pointerEvents="none"
-          css={{
-            "@keyframes mataponi-sign-swing": {
-              "0%, 100%": {
-                transform: "rotate(-6deg)",
-              },
-              "50%": {
-                transform: "rotate(6deg)",
-              },
-            },
-            animation:
-              "mataponi-sign-swing 1.7s ease-in-out infinite",
-            "@media (prefers-reduced-motion: reduce)": {
-              animation: "none",
-              transform: "rotate(0deg)",
-            },
-          }}
+          willChange="transform"
+          animation={`${signSwing} 1.45s ease-in-out infinite`}
         >
           <Image
             src={loaderImage}
