@@ -1,13 +1,16 @@
 import {
   Box,
   Button,
-  Text,
+  Image,
 } from "@chakra-ui/react";
+
 import {
   useEffect,
   useRef,
   type PointerEvent,
 } from "react";
+
+import loaderImage from "../../assets/brand/mataponi-loader-source.png";
 
 type Props = {
   interactive?: boolean;
@@ -20,6 +23,7 @@ type Props = {
 export function MataponiLoader({
   interactive = false,
   exitOnPointerMove = false,
+  hideCursor = false,
   onExit,
   onActivateInteractive,
 }: Props) {
@@ -31,7 +35,9 @@ export function MataponiLoader({
   }, []);
 
   useEffect(() => {
-    if (!interactive) return;
+    if (!interactive) {
+      return;
+    }
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -92,45 +98,132 @@ export function MataponiLoader({
       aria-modal={
         interactive ? true : undefined
       }
-      position={interactive ? "fixed" : "relative"}
-      inset={interactive ? "0" : undefined}
-      zIndex={interactive ? "modal" : undefined}
-      minH={interactive ? "100vh" : "100%"}
+      position="fixed"
+      inset="0"
+      zIndex="modal"
+      minH="100dvh"
       display="grid"
       placeItems="center"
-      bg={interactive ? "blackAlpha.600" : "gray.50"}
-      p="6"
+      bg={
+        interactive
+          ? "blackAlpha.600"
+          : "#f6f5f1"
+      }
+      cursor={
+        hideCursor ? "none" : undefined
+      }
+      overflow="hidden"
       onPointerMove={handlePointerMove}
       onPointerDown={handlePointerDown}
     >
-      <Box
-        bg="white"
-        borderWidth="1px"
-        borderColor="gray.200"
-        borderRadius="xl"
-        boxShadow={interactive ? "xl" : "none"}
-        px="8"
-        py="6"
-        textAlign="center"
+      <svg
+        width="0"
+        height="0"
+        aria-hidden="true"
+        focusable="false"
       >
-        <Text
-          fontWeight="600"
-          color="gray.700"
+        <filter
+          id="mataponi-green"
+          colorInterpolationFilters="sRGB"
         >
-          Loading…
-        </Text>
+          <feComponentTransfer>
+            <feFuncR
+              type="linear"
+              slope="1"
+              intercept="0"
+            />
+            <feFuncG
+              type="linear"
+              slope=".529412"
+              intercept=".470588"
+            />
+            <feFuncB
+              type="linear"
+              slope=".670588"
+              intercept=".329412"
+            />
+            <feFuncA type="identity" />
+          </feComponentTransfer>
+        </filter>
+      </svg>
 
-        {interactive && (
-          <Button
-            type="button"
-            mt="5"
-            colorPalette="green"
-            onClick={() => onExit?.()}
-          >
-            Done
-          </Button>
-        )}
+      <Box
+        position="relative"
+        w={{
+          base: "220px",
+          md: "280px",
+        }}
+        userSelect="none"
+      >
+        <Image
+          src={loaderImage}
+          alt=""
+          aria-hidden="true"
+          w="full"
+          display="block"
+          visibility="hidden"
+        />
+
+        <Image
+          src={loaderImage}
+          alt=""
+          position="absolute"
+          inset="0"
+          w="full"
+          h="full"
+          objectFit="contain"
+          clipPath="inset(0 0 75.5% 0)"
+          pointerEvents="none"
+        />
+
+        <Box
+          position="absolute"
+          inset="0"
+          transformOrigin="50% 24%"
+          pointerEvents="none"
+          css={{
+            "@keyframes mataponi-sign-swing": {
+              "0%, 100%": {
+                transform: "rotate(-6deg)",
+              },
+              "50%": {
+                transform: "rotate(6deg)",
+              },
+            },
+            animation:
+              "mataponi-sign-swing 1.7s ease-in-out infinite",
+            "@media (prefers-reduced-motion: reduce)": {
+              animation: "none",
+              transform: "rotate(0deg)",
+            },
+          }}
+        >
+          <Image
+            src={loaderImage}
+            alt=""
+            w="full"
+            h="full"
+            objectFit="contain"
+            clipPath="inset(24% 0 0 0)"
+            filter="url(#mataponi-green)"
+          />
+        </Box>
       </Box>
+
+      {interactive && (
+        <Button
+          type="button"
+          position="fixed"
+          top="5"
+          right="5"
+          size="sm"
+          variant="solid"
+          colorPalette="green"
+          onClick={() => onExit?.()}
+        >
+          Done
+        </Button>
+      )}
     </Box>
   );
 }

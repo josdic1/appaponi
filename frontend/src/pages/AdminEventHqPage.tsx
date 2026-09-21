@@ -571,8 +571,11 @@ export default function AdminEventHqPage({
                   description="What needs attention before or during this event."
                   action={
                     hq.metrics.unread_notices > 0 ? (
-                      <Badge colorPalette="orange">
-                        {hq.metrics.unread_notices} unread notices
+                      <Badge colorPalette="gray">
+                        {hq.metrics.unread_notices}{" "}
+                        {hq.metrics.unread_notices === 1
+                          ? "unread by recipient"
+                          : "unread by recipients"}
                       </Badge>
                     ) : undefined
                   }
