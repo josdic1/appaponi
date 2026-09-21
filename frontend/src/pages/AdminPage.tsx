@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Field,
-  Grid,
   Heading,
   HStack,
   Input,
@@ -16,17 +15,21 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
+  ArrowUp,
   BedDouble,
   BellRing,
   CalendarDays,
   CalendarRange,
   ClipboardList,
+  House,
+  KeyRound,
   UserRoundCog,
   UsersRound,
   UtensilsCrossed,
 } from "lucide-react";
 
 import AdminWorkspace from "../components/AdminWorkspace";
+import PageSectionLayout from "../components/PageSectionLayout";
 import AdminEventHqPage from "./AdminEventHqPage";
 import AdminStaffPage from "./AdminStaffPage";
 import AdminOperationsPage from "./AdminOperationsPage";
@@ -258,6 +261,44 @@ export default function AdminPage() {
       selectedMembers.find((member) => member.member_role === "primary") ??
       null,
     [selectedMembers],
+  );
+
+  const accountPageSections = useMemo(
+    () => [
+      {
+        id: "accounts-top",
+        label: "Top",
+        icon: ArrowUp,
+        targetId: "accounts-page-top",
+      },
+      {
+        id: "accounts-list",
+        label: "Accounts",
+        icon: UsersRound,
+        targetId: "accounts-list",
+      },
+      ...(selectedAccount
+        ? [
+            {
+              id: "account-login",
+              label: "Login",
+              icon: KeyRound,
+              targetId: "account-details",
+            },
+          ]
+        : []),
+      ...(selectedAccount?.account_type === "member"
+        ? [
+            {
+              id: "account-household",
+              label: "Household",
+              icon: House,
+              targetId: "account-household",
+            },
+          ]
+        : []),
+    ],
+    [selectedAccount],
   );
 
   async function run(action: () => Promise<unknown>) {
@@ -900,7 +941,11 @@ export default function AdminPage() {
         ) : section === "services" ? (
           <AdminServicesPage activeEventId={activeEventId} />
         ) : (
-          <Box w="full">
+          <Box
+            id="accounts-page-top"
+            w="full"
+            scrollMarginTop="96px"
+          >
             <Stack gap="6">
               <Box
                 display="flex"
@@ -1095,12 +1140,14 @@ export default function AdminPage() {
                 </Box>
               )}
 
-              <Grid
-                templateColumns="1fr"
-                gap="5"
-                alignItems="start"
+              <PageSectionLayout
+                items={accountPageSections}
+                label="Account page sections"
               >
+                <Stack gap="5" minW="0">
                 <Box
+                  id="accounts-list"
+                  scrollMarginTop="96px"
                   borderWidth="1px"
                   borderColor="gray.200"
                   borderRadius="xl"
@@ -1235,6 +1282,8 @@ export default function AdminPage() {
                 </Box>
 
                 <Box
+                  id="account-details"
+                  scrollMarginTop="96px"
                   borderWidth="1px"
                   borderColor="gray.200"
                   borderRadius="xl"
@@ -1606,6 +1655,8 @@ export default function AdminPage() {
                       {selectedAccount.account_type ===
                       "member" ? (
                         <Stack
+                          id="account-household"
+                          scrollMarginTop="96px"
                           gap="4"
                           pt="2"
                           borderTopWidth="1px"
@@ -2066,7 +2117,8 @@ export default function AdminPage() {
                     </Box>
                   )}
                 </Box>
-              </Grid>
+                </Stack>
+              </PageSectionLayout>
             </Stack>
           </Box>
         )}

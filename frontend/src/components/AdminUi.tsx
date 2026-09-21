@@ -36,7 +36,7 @@ export function AdminPageHeader({
         md: "flex-end",
       }}
       justifyContent="space-between"
-      gap="4"
+      gap="3"
     >
       <Stack gap="1">
         {eyebrow && (
@@ -103,7 +103,7 @@ export function AdminSectionHeader({
 }: SectionHeaderProps) {
   return (
     <Box
-      minH="64px"
+      minH="56px"
       display="flex"
       flexDirection={{
         base: "column",
@@ -114,9 +114,9 @@ export function AdminSectionHeader({
         sm: "flex-start",
       }}
       justifyContent="space-between"
-      gap="4"
-      px="5"
-      py="4"
+      gap="3"
+      px="4"
+      py="3"
       borderBottomWidth="1px"
       borderColor="gray.200"
     >

@@ -18,6 +18,11 @@ import {
   type FormEvent,
 } from "react";
 
+import {
+  CalendarRange,
+  ClipboardList,
+} from "lucide-react";
+
 import type { Area } from "@appoponi/shared/schemas/areas";
 import type { Activity } from "@appoponi/shared/schemas/activities";
 import type { EventRecord } from "@appoponi/shared/schemas/events";
@@ -72,6 +77,7 @@ import {
   AdminScheduleCalendarView,
   AdminScheduleDailyView,
 } from "../components/AdminScheduleViews";
+import PageSectionLayout from "../components/PageSectionLayout";
 
 type Props = {
   activeEventId?: string;
@@ -375,6 +381,21 @@ export default function AdminSchedulingPage({
     });
   }
 
+  const pageSections = [
+    {
+      id: "scheduling-main",
+      label: "Schedule",
+      icon: CalendarRange,
+      targetId: "scheduling-main",
+    },
+    {
+      id: "scheduling-libraries",
+      label: "Libraries",
+      icon: ClipboardList,
+      targetId: "scheduling-libraries",
+    },
+  ];
+
   return (
     <Box
       as="section"
@@ -604,7 +625,14 @@ export default function AdminSchedulingPage({
           </Alert.Root>
         )}
 
+        <PageSectionLayout
+          items={pageSections}
+          label="Scheduling page sections"
+        >
+        <Stack gap="6">
         <Box
+          id="scheduling-main"
+          scrollMarginTop="96px"
           display="flex"
           flexDirection={{
             base: "column",
@@ -1051,6 +1079,8 @@ export default function AdminSchedulingPage({
 
 
         <Box
+          id="scheduling-libraries"
+          scrollMarginTop="96px"
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="xl"
@@ -1730,6 +1760,8 @@ export default function AdminSchedulingPage({
             </Box>
           </details>
         </Box>
+        </Stack>
+        </PageSectionLayout>
       </Stack>
     </Box>
   );

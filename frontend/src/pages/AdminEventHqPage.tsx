@@ -18,6 +18,13 @@ import {
   useState,
 } from "react";
 
+import {
+  CalendarDays,
+  CircleAlert,
+  Gauge,
+  UsersRound,
+} from "lucide-react";
+
 import type {
   EventHqSummary,
   EventRecord,
@@ -34,6 +41,7 @@ import {
   AdminSectionCard,
   AdminSectionHeader,
 } from "../components/AdminUi";
+import PageSectionLayout from "../components/PageSectionLayout";
 
 
 type Destination =
@@ -409,6 +417,50 @@ export default function AdminEventHqPage({
       return rows;
     }, [hq]);
 
+  const pageSections = useMemo(() => {
+    if (!hq) {
+      return [];
+    }
+
+    return [
+      {
+        id: "event-hq-overview",
+        label: "Overview",
+        icon: Gauge,
+        targetId: "event-hq-overview",
+      },
+      ...(attention.length
+        ? [
+            {
+              id: "event-hq-attention",
+              label: "Attention",
+              icon: CircleAlert,
+              targetId: "event-hq-attention",
+            },
+          ]
+        : []),
+      ...(hq.registrations.length
+        ? [
+            {
+              id: "event-hq-households",
+              label: "Households",
+              icon: UsersRound,
+              targetId: "event-hq-households",
+            },
+          ]
+        : []),
+      ...(schedulePreview.length
+        ? [
+            {
+              id: "event-hq-schedule",
+              label: "Schedule",
+              icon: CalendarDays,
+              targetId: "event-hq-schedule",
+            },
+          ]
+        : []),
+    ];
+  }, [attention.length, hq, schedulePreview.length]);
 
   return (
     <Box
@@ -510,8 +562,14 @@ export default function AdminEventHqPage({
             </Stack>
           </Box>
         ) : (
+          <PageSectionLayout
+            items={pageSections}
+            label="Event HQ sections"
+          >
           <Stack gap="6">
             <SimpleGrid
+              id="event-hq-overview"
+              scrollMarginTop="96px"
               columns={{
                 base: 2,
                 lg: 4,
@@ -565,6 +623,10 @@ export default function AdminEventHqPage({
               gap="5"
               alignItems="start"
             >
+              <Box
+                id="event-hq-attention"
+                scrollMarginTop="96px"
+              >
               <AdminSectionCard>
                 <AdminSectionHeader
                   title="At a glance"
@@ -650,7 +712,12 @@ export default function AdminEventHqPage({
                   </Box>
                 )}
               </AdminSectionCard>
+              </Box>
 
+              <Box
+                id="event-hq-households"
+                scrollMarginTop="96px"
+              >
               <AdminSectionCard>
                 <AdminSectionHeader
                   title="Households"
@@ -711,8 +778,13 @@ export default function AdminEventHqPage({
                   )}
                 </Stack>
               </AdminSectionCard>
+              </Box>
             </Grid>
 
+            <Box
+              id="event-hq-schedule"
+              scrollMarginTop="96px"
+            >
             <AdminSectionCard>
               <AdminSectionHeader
                 title="Schedule preview"
@@ -833,7 +905,9 @@ export default function AdminEventHqPage({
                 </Box>
               )}
             </AdminSectionCard>
+            </Box>
           </Stack>
+          </PageSectionLayout>
         )}
       </Stack>
     </Box>

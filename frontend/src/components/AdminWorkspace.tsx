@@ -26,7 +26,7 @@ export default function AdminWorkspace({
         base: "1fr",
         lg: "176px minmax(0, 1fr)",
       }}
-      gap={{ base: "0", lg: "24px" }}
+      gap={{ base: "0", lg: "20px" }}
       px={{ base: "16px", md: "24px" }}
     >
       <Box>
@@ -39,7 +39,7 @@ export default function AdminWorkspace({
 
       <Box
         minW="0"
-        py={{ base: "20px", md: "28px" }}
+        py={{ base: "16px", md: "20px" }}
       >
         {children}
       </Box>

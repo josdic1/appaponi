@@ -13,6 +13,13 @@ import {
   chakra,
 } from "@chakra-ui/react";
 
+import {
+  Baby,
+  BellRing,
+  CalendarDays,
+  CalendarRange,
+} from "lucide-react";
+
 import type {
   StaffParticipant,
   StaffScheduledActivity,
@@ -77,7 +84,7 @@ import {
   type StaffOfflineAction,
 } from "../lib/staffOfflineQueue";
 
-import AppSectionStack from "../components/AppSectionStack";
+import PageSectionLayout from "../components/PageSectionLayout";
 
 function staffActivityDateLabel(value: string) {
   return new Intl.DateTimeFormat(undefined, {
@@ -801,6 +808,39 @@ export default function StaffPage() {
         request.status !== "cancelled",
     );
 
+  const staffPageSections = [
+    {
+      id: "staff-today-nav",
+      label: "Today",
+      icon: CalendarDays,
+      targetId: "staff-today",
+    },
+    {
+      id: "staff-notices-nav",
+      label: unreadNotifications.length
+        ? `Notices · ${unreadNotifications.length}`
+        : "Notices",
+      icon: BellRing,
+      targetId: "staff-notices",
+    },
+    {
+      id: "staff-schedule-nav",
+      label: "Schedule",
+      icon: CalendarRange,
+      targetId: "staff-schedule",
+    },
+    ...(hasBabysitting
+      ? [
+          {
+            id: "staff-babysitting-nav",
+            label: "Babysitting",
+            icon: Baby,
+            targetId: "staff-babysitting",
+          },
+        ]
+      : []),
+  ];
+
   return (
     <Box
       minH="100vh"
@@ -875,39 +915,6 @@ export default function StaffPage() {
         </Button>
       </Box>
 
-      <AppSectionStack
-        label="Staff sections"
-        items={[
-          {
-            id: "today",
-            label: "Today",
-            targetId: "staff-today",
-          },
-          {
-            id: "notices",
-            label: unreadNotifications.length
-              ? `Notices · ${unreadNotifications.length}`
-              : "Notices",
-            targetId: "staff-notices",
-          },
-          {
-            id: "schedule",
-            label: "Schedule",
-            targetId: "staff-schedule",
-          },
-          ...(hasBabysitting
-            ? [
-                {
-                  id: "babysitting",
-                  label: "Babysitting",
-                  targetId:
-                    "staff-babysitting",
-                },
-              ]
-            : []),
-        ]}
-      />
-
       <Box
         as="main"
         w="full"
@@ -916,6 +923,11 @@ export default function StaffPage() {
         px={{ base: "4", md: "6" }}
         py={{ base: "5", md: "7" }}
       >
+        <PageSectionLayout
+          items={staffPageSections}
+          label="Staff sections"
+        >
+        <Box minW="0">
         {(!online ||
           usingCachedData ||
           pendingActions.length > 0 ||
@@ -2460,6 +2472,8 @@ export default function StaffPage() {
             </Stack>
           </Box>
         )}
+        </Box>
+        </PageSectionLayout>
       </Box>
     </Box>
   );

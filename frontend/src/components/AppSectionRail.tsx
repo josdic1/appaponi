@@ -26,12 +26,14 @@ type Props = {
   items: AppSectionRailItem[];
   label?: string;
   desktopRail?: boolean;
+  compactRail?: boolean;
 };
 
 export default function AppSectionRail({
   items,
   label = "Page sections",
   desktopRail = false,
+  compactRail = false,
 }: Props) {
   const [observedActiveId, setObservedActiveId] =
     useState<string | null>(null);
@@ -191,7 +193,7 @@ export default function AppSectionRail({
           : "1px",
       }}
       borderColor="gray.200"
-      bg="white"
+      bg={compactRail ? "transparent" : "white"}
       px={{
         base: "0",
         lg: desktopRail
@@ -199,9 +201,11 @@ export default function AppSectionRail({
           : "6",
       }}
       py={{
-        base: "2",
+        base: compactRail ? "0" : "2",
         lg: desktopRail
-          ? "6"
+          ? compactRail
+            ? "0"
+            : "6"
           : "2",
       }}
       position={{
@@ -218,9 +222,11 @@ export default function AppSectionRail({
     >
       <HStack
         gap={{
-          base: "1",
+          base: compactRail ? "1" : "1",
           lg: desktopRail
-            ? "1"
+            ? compactRail
+              ? "1"
+              : "1"
             : "1",
         }}
         minW={{
@@ -251,6 +257,94 @@ export default function AppSectionRail({
               : false);
 
           const Icon = item.icon;
+
+          if (compactRail) {
+            return (
+              <Button
+                key={item.id}
+                type="button"
+                variant="plain"
+                h="auto"
+                minW="0"
+                w="max-content"
+                p="0"
+                gap="1"
+                justifyContent="flex-start"
+                color={
+                  isActive
+                    ? "green.700"
+                    : "gray.700"
+                }
+                aria-current={
+                  isActive
+                    ? "location"
+                    : undefined
+                }
+                aria-label={item.label}
+                onClick={() =>
+                  activate(item)
+                }
+              >
+                <Box
+                  as="span"
+                  w="8"
+                  h="8"
+                  display="grid"
+                  placeItems="center"
+                  flexShrink="0"
+                  borderWidth="1px"
+                  borderColor={
+                    isActive
+                      ? "green.600"
+                      : "gray.300"
+                  }
+                  borderRadius="md"
+                  bg={
+                    isActive
+                      ? "green.50"
+                      : "white"
+                  }
+                  boxShadow="xs"
+                >
+                  {Icon && (
+                    <Icon
+                      size={16}
+                      strokeWidth={1.8}
+                    />
+                  )}
+                </Box>
+
+                <Box
+                  as="span"
+                  minH="7"
+                  display="flex"
+                  alignItems="center"
+                  px="2"
+                  borderWidth="1px"
+                  borderColor={
+                    isActive
+                      ? "green.600"
+                      : "gray.300"
+                  }
+                  borderRadius="sm"
+                  bg="white"
+                  color={
+                    isActive
+                      ? "green.700"
+                      : "gray.700"
+                  }
+                  fontSize="10px"
+                  fontWeight="800"
+                  letterSpacing="0.08em"
+                  textTransform="uppercase"
+                  whiteSpace="nowrap"
+                  boxShadow="xs"
+                >
+                  {item.label}
+                </Box>
+              </Button>
+            );
+          }
 
           return (
             <Button

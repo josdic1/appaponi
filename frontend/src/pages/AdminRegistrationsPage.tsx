@@ -18,6 +18,12 @@ import {
   type FormEvent,
 } from "react";
 
+import {
+  BedDouble,
+  UserPlus,
+  UsersRound,
+} from "lucide-react";
+
 import type {
   AccountRecord,
 } from "@appoponi/shared/schemas/accounts";
@@ -44,6 +50,7 @@ import {
 } from "../api/operations";
 
 import { AdminPageHeader } from "../components/AdminUi";
+import PageSectionLayout from "../components/PageSectionLayout";
 
 type Props = {
   activeEventId?: string;
@@ -120,6 +127,31 @@ export default function AdminRegistrationsPage({
   }, [activeEventId]);
 
   const visibleRegistrations = registrations;
+
+  const pageSections = [
+    ...(showRegister
+      ? [
+          {
+            id: "registrations-create",
+            label: "Register",
+            icon: UserPlus,
+            targetId: "registrations-create",
+          },
+        ]
+      : []),
+    {
+      id: "registrations-households",
+      label: "Households",
+      icon: UsersRound,
+      targetId: "registrations-households",
+    },
+    {
+      id: "registrations-cabins",
+      label: "Cabins",
+      icon: BedDouble,
+      targetId: "registrations-cabins",
+    },
+  ];
 
   async function run(
     action: () => Promise<unknown>,
@@ -212,8 +244,15 @@ export default function AdminRegistrationsPage({
           </Alert.Root>
         )}
 
+        <PageSectionLayout
+          items={pageSections}
+          label="Guests and cabins sections"
+        >
+        <Stack gap="6">
         {showRegister && (
           <Box
+            id="registrations-create"
+            scrollMarginTop="96px"
             as="form"
             onSubmit={submit}
             borderWidth="1px"
@@ -339,6 +378,8 @@ export default function AdminRegistrationsPage({
         )}
 
         <Box
+          id="registrations-households"
+          scrollMarginTop="96px"
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="xl"
@@ -483,12 +524,19 @@ export default function AdminRegistrationsPage({
           )}
         </Box>
 
-        <AdminCabinsPanel
-          activeEventId={activeEventId}
-          onChanged={() =>
-            void refresh()
-          }
-        />
+        <Box
+          id="registrations-cabins"
+          scrollMarginTop="96px"
+        >
+          <AdminCabinsPanel
+            activeEventId={activeEventId}
+            onChanged={() =>
+              void refresh()
+            }
+          />
+        </Box>
+        </Stack>
+        </PageSectionLayout>
       </Stack>
     </Box>
   );

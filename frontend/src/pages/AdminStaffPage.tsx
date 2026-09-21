@@ -21,6 +21,11 @@ import {
   type FormEvent,
 } from "react";
 
+import {
+  UserPlus,
+  UsersRound,
+} from "lucide-react";
+
 import type {
   AccountRecord,
 } from "@appoponi/shared/schemas/accounts";
@@ -47,6 +52,7 @@ import {
 } from "../api/scheduling";
 
 import { AdminPageHeader } from "../components/AdminUi";
+import PageSectionLayout from "../components/PageSectionLayout";
 
 export default function AdminStaffPage() {
   const [accounts, setAccounts] =
@@ -282,6 +288,28 @@ export default function AdminStaffPage() {
       .join("");
   }
 
+  const pageSections = useMemo(
+    () => [
+      ...(availableAccounts.length
+        ? [
+            {
+              id: "staff-create",
+              label: "Add staff",
+              icon: UserPlus,
+              targetId: "staff-create",
+            },
+          ]
+        : []),
+      {
+        id: "staff-list",
+        label: "Staff",
+        icon: UsersRound,
+        targetId: "staff-list",
+      },
+    ],
+    [availableAccounts.length],
+  );
+
   function qualificationsFor(
     staffMemberId: string,
   ) {
@@ -321,6 +349,10 @@ export default function AdminStaffPage() {
           </Alert.Root>
         )}
 
+        <PageSectionLayout
+          items={pageSections}
+          label="Staff page sections"
+        >
         <Grid
           templateColumns={
             availableAccounts.length
@@ -335,6 +367,8 @@ export default function AdminStaffPage() {
         >
           {availableAccounts.length > 0 && (
             <Box
+              id="staff-create"
+              scrollMarginTop="96px"
               borderWidth="1px"
               borderColor="gray.200"
               borderRadius="xl"
@@ -519,6 +553,8 @@ export default function AdminStaffPage() {
           )}
 
           <Box
+            id="staff-list"
+            scrollMarginTop="96px"
             borderWidth="1px"
             borderColor="gray.200"
             borderRadius="xl"
@@ -836,6 +872,7 @@ export default function AdminStaffPage() {
             )}
           </Box>
         </Grid>
+        </PageSectionLayout>
       </Stack>
     </Box>
   );

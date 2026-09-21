@@ -8,6 +8,11 @@ import {
 } from "react";
 
 import {
+  ShoppingBag,
+  UtensilsCrossed,
+} from "lucide-react";
+
+import {
   Alert,
   Badge,
   Box,
@@ -62,6 +67,7 @@ import HumanDateTimeInput from "../components/HumanDateTimeInput";
 import { humanDateTimeToIso } from "../lib/humanDateTime";
 
 import { AdminPageHeader } from "../components/AdminUi";
+import PageSectionLayout from "../components/PageSectionLayout";
 
 type Props = {
   activeEventId?: string;
@@ -626,6 +632,21 @@ export default function AdminMealPlanningPage({
   const todayKey = dayKey(new Date());
   const selectedDayDate = days.find((day) => day.key === selectedDay)?.date ?? null;
 
+  const pageSections = [
+    {
+      id: "meal-services",
+      label: "Services",
+      icon: UtensilsCrossed,
+      targetId: "meal-services",
+    },
+    {
+      id: "meal-anytime",
+      label: "Anytime",
+      icon: ShoppingBag,
+      targetId: "meal-anytime",
+    },
+  ];
+
   return (
     <Box
       as="section"
@@ -832,8 +853,14 @@ export default function AdminMealPlanningPage({
       )}
 
       {!composerOpen && (
-        <>
+        <PageSectionLayout
+          items={pageSections}
+          label="Meal planning sections"
+        >
+        <Stack gap="3">
           <Box
+            id="meal-services"
+            scrollMarginTop="96px"
             position="sticky"
             top="0"
             zIndex="8"
@@ -1215,6 +1242,8 @@ export default function AdminMealPlanningPage({
           </Box>
 
           <Box
+            id="meal-anytime"
+            scrollMarginTop="96px"
             as="section"
             mt="3"
             overflow="hidden"
@@ -1358,7 +1387,8 @@ export default function AdminMealPlanningPage({
               },
             )}
           </Box>
-        </>
+        </Stack>
+        </PageSectionLayout>
       )}
 
       {composerOpen && selectedTarget && (

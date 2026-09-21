@@ -18,6 +18,12 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 
+import {
+  Baby,
+  BellRing,
+  ShoppingBag,
+} from "lucide-react";
+
 import type { AccountRecord } from "@appoponi/shared/schemas/accounts";
 import type { EventRecord } from "@appoponi/shared/schemas/events";
 import type { StaffMember } from "@appoponi/shared/schemas/staffMembers";
@@ -38,6 +44,7 @@ import HumanDateTimeInput from "../components/HumanDateTimeInput";
 import { humanDateTimeToIso } from "../lib/humanDateTime";
 
 import { AdminPageHeader } from "../components/AdminUi";
+import PageSectionLayout from "../components/PageSectionLayout";
 
 type View = "orders" | "babysitting" | "notifications";
 
@@ -171,6 +178,30 @@ export default function AdminServicesPage({ activeEventId = "" }: Props) {
     });
   }
 
+  const pageSections = [
+    {
+      id: "service-orders",
+      label: "Food requests",
+      icon: ShoppingBag,
+      active: view === "orders",
+      onClick: () => setView("orders"),
+    },
+    {
+      id: "service-babysitting",
+      label: "Babysitting",
+      icon: Baby,
+      active: view === "babysitting",
+      onClick: () => setView("babysitting"),
+    },
+    {
+      id: "service-notices",
+      label: "Notices",
+      icon: BellRing,
+      active: view === "notifications",
+      onClick: () => setView("notifications"),
+    },
+  ];
+
   return (
     <Box as="section" minW="0">
       <Box mb="4">
@@ -181,58 +212,10 @@ export default function AdminServicesPage({ activeEventId = "" }: Props) {
         />
       </Box>
 
-      <HStack
-        role="tablist"
-        aria-label="Services"
-        gap="2"
-        mb="18px"
-        overflowX="auto"
-        scrollbarWidth="none"
+      <PageSectionLayout
+        items={pageSections}
+        label="Services sections"
       >
-        {([
-          ["orders", "Food requests"],
-          ["babysitting", "Babysitting"],
-          ["notifications", "Notices"],
-        ] as const).map(([value, label]) => {
-          const active = view === value;
-
-          return (
-            <Button
-              key={value}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              size="sm"
-              variant="outline"
-              flex="0 0 auto"
-              minH="34px"
-              px="3"
-              borderRadius="8px"
-              borderColor={
-                active
-                  ? "#b7ddcf"
-                  : "#dddcd5"
-              }
-              bg={
-                active
-                  ? "#e7f3ef"
-                  : "#ffffff"
-              }
-              color={
-                active
-                  ? "var(--chakra-colors-green-700)"
-                  : "#6d7169"
-              }
-              onClick={() =>
-                setView(value)
-              }
-            >
-              {label}
-            </Button>
-          );
-        })}
-      </HStack>
-
       {error && (
         <Alert.Root
           status="error"
@@ -881,6 +864,7 @@ export default function AdminServicesPage({ activeEventId = "" }: Props) {
           </Grid>
         </Box>
       )}
+      </PageSectionLayout>
     </Box>
   );
 }

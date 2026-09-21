@@ -18,6 +18,12 @@ import {
   type FormEvent,
 } from "react";
 
+import {
+  Activity as ActivityIcon,
+  CalendarDays,
+  MapPin,
+} from "lucide-react";
+
 import type {
   Area,
 } from "@appoponi/shared/schemas/areas";
@@ -61,6 +67,7 @@ import {
 } from "../lib/humanDateTime";
 
 import { AdminPageHeader } from "../components/AdminUi";
+import PageSectionLayout from "../components/PageSectionLayout";
 
 type View =
   | "areas"
@@ -724,6 +731,30 @@ export default function AdminOperationsPage() {
     }
   }
 
+  const pageSections = [
+    {
+      id: "operations-events",
+      label: "Events",
+      icon: CalendarDays,
+      active: view === "events",
+      onClick: () => setView("events"),
+    },
+    {
+      id: "operations-places",
+      label: "Places",
+      icon: MapPin,
+      active: view === "areas",
+      onClick: () => setView("areas"),
+    },
+    {
+      id: "operations-activities",
+      label: "Activities",
+      icon: ActivityIcon,
+      active: view === "activities",
+      onClick: () => setView("activities"),
+    },
+  ];
+
   return (
     <Box
       as="section"
@@ -736,58 +767,11 @@ export default function AdminOperationsPage() {
           description="Build events from reusable places and activities."
         />
 
-        <HStack
-          gap="2"
-          flexWrap="wrap"
+        <PageSectionLayout
+          items={pageSections}
+          label="Events and libraries sections"
         >
-          <Button
-            type="button"
-            size="sm"
-            colorPalette="green"
-            variant={
-              view === "events"
-                ? "solid"
-                : "outline"
-            }
-            onClick={() =>
-              setView("events")
-            }
-          >
-            Events
-          </Button>
-
-          <Button
-            type="button"
-            size="sm"
-            colorPalette="green"
-            variant={
-              view === "areas"
-                ? "solid"
-                : "outline"
-            }
-            onClick={() =>
-              setView("areas")
-            }
-          >
-            Place library
-          </Button>
-
-          <Button
-            type="button"
-            size="sm"
-            colorPalette="green"
-            variant={
-              view === "activities"
-                ? "solid"
-                : "outline"
-            }
-            onClick={() =>
-              setView("activities")
-            }
-          >
-            Activity library
-          </Button>
-        </HStack>
+        <Stack gap="6">
 
         <Box
           display="flex"
@@ -2192,6 +2176,8 @@ export default function AdminOperationsPage() {
             </Box>
           </Grid>
         )}
+        </Stack>
+        </PageSectionLayout>
       </Stack>
     </Box>
   );

@@ -16,6 +16,16 @@ import {
   Text,
 } from "@chakra-ui/react";
 
+import {
+  BedDouble,
+  BellRing,
+  CalendarDays,
+  CalendarRange,
+  House,
+  UsersRound,
+  UtensilsCrossed,
+} from "lucide-react";
+
 import type {
   HouseholdMember,
 } from "@appoponi/shared/schemas/householdMembers";
@@ -65,7 +75,7 @@ import {
   readOfflineCache,
   saveOfflineCache,
 } from "../lib/offlineCache";
-import AppSectionStack from "../components/AppSectionStack";
+import PageSectionLayout from "../components/PageSectionLayout";
 import FamilyItinerary from "./FamilyItinerary";
 import MemberCampMap from "./MemberCampMap";
 import MemberDirectory from "./MemberDirectory";
@@ -519,6 +529,72 @@ export default function MemberPage() {
     account?.username ??
     "Member";
 
+  const memberPageSections = [
+    ...(registration
+      ? [
+          {
+            id: "member-today-nav",
+            label: "Today",
+            icon: CalendarDays,
+            targetId: "member-today",
+          },
+        ]
+      : []),
+    ...(unreadNotifications.length
+      ? [
+          {
+            id: "member-notices-nav",
+            label: "Notices",
+            icon: BellRing,
+            targetId: "member-priority-notices",
+          },
+        ]
+      : []),
+    ...(registration &&
+    (eventActivities.length || eventMeals.length)
+      ? [
+          {
+            id: "member-itinerary-nav",
+            label: "Itinerary",
+            icon: CalendarRange,
+            targetId: "member-itinerary",
+          },
+        ]
+      : []),
+    ...(registration
+      ? [
+          {
+            id: "member-stay-nav",
+            label: "Stay + map",
+            icon: BedDouble,
+            targetId: "member-stay",
+          },
+          {
+            id: "member-services-nav",
+            label: "Food + services",
+            icon: UtensilsCrossed,
+            targetId: "member-services",
+          },
+          {
+            id: "member-directory-nav",
+            label: "Directory",
+            icon: UsersRound,
+            targetId: "member-directory",
+          },
+        ]
+      : []),
+    ...(household.length
+      ? [
+          {
+            id: "member-household-nav",
+            label: "Household",
+            icon: House,
+            targetId: "member-household",
+          },
+        ]
+      : []),
+  ];
+
   return (
     <Box
       minH="100vh"
@@ -591,42 +667,6 @@ export default function MemberPage() {
         </Button>
       </Box>
 
-      <AppSectionStack
-        label="Member sections"
-        items={[
-          {
-            id: "today",
-            label: "Today",
-            targetId: "member-today",
-          },
-          {
-            id: "itinerary",
-            label: "Itinerary",
-            targetId: "member-itinerary",
-          },
-          {
-            id: "stay",
-            label: "Stay + map",
-            targetId: "member-stay",
-          },
-          {
-            id: "services",
-            label: "Food + services",
-            targetId: "member-services",
-          },
-          {
-            id: "directory",
-            label: "Directory",
-            targetId: "member-directory",
-          },
-          {
-            id: "household",
-            label: "Household",
-            targetId: "member-household",
-          },
-        ]}
-      />
-
       <Box
         as="main"
         w="full"
@@ -635,6 +675,11 @@ export default function MemberPage() {
         px={{ base: "4", md: "6" }}
         py={{ base: "5", md: "7" }}
       >
+        <PageSectionLayout
+          items={memberPageSections}
+          label="Member sections"
+        >
+        <Box minW="0">
         {(!online || usingCachedData) && (
           <Alert.Root
             status="warning"
@@ -1199,6 +1244,8 @@ export default function MemberPage() {
             onChanged={refresh}
           />
         </Box>
+        </Box>
+        </PageSectionLayout>
       </Box>
     </Box>
   );
