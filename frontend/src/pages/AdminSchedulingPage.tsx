@@ -61,6 +61,7 @@ import {
   removeQualification,
   removeStaffArea,
   removeStaffQualification,
+  updateEventActivity,
 } from "../api/scheduling";
 
 import HumanDateTimeInput from "../components/HumanDateTimeInput";
@@ -111,6 +112,30 @@ function scheduleTimeLabel(value: string) {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function scheduleInputValue(value: string) {
+  const date = new Date(value);
+
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  let hour = date.getHours();
+  const minute = String(
+    date.getMinutes(),
+  ).padStart(2, "0");
+
+  const meridiem =
+    hour >= 12 ? "PM" : "AM";
+
+  hour %= 12;
+
+  if (hour === 0) {
+    hour = 12;
+  }
+
+  return `${month}/${day}/${year} ${hour}:${minute} ${meridiem}`;
 }
 
 export default function AdminSchedulingPage({
@@ -175,6 +200,26 @@ export default function AdminSchedulingPage({
     useState<string | null>(null);
   const [editingStaffId, setEditingStaffId] =
     useState("");
+
+  const [
+    editingScheduleActivity,
+    setEditingScheduleActivity,
+  ] = useState("");
+
+  const [
+    editingScheduleStart,
+    setEditingScheduleStart,
+  ] = useState("");
+
+  const [
+    editingScheduleEnd,
+    setEditingScheduleEnd,
+  ] = useState("");
+
+  const [
+    editingScheduleCapacity,
+    setEditingScheduleCapacity,
+  ] = useState("");
 
   async function refresh() {
     const [
@@ -249,6 +294,47 @@ export default function AdminSchedulingPage({
 
     return Array.from(groups.entries());
   })();
+
+  function beginScheduledActivityEdit(
+    activityId: string,
+  ) {
+    const item =
+      visibleEventActivities.find(
+        (activity) =>
+          activity.id === activityId,
+      );
+
+    if (!item) {
+      return;
+    }
+
+    setEditingActivityId(item.id);
+    setEditingScheduleActivity(
+      item.activity_id,
+    );
+    setEditingScheduleStart(
+      scheduleInputValue(item.starts_at),
+    );
+    setEditingScheduleEnd(
+      scheduleInputValue(item.ends_at),
+    );
+    setEditingScheduleCapacity(
+      item.capacity === null
+        ? ""
+        : String(item.capacity),
+    );
+    setEditingStaffId("");
+    setError(null);
+  }
+
+  function closeScheduledActivityEdit() {
+    setEditingActivityId(null);
+    setEditingScheduleActivity("");
+    setEditingScheduleStart("");
+    setEditingScheduleEnd("");
+    setEditingScheduleCapacity("");
+    setEditingStaffId("");
+  }
 
   async function run(action: () => Promise<unknown>) {
     setError(null);
@@ -360,6 +446,69 @@ export default function AdminSchedulingPage({
       setScheduleCapacity("");
       setIsAddingActivity(false);
     });
+  }
+
+  async function submitScheduledActivityEdit(
+    event: FormEvent,
+    item: EventActivity,
+  ) {
+    event.preventDefault();
+
+    if (!editingScheduleActivity) {
+      setError("Choose an activity.");
+      return;
+    }
+
+    try {
+      const startsAt =
+        humanDateTimeToIso(
+          editingScheduleStart,
+          item.starts_at,
+        );
+
+      const endsAt =
+        humanDateTimeToIso(
+          editingScheduleEnd,
+          item.starts_at,
+        );
+
+      if (
+        new Date(endsAt).getTime() <=
+        new Date(startsAt).getTime()
+      ) {
+        setError(
+          "Activity end time must be after its start time.",
+        );
+        return;
+      }
+
+      await run(async () => {
+        await updateEventActivity(
+          item.id,
+          {
+            activity_id: Number(
+              editingScheduleActivity,
+            ),
+            starts_at: startsAt,
+            ends_at: endsAt,
+            capacity:
+              editingScheduleCapacity
+                ? Number(
+                    editingScheduleCapacity,
+                  )
+                : null,
+          },
+        );
+
+        closeScheduledActivityEdit();
+      });
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not update scheduled activity",
+      );
+    }
   }
 
   function submitActivityStaff(
@@ -686,7 +835,9 @@ export default function AdminSchedulingPage({
             activities={visibleEventActivities}
             assignments={eventActivityStaff}
             onSelectActivity={(activityId) => {
-              setEditingActivityId(activityId);
+              beginScheduledActivityEdit(
+                activityId,
+              );
               setScheduleView("itinerary");
             }}
           />
@@ -697,7 +848,9 @@ export default function AdminSchedulingPage({
             activities={visibleEventActivities}
             assignments={eventActivityStaff}
             onSelectActivity={(activityId) => {
-              setEditingActivityId(activityId);
+              beginScheduledActivityEdit(
+                activityId,
+              );
               setScheduleView("itinerary");
             }}
           />
@@ -852,28 +1005,50 @@ export default function AdminSchedulingPage({
                                   </Text>
                                 </Stack>
 
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="outline"
-                                  aria-expanded={
-                                    isEditing
-                                  }
-                                  onClick={() => {
-                                    setEditingActivityId(
-                                      isEditing
-                                        ? null
-                                        : item.id,
-                                    );
-                                    setEditingStaffId(
-                                      "",
-                                    );
-                                  }}
+                                <HStack
+                                  gap="2"
+                                  justifyContent="flex-end"
                                 >
-                                  {isEditing
-                                    ? "Done"
-                                    : "Edit"}
-                                </Button>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    aria-expanded={
+                                      isEditing
+                                    }
+                                    onClick={() => {
+                                      if (isEditing) {
+                                        closeScheduledActivityEdit();
+                                      } else {
+                                        beginScheduledActivityEdit(
+                                          item.id,
+                                        );
+                                      }
+                                    }}
+                                  >
+                                    {isEditing
+                                      ? "Close"
+                                      : "Edit / move"}
+                                  </Button>
+
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    colorPalette="red"
+                                    onClick={() =>
+                                      confirmRemove(
+                                        `scheduled ${item.activity_name}`,
+                                        () =>
+                                          removeEventActivity(
+                                            item.id,
+                                          ),
+                                      )
+                                    }
+                                  >
+                                    Delete
+                                  </Button>
+                                </HStack>
                               </Box>
 
                               {isEditing && (
@@ -885,6 +1060,145 @@ export default function AdminSchedulingPage({
                                   p="4"
                                 >
                                   <Stack gap="4">
+                                    <Box
+                                      as="form"
+                                      onSubmit={(event) =>
+                                        void submitScheduledActivityEdit(
+                                          event,
+                                          item,
+                                        )
+                                      }
+                                    >
+                                      <Stack gap="4">
+                                        <Text fontWeight="700">
+                                          Activity details
+                                        </Text>
+
+                                        <Grid
+                                          templateColumns={{
+                                            base: "1fr",
+                                            md: "repeat(2, minmax(0, 1fr))",
+                                          }}
+                                          gap="4"
+                                        >
+                                          <Field.Root>
+                                            <Field.Label>
+                                              Activity
+                                            </Field.Label>
+
+                                            <NativeSelect.Root>
+                                              <NativeSelect.Field
+                                                value={
+                                                  editingScheduleActivity
+                                                }
+                                                onChange={(event) =>
+                                                  setEditingScheduleActivity(
+                                                    event.target.value,
+                                                  )
+                                                }
+                                              >
+                                                {activities.map(
+                                                  (activity) => (
+                                                    <option
+                                                      key={
+                                                        activity.id
+                                                      }
+                                                      value={
+                                                        activity.id
+                                                      }
+                                                    >
+                                                      {
+                                                        activity.name
+                                                      }
+                                                    </option>
+                                                  ),
+                                                )}
+                                              </NativeSelect.Field>
+
+                                              <NativeSelect.Indicator />
+                                            </NativeSelect.Root>
+                                          </Field.Root>
+
+                                          <Field.Root>
+                                            <Field.Label>
+                                              Capacity
+                                            </Field.Label>
+
+                                            <Input
+                                              type="number"
+                                              min="1"
+                                              value={
+                                                editingScheduleCapacity
+                                              }
+                                              onChange={(event) =>
+                                                setEditingScheduleCapacity(
+                                                  event.target.value,
+                                                )
+                                              }
+                                              placeholder="Optional"
+                                            />
+                                          </Field.Root>
+
+                                          <Field.Root>
+                                            <Field.Label>
+                                              Starts
+                                            </Field.Label>
+
+                                            <HumanDateTimeInput
+                                              value={
+                                                editingScheduleStart
+                                              }
+                                              onChange={
+                                                setEditingScheduleStart
+                                              }
+                                              defaultDate={
+                                                item.starts_at
+                                              }
+                                            />
+                                          </Field.Root>
+
+                                          <Field.Root>
+                                            <Field.Label>
+                                              Ends
+                                            </Field.Label>
+
+                                            <HumanDateTimeInput
+                                              value={
+                                                editingScheduleEnd
+                                              }
+                                              onChange={
+                                                setEditingScheduleEnd
+                                              }
+                                              defaultDate={
+                                                item.starts_at
+                                              }
+                                            />
+                                          </Field.Root>
+                                        </Grid>
+
+                                        <HStack>
+                                          <Button
+                                            type="submit"
+                                            colorPalette="green"
+                                            size="sm"
+                                          >
+                                            Save changes
+                                          </Button>
+
+                                          <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={
+                                              closeScheduledActivityEdit
+                                            }
+                                          >
+                                            Cancel
+                                          </Button>
+                                        </HStack>
+                                      </Stack>
+                                    </Box>
+
                                     <Stack gap="2">
                                       <Text fontWeight="700">
                                         Staff
@@ -1034,24 +1348,6 @@ export default function AdminSchedulingPage({
                                       </HStack>
                                     </Box>
 
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="outline"
-                                      colorPalette="red"
-                                      alignSelf="flex-start"
-                                      onClick={() =>
-                                        confirmRemove(
-                                          `scheduled ${item.activity_name}`,
-                                          () =>
-                                            removeEventActivity(
-                                              item.id,
-                                            ),
-                                        )
-                                      }
-                                    >
-                                      Remove activity
-                                    </Button>
                                   </Stack>
                                 </Box>
                               )}

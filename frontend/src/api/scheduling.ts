@@ -191,6 +191,34 @@ export const addEventActivity = (
   },
 ) => post("event-activities", input);
 
+export async function updateEventActivity(
+  id: string,
+  input: {
+    activity_id?: number;
+    starts_at?: string;
+    ends_at?: string;
+    capacity?: number | null;
+  },
+) {
+  const response = await fetch(
+    `${API_URL}/api/scheduling/event-activities/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  return (
+    await json<{
+      event_activity: EventActivity;
+    }>(response)
+  ).event_activity;
+}
+
 export const assignEventActivityStaff = (
   event_activity_id: number,
   staff_member_id: number,

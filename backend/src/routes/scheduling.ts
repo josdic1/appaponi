@@ -7,6 +7,7 @@ import {
   createStaffAreaSchema,
   createStaffQualificationSchema,
   relationshipIdParamsSchema,
+  updateEventActivitySchema,
   type ActivityQualification,
   type EventActivity,
   type EventActivityStaff,
@@ -438,6 +439,143 @@ schedulingRouter.post(
       );
 
       res.status(201).json({
+        event_activity: result.rows[0],
+      });
+    } catch (error: any) {
+      if (
+        String(error?.message ?? "").includes(
+          "EVENT_TIME_OUTSIDE_EVENT",
+        )
+      ) {
+        res.status(409).json({
+          error:
+            "Scheduled activity must occur inside the event dates",
+        });
+        return;
+      }
+
+      throw error;
+    }
+  },
+);
+
+schedulingRouter.patch(
+  "/event-activities/:id",
+  async (req, res) => {
+    const params =
+      relationshipIdParamsSchema.safeParse(req.params);
+
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+
+    const body =
+      updateEventActivitySchema.safeParse(req.body);
+
+    if (!body.success) {
+      res.status(400).json({
+        error: "Invalid scheduled activity update",
+      });
+      return;
+    }
+
+    const current = await query<{
+      activity_id: string;
+      starts_at: string;
+      ends_at: string;
+      capacity: number | null;
+    }>(
+      `
+        SELECT
+          activity_id,
+          starts_at,
+          ends_at,
+          capacity
+        FROM event_activities
+        WHERE id = $1
+      `,
+      [params.data.id],
+    );
+
+    const existing = current.rows[0];
+
+    if (!existing) {
+      res.status(404).json({
+        error: "Scheduled activity not found",
+      });
+      return;
+    }
+
+    const activityId =
+      body.data.activity_id ??
+      Number(existing.activity_id);
+
+    const startsAt =
+      body.data.starts_at ??
+      existing.starts_at;
+
+    const endsAt =
+      body.data.ends_at ??
+      existing.ends_at;
+
+    const capacity =
+      body.data.capacity !== undefined
+        ? body.data.capacity
+        : existing.capacity;
+
+    if (
+      new Date(endsAt).getTime() <=
+      new Date(startsAt).getTime()
+    ) {
+      res.status(400).json({
+        error: "Activity end time must be after its start time",
+      });
+      return;
+    }
+
+    try {
+      const result = await query<EventActivity>(
+        `
+          WITH updated AS (
+            UPDATE event_activities
+            SET
+              activity_id = $2,
+              starts_at = $3,
+              ends_at = $4,
+              capacity = $5
+            WHERE id = $1
+            RETURNING *
+          )
+          SELECT
+            u.id,
+            u.event_id,
+            e.name AS event_name,
+            u.activity_id,
+            a.name AS activity_name,
+            ar.name AS area_name,
+            a.map_place_id,
+            u.starts_at,
+            u.ends_at,
+            u.capacity
+          FROM updated u
+          JOIN events e
+            ON e.id = u.event_id
+          JOIN activities a
+            ON a.id = u.activity_id
+          JOIN areas ar
+            ON ar.id = a.area_id
+        `,
+        [
+          params.data.id,
+          activityId,
+          startsAt,
+          endsAt,
+          capacity,
+        ],
+      );
+
+      res.json({
         event_activity: result.rows[0],
       });
     } catch (error: any) {

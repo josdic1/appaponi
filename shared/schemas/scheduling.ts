@@ -28,6 +28,22 @@ export const createEventActivitySchema = z.object({
   capacity: z.coerce.number().int().positive().nullable().optional(),
 });
 
+export const updateEventActivitySchema = z.object({
+  activity_id: z.coerce.number().int().positive().optional(),
+  starts_at: z.string().datetime().optional(),
+  ends_at: z.string().datetime().optional(),
+  capacity: z.coerce.number().int().positive().nullable().optional(),
+}).refine(
+  (input) =>
+    input.activity_id !== undefined ||
+    input.starts_at !== undefined ||
+    input.ends_at !== undefined ||
+    input.capacity !== undefined,
+  {
+    message: "At least one scheduled activity field is required",
+  },
+);
+
 export const createEventActivityStaffSchema = z.object({
   event_activity_id: z.coerce.number().int().positive(),
   staff_member_id: z.coerce.number().int().positive(),
