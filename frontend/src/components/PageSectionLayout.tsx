@@ -27,7 +27,7 @@ export default function PageSectionLayout({
     <Grid
       templateColumns={{
         base: "1fr",
-        lg: "116px minmax(0, 1fr)",
+        lg: "max-content minmax(0, 1fr)",
       }}
       gap="3"
       alignItems="start"
