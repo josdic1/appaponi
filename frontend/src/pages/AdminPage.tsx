@@ -11,6 +11,7 @@ import {
   NativeSelect,
   SimpleGrid,
   Stack,
+  Table,
   Text,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
@@ -42,6 +43,8 @@ import type {
 } from "@appoponi/shared/schemas/householdMembers";
 
 import type { EventRecord } from "@appoponi/shared/schemas/events";
+
+import { changePassword } from "../api/auth";
 
 import {
   createAccount,
@@ -92,9 +95,11 @@ function titleCaseLabel(value: string) {
 }
 
 export default function AdminPage() {
-  const { account, logout } = useAuth();
+  const { account, logout, refresh: refreshAuth } = useAuth();
 
   const [accounts, setAccounts] = useState<AccountRecord[]>([]);
+
+  const [accountSearch, setAccountSearch] = useState("");
 
   const [members, setMembers] = useState<HouseholdMember[]>([]);
 
@@ -144,6 +149,14 @@ export default function AdminPage() {
   );
 
   const [temporaryPassword, setTemporaryPassword] = useState("");
+
+  const [ownPasswordOpen, setOwnPasswordOpen] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+
+  const [newPassword, setNewPassword] = useState("");
+
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
   const [showCreateAccount, setShowCreateAccount] = useState(false);
 
@@ -209,6 +222,31 @@ export default function AdminPage() {
     () => accounts.find((item) => item.id === selectedAccountId) ?? null,
     [accounts, selectedAccountId],
   );
+
+  const filteredAccounts = useMemo(() => {
+    const query = accountSearch.trim().toLowerCase();
+
+    return [...accounts]
+      .filter((item) => {
+        if (!query) {
+          return true;
+        }
+
+        return [
+          item.display_name ?? "",
+          item.username,
+          item.account_type,
+          item.must_change_password
+            ? "password change required"
+            : "active",
+        ].some((value) => value.toLowerCase().includes(query));
+      })
+      .sort((a, b) =>
+        (a.display_name ?? a.username).localeCompare(
+          b.display_name ?? b.username,
+        ),
+      );
+  }, [accounts, accountSearch]);
 
   const selectedMembers = useMemo(
     () => members.filter((member) => member.account_id === selectedAccountId),
@@ -306,6 +344,49 @@ export default function AdminPage() {
 
       setResettingAccountId(null);
       setTemporaryPassword("");
+    });
+  }
+
+  function beginOwnPasswordChange() {
+    setOwnPasswordOpen(true);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setResettingAccountId(null);
+    setEditingAccountId(null);
+    setError(null);
+  }
+
+  async function saveOwnPasswordChange(event: FormEvent) {
+    event.preventDefault();
+
+    if (!currentPassword) {
+      setError("Current password is required.");
+      return;
+    }
+
+    if (!newPassword) {
+      setError("New password is required.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setError("New passwords do not match.");
+      return;
+    }
+
+    await run(async () => {
+      await changePassword({
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+
+      await refreshAuth();
+
+      setOwnPasswordOpen(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
     });
   }
 
@@ -1015,10 +1096,7 @@ export default function AdminPage() {
               )}
 
               <Grid
-                templateColumns={{
-                  base: "1fr",
-                  lg: "320px minmax(0, 1fr)",
-                }}
+                templateColumns="1fr"
                 gap="5"
                 alignItems="start"
               >
@@ -1030,117 +1108,130 @@ export default function AdminPage() {
                   overflow="hidden"
                 >
                   <Box
-                    px="4"
-                    py="3"
+                    px={{ base: "4", md: "5" }}
+                    py="4"
                     borderBottomWidth="1px"
                     borderColor="gray.200"
                   >
-                    <Text fontWeight="700">
-                      Accounts
-                    </Text>
-
-                    <Text
-                      fontSize="sm"
-                      color="gray.500"
+                    <HStack
+                      justifyContent="space-between"
+                      alignItems={{ base: "stretch", md: "center" }}
+                      flexDirection={{ base: "column", md: "row" }}
+                      gap="3"
                     >
-                      {accounts.length} total
-                    </Text>
+                      <Stack gap="0">
+                        <Text fontWeight="700">Accounts</Text>
+                        <Text fontSize="sm" color="gray.500">
+                          {filteredAccounts.length === accounts.length
+                            ? `${accounts.length} total`
+                            : `${filteredAccounts.length} of ${accounts.length}`}
+                        </Text>
+                      </Stack>
+
+                      <Input
+                        value={accountSearch}
+                        onChange={(event) =>
+                          setAccountSearch(event.target.value)
+                        }
+                        placeholder="Search name, login, type, or status"
+                        maxW={{ base: "full", md: "360px" }}
+                        aria-label="Search accounts"
+                      />
+                    </HStack>
                   </Box>
 
-                  <Stack gap="0">
-                    {accounts.map((item) => {
-                      const selected =
-                        selectedAccountId ===
-                        item.id;
+                  <Box overflowX="auto">
+                    <Table.Root size="sm">
+                      <Table.Header>
+                        <Table.Row>
+                          <Table.ColumnHeader>Account</Table.ColumnHeader>
+                          <Table.ColumnHeader>Login</Table.ColumnHeader>
+                          <Table.ColumnHeader>Type</Table.ColumnHeader>
+                          <Table.ColumnHeader>Status</Table.ColumnHeader>
+                        </Table.Row>
+                      </Table.Header>
 
-                      return (
-                        <Button
-                          key={item.id}
-                          type="button"
-                          variant={
-                            selected
-                              ? "subtle"
-                              : "ghost"
-                          }
-                          colorPalette={
-                            selected
-                              ? "green"
-                              : "gray"
-                          }
-                          h="auto"
-                          borderRadius="0"
-                          justifyContent="stretch"
-                          px="4"
-                          py="3"
-                          onClick={() => {
-                            setSelectedAccountId(
-                              item.id,
-                            );
-                            setEditingAccountId(
-                              null,
-                            );
-                            setResettingAccountId(
-                              null,
-                            );
-                            setEditingMemberId(
-                              null,
-                            );
-                            setShowAddProfile(
-                              false,
-                            );
-                          }}
-                        >
-                          <HStack
-                            w="full"
-                            justifyContent="space-between"
-                            gap="3"
-                          >
-                            <Stack
-                              gap="0"
-                              alignItems="flex-start"
-                              minW="0"
-                            >
-                              <Text
-                                fontWeight="700"
-                                truncate
-                              >
-                                {item.display_name ??
-                                  item.username}
+                      <Table.Body>
+                        {filteredAccounts.length === 0 ? (
+                          <Table.Row>
+                            <Table.Cell colSpan={4}>
+                              <Text color="gray.500" py="4">
+                                No accounts match your search.
                               </Text>
+                            </Table.Cell>
+                          </Table.Row>
+                        ) : (
+                          filteredAccounts.map((item) => {
+                            const selected =
+                              selectedAccountId === item.id;
 
-                              <Text
-                                fontSize="xs"
-                                color="gray.500"
-                                fontWeight="400"
+                            return (
+                              <Table.Row
+                                key={item.id}
+                                bg={selected ? "green.50" : undefined}
                               >
-                                @{item.username}
-                                {" · "}
-                                {item.must_change_password
-                                  ? "Password change required"
-                                  : "Active"}
-                              </Text>
-                            </Stack>
+                                <Table.Cell>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    colorPalette={selected ? "green" : "gray"}
+                                    h="auto"
+                                    px="2"
+                                    py="1"
+                                    justifyContent="flex-start"
+                                    fontWeight="700"
+                                    onClick={() => {
+                                      setSelectedAccountId(item.id);
+                                      setEditingAccountId(null);
+                                      setResettingAccountId(null);
+                                      setOwnPasswordOpen(false);
+                                      setEditingMemberId(null);
+                                      setShowAddProfile(false);
+                                    }}
+                                  >
+                                    {item.display_name ?? item.username}
+                                  </Button>
+                                </Table.Cell>
 
-                            <Badge
-                              colorPalette={
-                                item.account_type ===
-                                "admin"
-                                  ? "purple"
-                                  : item.account_type ===
-                                      "staff"
-                                    ? "blue"
-                                    : "green"
-                              }
-                            >
-                              {titleCaseLabel(
-                                item.account_type,
-                              )}
-                            </Badge>
-                          </HStack>
-                        </Button>
-                      );
-                    })}
-                  </Stack>
+                                <Table.Cell color="gray.600">
+                                  @{item.username}
+                                </Table.Cell>
+
+                                <Table.Cell>
+                                  <Badge
+                                    colorPalette={
+                                      item.account_type === "admin"
+                                        ? "purple"
+                                        : item.account_type === "staff"
+                                          ? "blue"
+                                          : "green"
+                                    }
+                                  >
+                                    {titleCaseLabel(item.account_type)}
+                                  </Badge>
+                                </Table.Cell>
+
+                                <Table.Cell>
+                                  <Text
+                                    fontSize="sm"
+                                    color={
+                                      item.must_change_password
+                                        ? "orange.700"
+                                        : "gray.600"
+                                    }
+                                  >
+                                    {item.must_change_password
+                                      ? "Password change required"
+                                      : "Active"}
+                                  </Text>
+                                </Table.Cell>
+                              </Table.Row>
+                            );
+                          })
+                        )}
+                      </Table.Body>
+                    </Table.Root>
+                  </Box>
                 </Box>
 
                 <Box
@@ -1216,8 +1307,16 @@ export default function AdminPage() {
                             Edit login
                           </Button>
 
-                          {selectedAccount.id !==
-                            account?.id && (
+                          {selectedAccount.id === account?.id ? (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={beginOwnPasswordChange}
+                            >
+                              Change password
+                            </Button>
+                          ) : (
                             <>
                               <Button
                                 type="button"
@@ -1335,6 +1434,101 @@ export default function AdminPage() {
                                     null,
                                   )
                                 }
+                              >
+                                Cancel
+                              </Button>
+                            </HStack>
+                          </Stack>
+                        </Box>
+                      )}
+
+                      {selectedAccount.id === account?.id &&
+                        ownPasswordOpen && (
+                        <Box
+                          as="form"
+                          onSubmit={(event) =>
+                            void saveOwnPasswordChange(event)
+                          }
+                          borderWidth="1px"
+                          borderColor="gray.200"
+                          borderRadius="lg"
+                          bg="gray.50"
+                          p="4"
+                        >
+                          <Stack gap="4">
+                            <Text fontWeight="700">
+                              Change password
+                            </Text>
+
+                            <Field.Root>
+                              <Field.Label>
+                                Current password
+                              </Field.Label>
+
+                              <Input
+                                autoFocus
+                                type="password"
+                                autoComplete="current-password"
+                                value={currentPassword}
+                                onChange={(event) =>
+                                  setCurrentPassword(
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </Field.Root>
+
+                            <Field.Root>
+                              <Field.Label>
+                                New password
+                              </Field.Label>
+
+                              <Input
+                                type="password"
+                                autoComplete="new-password"
+                                value={newPassword}
+                                onChange={(event) =>
+                                  setNewPassword(
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </Field.Root>
+
+                            <Field.Root>
+                              <Field.Label>
+                                Confirm new password
+                              </Field.Label>
+
+                              <Input
+                                type="password"
+                                autoComplete="new-password"
+                                value={confirmNewPassword}
+                                onChange={(event) =>
+                                  setConfirmNewPassword(
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </Field.Root>
+
+                            <HStack>
+                              <Button
+                                type="submit"
+                                colorPalette="green"
+                              >
+                                Change password
+                              </Button>
+
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  setOwnPasswordOpen(false);
+                                  setCurrentPassword("");
+                                  setNewPassword("");
+                                  setConfirmNewPassword("");
+                                }}
                               >
                                 Cancel
                               </Button>
