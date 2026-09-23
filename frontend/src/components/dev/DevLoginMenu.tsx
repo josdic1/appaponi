@@ -91,9 +91,6 @@ export default function DevLoginMenu() {
     }
   }
 
-  if (import.meta.env.PROD) {
-    return null;
-  }
 
   return (
     <Box

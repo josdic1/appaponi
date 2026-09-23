@@ -36,15 +36,18 @@ import {
 
 export const devRouter = Router();
 
-function requireDevelopment(
+function requireTestLogin(
   _req: unknown,
   res: any,
   next: any,
 ) {
-  if (process.env.NODE_ENV === "production") {
+  const enabled =
+    process.env.NODE_ENV !== "production" ||
+    process.env.TEST_LOGIN_ENABLED === "true";
+
+  if (!enabled) {
     res.status(403).json({
-      error:
-        "Development tools are disabled in production",
+      error: "Test login is disabled",
     });
     return;
   }
@@ -54,7 +57,7 @@ function requireDevelopment(
 
 devRouter.get(
   "/accounts",
-  requireDevelopment,
+  requireTestLogin,
   async (_req, res) => {
     try {
       const result = await pool.query<{
@@ -107,7 +110,7 @@ devRouter.get(
 
 devRouter.post(
   "/login/:id",
-  requireDevelopment,
+  requireTestLogin,
   async (req, res) => {
     try {
       const result =
