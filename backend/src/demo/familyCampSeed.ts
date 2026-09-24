@@ -11,25 +11,37 @@ const familyCampSeedTemplate = {
       "username": "alex",
       "full_name": "Alex Belle",
       "babysitting_eligible": false,
-      "qualifications": [
-        "Waterskiing",
-        "Lifeguard"
-      ]
+      "qualifications": ["Waterskiing", "Lifeguard"]
     },
     {
       "username": "quinn",
       "full_name": "Quinn Snowe",
       "babysitting_eligible": true,
-      "qualifications": [
-        "Waterskiing",
-        "Lifeguard"
-      ]
+      "qualifications": ["Waterskiing", "Lifeguard"]
     },
     {
       "username": "lu",
       "full_name": "Lu Weeks",
       "babysitting_eligible": true,
       "qualifications": []
+    },
+    {
+      "username": "morgan",
+      "full_name": "Morgan Lane",
+      "babysitting_eligible": true,
+      "qualifications": ["Lifeguard", "First Aid"]
+    },
+    {
+      "username": "riley",
+      "full_name": "Riley Hart",
+      "babysitting_eligible": true,
+      "qualifications": ["First Aid"]
+    },
+    {
+      "username": "sam",
+      "full_name": "Sam Brooks",
+      "babysitting_eligible": false,
+      "qualifications": ["Waterskiing"]
     }
   ],
   "households": [
@@ -399,7 +411,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-19T11:00:00-04:00",
       "ends_at": "2026-08-19T11:30:00-04:00",
       "staff": [
-        "alex"
+        "alex",
+        "riley"
       ]
     },
     {
@@ -408,7 +421,8 @@ const familyCampSeedTemplate = {
       "ends_at": "2026-08-19T17:00:00-04:00",
       "staff": [
         "alex",
-        "quinn"
+        "quinn",
+        "morgan"
       ]
     },
     {
@@ -416,7 +430,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-19T19:30:00-04:00",
       "ends_at": "2026-08-19T20:30:00-04:00",
       "staff": [
-        "alex"
+        "alex",
+        "riley"
       ]
     },
     {
@@ -424,7 +439,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-19T20:30:00-04:00",
       "ends_at": "2026-08-19T21:30:00-04:00",
       "staff": [
-        "alex"
+        "alex",
+        "lu"
       ]
     },
     {
@@ -432,7 +448,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-20T09:00:00-04:00",
       "ends_at": "2026-08-20T12:00:00-04:00",
       "staff": [
-        "alex"
+        "lu",
+        "riley"
       ]
     },
     {
@@ -440,7 +457,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-20T09:00:00-04:00",
       "ends_at": "2026-08-20T12:00:00-04:00",
       "staff": [
-        "quinn"
+        "quinn",
+        "sam"
       ]
     },
     {
@@ -448,7 +466,7 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-20T09:00:00-04:00",
       "ends_at": "2026-08-20T12:00:00-04:00",
       "staff": [
-        "lu"
+        "morgan"
       ]
     },
     {
@@ -464,7 +482,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-20T14:00:00-04:00",
       "ends_at": "2026-08-20T15:00:00-04:00",
       "staff": [
-        "alex"
+        "alex",
+        "riley"
       ]
     },
     {
@@ -472,7 +491,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-20T15:00:00-04:00",
       "ends_at": "2026-08-20T17:00:00-04:00",
       "staff": [
-        "alex"
+        "alex",
+        "morgan"
       ]
     },
     {
@@ -481,7 +501,8 @@ const familyCampSeedTemplate = {
       "ends_at": "2026-08-20T21:00:00-04:00",
       "staff": [
         "alex",
-        "quinn"
+        "quinn",
+        "morgan"
       ]
     },
     {
@@ -490,7 +511,8 @@ const familyCampSeedTemplate = {
       "ends_at": "2026-08-20T22:00:00-04:00",
       "staff": [
         "alex",
-        "quinn"
+        "quinn",
+        "lu"
       ]
     },
     {
@@ -499,7 +521,8 @@ const familyCampSeedTemplate = {
       "ends_at": "2026-08-21T12:00:00-04:00",
       "staff": [
         "alex",
-        "quinn"
+        "riley",
+        "sam"
       ]
     },
     {
@@ -515,7 +538,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-21T14:00:00-04:00",
       "ends_at": "2026-08-21T15:00:00-04:00",
       "staff": [
-        "alex"
+        "alex",
+        "lu"
       ]
     },
     {
@@ -524,7 +548,8 @@ const familyCampSeedTemplate = {
       "ends_at": "2026-08-21T17:00:00-04:00",
       "staff": [
         "alex",
-        "quinn"
+        "quinn",
+        "morgan"
       ]
     },
     {
@@ -532,7 +557,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-21T20:00:00-04:00",
       "ends_at": "2026-08-21T23:00:00-04:00",
       "staff": [
-        "alex"
+        "alex",
+        "lu"
       ]
     },
     {
@@ -541,7 +567,8 @@ const familyCampSeedTemplate = {
       "ends_at": "2026-08-22T10:00:00-04:00",
       "staff": [
         "alex",
-        "quinn"
+        "quinn",
+        "morgan"
       ]
     },
     {
@@ -549,7 +576,8 @@ const familyCampSeedTemplate = {
       "starts_at": "2026-08-22T11:00:00-04:00",
       "ends_at": "2026-08-22T11:15:00-04:00",
       "staff": [
-        "alex"
+        "alex",
+        "riley"
       ]
     }
   ],
@@ -637,18 +665,25 @@ const familyCampSeedTemplate = {
     }
   ],
   "activity_signups": [
-    {
-      "person": "Demi Dicker",
-      "activity": "Waterfront & Activities Open (Waterski Sign-Up)"
-    },
-    {
-      "person": "Dorrie Dicker",
-      "activity": "Waterfront & Activities Open (Waterski Sign-Up)"
-    },
-    {
-      "person": "Josh Dicker",
-      "activity": "Color War!"
-    }
+    { "person": "Demi Dicker", "activity": "Waterfront & Activities Open (Waterski Sign-Up)" },
+    { "person": "Dorrie Dicker", "activity": "Waterfront & Activities Open (Waterski Sign-Up)" },
+    { "person": "Josh Dicker", "activity": "Color War!" },
+    { "person": "Serena Muskat", "activity": "Drop-In Gymnastics" },
+    { "person": "Reed Muskat", "activity": "Pickleball Tournament" },
+    { "person": "Noah Rosen", "activity": "Campfire & S'mores" },
+    { "person": "Sophie Rosen", "activity": "Drop-In Gymnastics" },
+    { "person": "Ari Levine", "activity": "Carnival in Junior Camp with Slip N Slide" },
+    { "person": "Mia Kaplan", "activity": "Color War!" },
+    { "person": "Theo Kaplan", "activity": "Watermelon Eating Contest" },
+    { "person": "Jamie Goldberg", "activity": "Pickleball Tournament" },
+    { "person": "Alex Goldberg", "activity": "Beach Luau & Night Blobbing" },
+    { "person": "Lila Friedman", "activity": "Activities Open (Waterski / Tubing Sign-Up)" },
+    { "person": "Max Friedman", "activity": "Carnival in Junior Camp with Slip N Slide" },
+    { "person": "Lucy Cohen", "activity": "Drop-In Gymnastics" },
+    { "person": "Rebecca Stein", "activity": "Adult Only Campfire" },
+    { "person": "Jon Stein", "activity": "Adult Only Campfire" },
+    { "person": "Zoe Weiss", "activity": "Activities Open (Waterski / Tubing Sign-Up)" },
+    { "person": "Evan Weiss", "activity": "Watermelon Eating Contest" }
   ],
   "babysitting": [
     {
@@ -659,17 +694,50 @@ const familyCampSeedTemplate = {
       "ends_at": "2026-08-21T23:00:00-04:00",
       "status": "confirmed",
       "notes": "Adult Only Campfire coverage"
+    },
+    {
+      "household": "muskat",
+      "member": "Reed Muskat",
+      "staff": null,
+      "starts_at": "2026-08-21T20:00:00-04:00",
+      "ends_at": "2026-08-21T22:00:00-04:00",
+      "status": "pending",
+      "notes": "Needs sitter assignment for Adult Only Campfire"
+    },
+    {
+      "household": "rosen",
+      "member": "Noah Rosen",
+      "staff": "riley",
+      "starts_at": "2026-08-20T19:30:00-04:00",
+      "ends_at": "2026-08-20T21:00:00-04:00",
+      "status": "confirmed",
+      "notes": "Parents attending the evening waterfront program"
     }
   ],
   "notifications": [
     {
-      "targets": [
-        "dicker",
-        "muskat"
-      ],
+      "targets": ["dicker", "muskat", "rosen", "levine", "kaplan", "goldberg", "friedman", "cohen", "stein", "weiss"],
       "kind": "general",
       "title": "Family Camp is ready",
       "body": "Your Family Camp weekend schedule is available."
+    },
+    {
+      "targets": ["dicker", "muskat", "rosen", "friedman", "weiss"],
+      "kind": "general",
+      "title": "Waterfront sign-ups are open",
+      "body": "Waterskiing and tubing sign-ups are available from your Family Camp schedule."
+    },
+    {
+      "targets": ["dicker", "muskat", "rosen", "levine", "kaplan", "goldberg", "friedman", "cohen", "stein", "weiss"],
+      "kind": "general",
+      "title": "Banquet reminder",
+      "body": "Friday's banquet begins at 6:00 PM in the Dining Hall."
+    },
+    {
+      "targets": ["dicker", "muskat", "rosen", "levine", "kaplan"],
+      "kind": "general",
+      "title": "Adult campfire childcare",
+      "body": "Babysitting requests for the Adult Only Campfire should be submitted before dinner."
     }
   ]
 } as const;

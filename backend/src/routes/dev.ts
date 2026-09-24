@@ -1467,9 +1467,11 @@ async function seedFamilyCamp(
       );
 
     const sitter =
-      staffByUsername.get(
-        request.staff,
-      );
+      request.staff
+        ? staffByUsername.get(
+            request.staff,
+          )
+        : null;
 
     const member =
       household?.people.find(
@@ -1481,7 +1483,10 @@ async function seedFamilyCamp(
     if (
       !registrationId ||
       !member ||
-      !sitter
+      (
+        request.staff &&
+        !sitter
+      )
     ) {
       throw new Error(
         `Invalid babysitting seed for ${request.household}`,
@@ -1513,7 +1518,7 @@ async function seedFamilyCamp(
         `,
         [
           registrationId,
-          sitter.staffMemberId,
+          sitter?.staffMemberId ?? null,
           request.starts_at,
           request.ends_at,
           request.status,
