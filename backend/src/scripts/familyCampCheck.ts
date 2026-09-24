@@ -2838,6 +2838,50 @@ async function main() {
     "Family Camp demo should include an after-hours catalog",
   );
 
+  const demoFoodOrders =
+    arrayFrom(
+      (
+        await admin.request(
+          "GET",
+          `/api/food/orders?event_id=${demoEvent.id}`,
+        )
+      ).body,
+      "orders",
+    );
+
+  assert.equal(
+    demoFoodOrders.length,
+    5,
+    "Family Camp demo should include five seeded food requests",
+  );
+
+  assert.ok(
+    demoFoodOrders.some(
+      (item) =>
+        item.offering_type === "SNACK" &&
+        item.status === "open" &&
+        !item.assigned_staff_member_id,
+    ),
+    "Family Camp demo should leave one snack request open and unassigned",
+  );
+
+  assert.ok(
+    demoFoodOrders.some(
+      (item) =>
+        item.offering_type === "AFTER_HOURS" &&
+        item.status === "fulfilled",
+    ),
+    "Family Camp demo should include fulfilled after-hours history",
+  );
+
+  assert.ok(
+    demoFoodOrders.some(
+      (item) =>
+        item.status === "cancelled",
+    ),
+    "Family Camp demo should include cancelled service history",
+  );
+
   const cloneStart = new Date(
     String(demoEvent.starts_at),
   );

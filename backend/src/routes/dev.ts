@@ -1150,6 +1150,63 @@ async function seedFamilyCamp(
     );
   }
 
+  for (const item of familyCampSeed.snack_food) {
+    await client.query(
+      `
+        INSERT INTO meal_items (
+          name,
+          description,
+          dietary_notes
+        )
+        SELECT $1, $2, NULL
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM meal_items mi
+          WHERE LOWER(mi.name) = LOWER($1)
+        )
+      `,
+      [item.name, item.description],
+    );
+
+    const libraryItem = await client.query<{ id: string }>(
+      `
+        SELECT id
+        FROM meal_items
+        WHERE LOWER(name) = LOWER($1)
+        ORDER BY id
+        LIMIT 1
+      `,
+      [item.name],
+    );
+
+    await client.query(
+      `
+        INSERT INTO event_food_offerings (
+          event_id,
+          item_id,
+          offering_type,
+          sort_order,
+          available
+        )
+        VALUES (
+          $1,
+          $2,
+          'SNACK',
+          COALESCE((
+            SELECT MAX(sort_order) + 10
+            FROM event_food_offerings
+            WHERE event_id = $1
+              AND offering_type = 'SNACK'
+          ), 10),
+          TRUE
+        )
+        ON CONFLICT (event_id, offering_type, item_id)
+        DO UPDATE SET available = TRUE
+      `,
+      [eventId, libraryItem.rows[0].id],
+    );
+  }
+
   for (
     const meal
     of familyCampMeals
@@ -1539,6 +1596,134 @@ async function seedFamilyCamp(
         member.id,
       ],
     );
+  }
+
+  for (
+    const order
+    of familyCampSeed.food_orders
+  ) {
+    const registrationId =
+      registrationIds.get(
+        order.household,
+      );
+
+    const household =
+      householdByUsername.get(
+        order.household,
+      );
+
+    const requestedBy =
+      household?.people.find(
+        (person) =>
+          person.fullName ===
+          order.requested_by,
+      );
+
+    const assignedStaff =
+      order.assigned_staff
+        ? staffByUsername.get(
+            order.assigned_staff,
+          )
+        : null;
+
+    if (
+      !registrationId ||
+      !requestedBy ||
+      (
+        order.assigned_staff &&
+        !assignedStaff
+      )
+    ) {
+      throw new Error(
+        `Invalid food order seed for ${order.household}`,
+      );
+    }
+
+    const seededOrder =
+      await client.query<{
+        id: string;
+      }>(
+        `
+          INSERT INTO food_orders (
+            event_registration_id,
+            requested_by_member_id,
+            assigned_staff_member_id,
+            offering_type,
+            fulfillment,
+            delivery_location,
+            status,
+            notes
+          )
+          VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8
+          )
+          RETURNING id
+        `,
+        [
+          registrationId,
+          requestedBy.id,
+          assignedStaff?.staffMemberId ?? null,
+          order.offering_type,
+          order.fulfillment,
+          order.delivery_location,
+          order.status,
+          order.notes,
+        ],
+      );
+
+    for (const item of order.items) {
+      const libraryItem =
+        await client.query<{
+          id: string;
+        }>(
+          `
+            SELECT mi.id
+            FROM meal_items mi
+            JOIN event_food_offerings efo
+              ON efo.item_id = mi.id
+            WHERE efo.event_id = $1
+              AND efo.offering_type = $2
+              AND efo.available = TRUE
+              AND LOWER(mi.name) = LOWER($3)
+            ORDER BY mi.id
+            LIMIT 1
+          `,
+          [
+            eventId,
+            order.offering_type,
+            item.name,
+          ],
+        );
+
+      if (!libraryItem.rows[0]) {
+        throw new Error(
+          `Missing ${order.offering_type} offering: ${item.name}`,
+        );
+      }
+
+      await client.query(
+        `
+          INSERT INTO food_order_items (
+            order_id,
+            item_id,
+            quantity
+          )
+          VALUES ($1, $2, $3)
+        `,
+        [
+          seededOrder.rows[0].id,
+          libraryItem.rows[0].id,
+          item.quantity,
+        ],
+      );
+    }
   }
 
   for (

@@ -599,6 +599,24 @@ const familyCampSeedTemplate = {
       "description": "Two cookies"
     }
   ],
+  "snack_food": [
+    {
+      "name": "Fruit cup",
+      "description": "Fresh cut fruit"
+    },
+    {
+      "name": "Cookies",
+      "description": "Two cookies"
+    },
+    {
+      "name": "Pretzels",
+      "description": "Individual pretzel bag"
+    },
+    {
+      "name": "Granola bar",
+      "description": "Grab-and-go granola bar"
+    }
+  ],
   "meals": [
     {
       "meal_type": "Lunch",
@@ -712,6 +730,76 @@ const familyCampSeedTemplate = {
       "ends_at": "2026-08-20T21:00:00-04:00",
       "status": "confirmed",
       "notes": "Parents attending the evening waterfront program"
+    }
+  ],
+  "food_orders": [
+    {
+      "household": "dicker",
+      "requested_by": "Josh Dicker",
+      "offering_type": "AFTER_HOURS",
+      "fulfillment": "delivery",
+      "delivery_location": "Cabin 14",
+      "assigned_staff": "morgan",
+      "status": "open",
+      "notes": "Please leave at the cabin porch.",
+      "items": [
+        { "name": "Grilled cheese", "quantity": 2 },
+        { "name": "Fruit cup", "quantity": 1 }
+      ]
+    },
+    {
+      "household": "muskat",
+      "requested_by": "Jake Muskat",
+      "offering_type": "SNACK",
+      "fulfillment": "pickup",
+      "delivery_location": null,
+      "assigned_staff": null,
+      "status": "open",
+      "notes": "Pickup before afternoon activities.",
+      "items": [
+        { "name": "Fruit cup", "quantity": 2 },
+        { "name": "Pretzels", "quantity": 2 }
+      ]
+    },
+    {
+      "household": "rosen",
+      "requested_by": "Maya Rosen",
+      "offering_type": "AFTER_HOURS",
+      "fulfillment": "delivery",
+      "delivery_location": "Cabin 13",
+      "assigned_staff": "lu",
+      "status": "fulfilled",
+      "notes": "Delivered after the evening program.",
+      "items": [
+        { "name": "Turkey sandwich", "quantity": 2 }
+      ]
+    },
+    {
+      "household": "kaplan",
+      "requested_by": "Lauren Kaplan",
+      "offering_type": "SNACK",
+      "fulfillment": "pickup",
+      "delivery_location": null,
+      "assigned_staff": "riley",
+      "status": "open",
+      "notes": "For the kids after Color War.",
+      "items": [
+        { "name": "Cookies", "quantity": 2 },
+        { "name": "Granola bar", "quantity": 2 }
+      ]
+    },
+    {
+      "household": "weiss",
+      "requested_by": "Nina Weiss",
+      "offering_type": "AFTER_HOURS",
+      "fulfillment": "pickup",
+      "delivery_location": null,
+      "assigned_staff": null,
+      "status": "cancelled",
+      "notes": "Plans changed.",
+      "items": [
+        { "name": "Cookies", "quantity": 1 }
+      ]
     }
   ],
   "notifications": [
