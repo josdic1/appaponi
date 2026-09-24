@@ -286,7 +286,10 @@ async function seedFixedTypes(
           map_slot_id
         )
         VALUES ($1, $2, $3)
-        ON CONFLICT (name) DO NOTHING
+        ON CONFLICT (name)
+        DO UPDATE SET
+          area_id = EXCLUDED.area_id,
+          map_slot_id = EXCLUDED.map_slot_id
       `,
       [
         cabin.name,
