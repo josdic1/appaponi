@@ -3,10 +3,8 @@ import {
   Badge,
   Box,
   Button,
-  Field,
   Grid,
   HStack,
-  Input,
   NativeSelect,
   Stack,
   Text,
@@ -17,12 +15,8 @@ import {
   useEffect,
   useMemo,
   useState,
-  type FormEvent,
 } from "react";
 
-import type {
-  Area,
-} from "@appoponi/shared/schemas/areas";
 import type {
   Cabin,
 } from "@appoponi/shared/schemas/cabins";
@@ -35,9 +29,6 @@ import type {
 
 import {
   assignRegistrationCabin,
-  createCabin,
-  deleteCabin,
-  loadCabinAreas,
   loadCabins,
   loadRegistrations,
   updateCabin,
@@ -63,34 +54,25 @@ export default function AdminCabinsPanel({
 }: Props) {
   const [cabins, setCabins] =
     useState<Cabin[]>([]);
-  const [areas, setAreas] =
-    useState<Area[]>([]);
   const [registrations, setRegistrations] =
     useState<EventRegistration[]>([]);
-  const [name, setName] = useState("");
-  const [areaId, setAreaId] = useState("");
   const [placingCabinId, setPlacingCabinId] =
     useState<string | null>(null);
   const [selectedSlotId, setSelectedSlotId] =
     useState<CampCabinSlotId | null>(null);
   const [error, setError] =
     useState<string | null>(null);
-  const [showManageCabins, setShowManageCabins] =
-    useState(false);
 
   async function refresh() {
     const [
       nextCabins,
-      nextAreas,
       nextRegistrations,
     ] = await Promise.all([
       loadCabins(),
-      loadCabinAreas(),
       loadRegistrations(),
     ]);
 
     setCabins(nextCabins);
-    setAreas(nextAreas);
     setRegistrations(nextRegistrations);
   }
 
@@ -120,30 +102,6 @@ export default function AdminCabinsPanel({
           : "Request failed",
       );
     }
-  }
-
-  function submit(event: FormEvent) {
-    event.preventDefault();
-
-    if (!name.trim()) {
-      setError("Cabin name is required.");
-      return;
-    }
-
-    void run(async () => {
-      const created = await createCabin({
-        name: name.trim(),
-        area_id: areaId
-          ? Number(areaId)
-          : null,
-        map_slot_id: null,
-      });
-
-      setName("");
-      setAreaId("");
-      setPlacingCabinId(created.id);
-      setSelectedSlotId(null);
-    });
   }
 
   const placingCabin = useMemo(
@@ -298,44 +256,19 @@ export default function AdminCabinsPanel({
         py="4"
         borderBottomWidth="1px"
         borderColor="gray.200"
-        display="flex"
-        flexDirection={{
-          base: "column",
-          md: "row",
-        }}
-        alignItems={{
-          base: "stretch",
-          md: "center",
-        }}
-        justifyContent="space-between"
-        gap="4"
       >
         <Stack gap="0">
           <Text fontWeight="700">
-            Cabins on the camp map
+            Cabin assignments
           </Text>
 
           <Text
             fontSize="sm"
             color="gray.500"
           >
-            Assign households to cabins for this event. Map placement is managed separately.
+            {cabins.length} fixed reusable cabins. Assign households for this event; map placement is separate and does not change the cabin assignment.
           </Text>
         </Stack>
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() =>
-            setShowManageCabins(
-              (open) => !open,
-            )
-          }
-        >
-          {showManageCabins
-            ? "Close cabin setup"
-            : "Manage cabins"}
-        </Button>
       </Box>
 
       {error && (
@@ -349,87 +282,6 @@ export default function AdminCabinsPanel({
               </Alert.Description>
             </Alert.Content>
           </Alert.Root>
-        </Box>
-      )}
-
-      {showManageCabins && (
-        <Box
-          bg="gray.50"
-          px="4"
-          py="4"
-          borderBottomWidth="1px"
-          borderColor="gray.200"
-        >
-          <Box
-            as="form"
-            onSubmit={submit}
-          >
-            <Grid
-              templateColumns={{
-                base: "1fr",
-                md: "minmax(180px, 1fr) minmax(180px, .8fr) auto",
-              }}
-              gap="3"
-              alignItems="end"
-            >
-              <Field.Root>
-                <Field.Label>
-                  Cabin name
-                </Field.Label>
-
-                <Input
-                  value={name}
-                  onChange={(event) =>
-                    setName(
-                      event.target.value,
-                    )
-                  }
-                  placeholder="Cabin 14"
-                />
-              </Field.Root>
-
-              <Field.Root>
-                <Field.Label>
-                  Area
-                </Field.Label>
-
-                <NativeSelect.Root>
-                  <NativeSelect.Field
-                    value={areaId}
-                    onChange={(event) =>
-                      setAreaId(
-                        event.target.value,
-                      )
-                    }
-                  >
-                    <option value="">
-                      No area
-                    </option>
-
-                    {areas.map(
-                      (area) => (
-                        <option
-                          key={area.id}
-                          value={area.id}
-                        >
-                          {area.name}
-                        </option>
-                      ),
-                    )}
-                  </NativeSelect.Field>
-
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
-              </Field.Root>
-
-              <Button
-                type="submit"
-                colorPalette="green"
-              >
-                Add cabin
-              </Button>
-            </Grid>
-          </Box>
         </Box>
       )}
 
@@ -652,14 +504,14 @@ export default function AdminCabinsPanel({
             >
               <Stack gap="0">
                 <Text fontWeight="700">
-                  Cabin records
+                  Map locations
                 </Text>
 
                 <Text
                   fontSize="sm"
                   color="gray.500"
                 >
-                  {cabins.length} reusable cabins · edit names, areas, or delete unused cabins.
+                  {cabins.filter((cabin) => Boolean(cabin.map_slot_id)).length} of {cabins.length} fixed cabins mapped. Mapping is optional and does not affect event assignments.
                 </Text>
               </Stack>
 
@@ -668,7 +520,7 @@ export default function AdminCabinsPanel({
                 fontWeight="700"
                 color="gray.600"
               >
-                Manage records
+                Manage map locations
               </Text>
             </Box>
           </Box>
@@ -677,240 +529,86 @@ export default function AdminCabinsPanel({
             borderTopWidth="1px"
             borderColor="gray.200"
           >
-            {cabins.length ? (
-              <Stack gap="0">
-                {cabins.map(
-                  (cabin) => {
-                    const assignments =
-                      assignmentsFor(
-                        cabin.id,
-                      );
+            <Stack gap="0">
+              {cabins.map((cabin) => {
+                const assignments =
+                  assignmentsFor(
+                    cabin.id,
+                  );
 
-                    const slot =
-                      cabinSlots.get(
-                        cabin.id,
-                      );
+                const slot =
+                  cabinSlots.get(
+                    cabin.id,
+                  );
 
-                    return (
-                      <Box
-                        key={cabin.id}
-                        px="4"
-                        py="3"
-                        borderBottomWidth="1px"
-                        borderColor="gray.200"
-                      >
-                        <Grid
-                          templateColumns={{
-                            base: "1fr",
-                            lg: "minmax(260px, 1.15fr) minmax(190px, .9fr) minmax(170px, .55fr) auto",
-                          }}
-                          alignItems="center"
-                          gap="4"
+                return (
+                  <Box
+                    key={cabin.id}
+                    px="4"
+                    py="3"
+                    borderBottomWidth="1px"
+                    borderColor="gray.200"
+                  >
+                    <Grid
+                      templateColumns={{
+                        base: "1fr",
+                        md: "minmax(0, 1fr) auto auto",
+                      }}
+                      alignItems="center"
+                      gap="4"
+                    >
+                      <Stack gap="0">
+                        <Text fontWeight="700">
+                          {cabin.name}
+                        </Text>
+
+                        <Text
+                          fontSize="xs"
+                          color="gray.500"
                         >
-                          <Grid
-                            templateColumns={{
-                              base: "1fr",
-                              md: "minmax(110px, .7fr) minmax(150px, 1fr)",
-                            }}
-                            gap="2"
-                          >
-                            <Input
-                              aria-label="Cabin name"
-                              defaultValue={
-                                cabin.name
-                              }
-                              onBlur={(
-                                event,
-                              ) => {
-                                const next =
-                                  event.target.value.trim();
-
-                                if (
-                                  next &&
-                                  next !==
-                                    cabin.name
-                                ) {
-                                  void run(
-                                    () =>
-                                      updateCabin(
-                                        cabin.id,
-                                        {
-                                          name: next,
-                                        },
-                                      ),
-                                  );
-                                }
-                              }}
-                            />
-
-                            <NativeSelect.Root>
-                              <NativeSelect.Field
-                                aria-label="Cabin area"
-                                value={
-                                  cabin.area_id ??
-                                  ""
-                                }
-                                onChange={(
-                                  event,
-                                ) =>
-                                  void run(
-                                    () =>
-                                      updateCabin(
-                                        cabin.id,
-                                        {
-                                          area_id:
-                                            event
-                                              .target
-                                              .value
-                                              ? Number(
-                                                  event
-                                                    .target
-                                                    .value,
-                                                )
-                                              : null,
-                                        },
-                                      ),
-                                  )
-                                }
-                              >
-                                <option value="">
-                                  No area
-                                </option>
-
-                                {areas.map(
-                                  (
-                                    area,
-                                  ) => (
-                                    <option
-                                      key={
-                                        area.id
-                                      }
-                                      value={
-                                        area.id
-                                      }
-                                    >
-                                      {
-                                        area.name
-                                      }
-                                    </option>
-                                  ),
-                                )}
-                              </NativeSelect.Field>
-
-                              <NativeSelect.Indicator />
-                            </NativeSelect.Root>
-                          </Grid>
-
-                          {assignments.length ? (
-                            <Stack gap="1">
-                              {assignments.map(
-                                (item) => (
-                                  <Stack
-                                    key={
-                                      item.id
-                                    }
-                                    gap="0"
-                                  >
-                                    <Text
-                                      fontSize="sm"
-                                      fontWeight="700"
-                                    >
-                                      {item.household_name ??
-                                        item.username}
-                                    </Text>
-
-                                    <Text
-                                      fontSize="xs"
-                                      color="gray.500"
-                                    >
-                                      {
-                                        item.event_name
-                                      }
-                                    </Text>
-                                  </Stack>
-                                ),
-                              )}
-                            </Stack>
-                          ) : (
-                            <Text
-                              fontSize="sm"
-                              color="gray.500"
-                            >
-                              Available
-                            </Text>
-                          )}
-
-                          <HStack
-                            flexWrap="wrap"
-                          >
-                            <Badge
-                              colorPalette={
-                                slot
-                                  ? "green"
-                                  : "gray"
-                              }
-                            >
-                              {slot
-                                ? "On map"
-                                : "Not placed"}
-                            </Badge>
-
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              onClick={() =>
-                                startPlacement(
-                                  cabin,
+                          {assignments.length
+                            ? assignments
+                                .map(
+                                  (item) =>
+                                    item.household_name ??
+                                    item.username,
                                 )
-                              }
-                            >
-                              {slot
-                                ? "Map location"
-                                : "Place on map"}
-                            </Button>
-                          </HStack>
+                                .join(", ")
+                            : "No household assigned for this event"}
+                        </Text>
+                      </Stack>
 
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            colorPalette="red"
-                            disabled={
-                              assignments.length >
-                              0
-                            }
-                            title={
-                              assignments.length
-                                ? "Reassign or unassign this cabin before deleting it"
-                                : undefined
-                            }
-                            onClick={() =>
-                              void run(() =>
-                                deleteCabin(
-                                  cabin.id,
-                                ),
-                              )
-                            }
-                          >
-                            Delete
-                          </Button>
-                        </Grid>
-                      </Box>
-                    );
-                  },
-                )}
-              </Stack>
-            ) : (
-              <Box
-                p="8"
-                textAlign="center"
-              >
-                <Text color="gray.500">
-                  No cabins yet.
-                </Text>
-              </Box>
-            )}
+                      <Badge
+                        colorPalette={
+                          slot
+                            ? "green"
+                            : "gray"
+                        }
+                      >
+                        {slot
+                          ? "Mapped"
+                          : "Not mapped"}
+                      </Badge>
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          startPlacement(
+                            cabin,
+                          )
+                        }
+                      >
+                        {slot
+                          ? "Change map location"
+                          : "Set map location"}
+                      </Button>
+                    </Grid>
+                  </Box>
+                );
+              })}
+            </Stack>
           </Box>
         </details>
       </Box>

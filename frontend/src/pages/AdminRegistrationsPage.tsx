@@ -494,18 +494,14 @@ export default function AdminRegistrationsPage({
 
                       <Badge
                         colorPalette={
-                          item.cabin_map_slot_id
+                          item.cabin_id
                             ? "green"
-                            : item.cabin_id
-                              ? "orange"
-                              : "gray"
+                            : "gray"
                         }
                       >
-                        {item.cabin_map_slot_id
-                          ? "On map"
-                          : item.cabin_id
-                            ? "Place cabin"
-                            : "No cabin"}
+                        {item.cabin_id
+                          ? "Assigned"
+                          : "No cabin"}
                       </Badge>
                     </Grid>
                   </Box>
