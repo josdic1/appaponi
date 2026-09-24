@@ -31,6 +31,9 @@ import {
   familyCampMenuSeed,
 } from "../demo/familyCampMenu.js";
 import {
+  reusableCabins,
+} from "../demo/reusableCabins.js";
+import {
   seedMenu,
 } from "../services/menuSeeds.js";
 
@@ -267,6 +270,31 @@ async function seedFixedTypes(
       [name],
     );
   }
+
+  const cabinAreaId =
+    await ensureArea(
+      client,
+      "Lodging / Cabins",
+    );
+
+  for (const cabin of reusableCabins) {
+    await client.query(
+      `
+        INSERT INTO cabins (
+          name,
+          area_id,
+          map_slot_id
+        )
+        VALUES ($1, $2, $3)
+        ON CONFLICT (name) DO NOTHING
+      `,
+      [
+        cabin.name,
+        cabinAreaId,
+        cabin.mapSlotId,
+      ],
+    );
+  }
 }
 
 async function clearPeopleAndEvents(
@@ -496,45 +524,6 @@ async function ensureActivity(
         areaId,
         input.setting,
         input.map_place_id,
-      ],
-    );
-
-  return result.rows[0].id;
-}
-
-async function ensureCabin(
-  client: PoolClient,
-  input: {
-    name: string;
-    mapSlotId: string | null;
-  },
-) {
-  const areaId = await ensureArea(
-    client,
-    "Lodging / Cabins",
-  );
-
-  const result =
-    await client.query<{
-      id: string;
-    }>(
-      `
-        INSERT INTO cabins (
-          name,
-          area_id,
-          map_slot_id
-        )
-        VALUES ($1, $2, $3)
-        ON CONFLICT (name)
-        DO UPDATE SET
-          area_id = EXCLUDED.area_id,
-          map_slot_id = EXCLUDED.map_slot_id
-        RETURNING id
-      `,
-      [
-        input.name,
-        areaId,
-        input.mapSlotId,
       ],
     );
 
@@ -1305,22 +1294,39 @@ async function seedFamilyCamp(
     );
   }
 
-  const cabinIds =
-    new Map<string, string>();
+  const cabinRows =
+    await client.query<{
+      id: string;
+      name: string;
+    }>(
+      `
+        SELECT id, name
+        FROM cabins
+        WHERE name = ANY($1::text[])
+      `,
+      [
+        reusableCabins.map(
+          (cabin) => cabin.name,
+        ),
+      ],
+    );
 
-  for (
-    const cabin
-    of familyCampSeed.cabins
-  ) {
-    cabinIds.set(
-      cabin.name,
-      await ensureCabin(
-        client,
-        {
-          name: cabin.name,
-          mapSlotId: cabin.map_slot_id,
-        },
+  const cabinIds =
+    new Map(
+      cabinRows.rows.map(
+        (cabin) => [
+          cabin.name,
+          cabin.id,
+        ],
       ),
+    );
+
+  if (
+    cabinIds.size !==
+    reusableCabins.length
+  ) {
+    throw new Error(
+      "Reusable cabin inventory is incomplete",
     );
   }
 
@@ -1882,7 +1888,7 @@ devRouter.post(
             return {
               mode,
               message:
-                "Family Camp 2026 demo loaded.",
+                "Family Camp demo loaded. Today is Day 1; reusable setup retained.",
               ...seeded,
             };
           },

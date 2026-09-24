@@ -521,7 +521,7 @@ export default function AdminPage() {
       "clear-guests-events":
         "CLEAR MEMBERS + EVENTS? Admin and staff stay. Activities, areas, qualifications, activity requirements, cabins, food, menus, event categories, and meal types all stay.",
       "seed-family-camp":
-        "LOAD FAMILY CAMP 2026 DEMO? Existing staff, members, and event instances are cleared first, but your reusable setup libraries stay. The sample weekend is then loaded.",
+        "LOAD FAMILY CAMP DEMO? Existing staff, members, and event instances are cleared first. Reusable setup—including cabins—stays. The sample weekend starts today.",
     };
 
     if (!window.confirm(prompts[action])) {
@@ -752,7 +752,7 @@ export default function AdminPage() {
                         fontSize="xs"
                         fontWeight="400"
                       >
-                        Keep setup; load Aug 19–22 sample
+                        Keep reusable setup; today becomes Day 1
                       </Text>
                     </Stack>
                   </Button>
