@@ -319,7 +319,7 @@ export default function AdminCabinsPanel({
             fontSize="sm"
             color="gray.500"
           >
-            Assign households to real cabins. Choose a household on an available cabin to move them there.
+            Assign households to cabins for this event. Map placement is managed separately.
           </Text>
         </Stack>
 
@@ -433,103 +433,65 @@ export default function AdminCabinsPanel({
         </Box>
       )}
 
-      <Grid
-        templateColumns={{
-          base: "1fr",
-          xl: "minmax(0, 1fr) minmax(300px, 360px)",
+      <Box
+        p={{
+          base: "3",
+          md: "4",
         }}
-        minH={{
-          xl: "420px",
-        }}
+        bg="#f8f7f2"
+        borderBottomWidth="1px"
+        borderColor="gray.200"
       >
-        <Box
-          minW="0"
-          display="grid"
-          placeItems="center"
-          p="3"
-          bg="#f8f7f2"
-          borderRightWidth={{
-            base: "0",
-            xl: "1px",
-          }}
-          borderBottomWidth={{
-            base: "1px",
-            xl: "0",
-          }}
-          borderColor="gray.200"
+        <chakra.svg
+          viewBox={`0 0 ${CAMP_MAP_WIDTH} ${CAMP_MAP_HEIGHT}`}
+          role="img"
+          aria-label="Camp map"
+          w="full"
+          maxW="1000px"
+          mx="auto"
+          display="block"
+          overflow="hidden"
+          borderWidth="1px"
+          borderColor="#dddcd5"
+          borderRadius="12px"
+          bg="white"
         >
-          <chakra.svg
-            viewBox={`0 0 ${CAMP_MAP_WIDTH} ${CAMP_MAP_HEIGHT}`}
-            role="img"
-            aria-label="Camp cabin assignments"
-            w="full"
-            maxH="620px"
-            display="block"
-            overflow="hidden"
-            borderWidth="1px"
-            borderColor="#dddcd5"
-            borderRadius="12px"
-            bg="white"
+          <CampMapBase />
+        </chakra.svg>
+      </Box>
+
+      <Box
+        px={{
+          base: "3",
+          md: "4",
+        }}
+        py="4"
+        borderBottomWidth="1px"
+        borderColor="gray.200"
+      >
+        <Stack gap="1" mb="4">
+          <Text fontWeight="700">
+            Weekend cabin assignments
+          </Text>
+
+          <Text
+            fontSize="sm"
+            color="gray.500"
           >
-            <CampMapBase />
+            {activeRegistrations.length} households · {cabins.length} cabins
+          </Text>
+        </Stack>
 
-            {CAMP_MAP_CABINS.map(
-              (slot) => {
-                const owner =
-                  slotOwners.get(
-                    slot.id,
-                  );
-
-                const assignments =
-                  owner
-                    ? assignmentsFor(
-                        owner.id,
-                      )
-                    : [];
-
-                const assignment =
-                  assignments[0] ??
-                  null;
-
-                const centerX =
-                  slot.x +
-                  slot.width / 2;
-
-                return (
-                  <g key={slot.id}>
-                    <CampCabinShape
-                      slot={slot}
-
-                      state={
-                        assignment
-                          ? "assigned"
-                          : owner
-                            ? "placed"
-                            : "hidden"
-                      }
-                    />
-
-                    {owner && (
-                      <text
-                        x={centerX}
-                        y={slot.y - 8}
-                      >
-                        {owner.name}
-                      </text>
-                    )}
-                  </g>
-                );
-              },
-            )}
-          </chakra.svg>
-        </Box>
-
-        <Stack
-          gap="0"
-          overflow="auto"
-        >
-          {cabins.length ? (
-            cabins.map((cabin) => {
+        {cabins.length ? (
+          <Grid
+            templateColumns={{
+              base: "1fr",
+              md: "repeat(2, minmax(0, 1fr))",
+              xl: "repeat(3, minmax(0, 1fr))",
+            }}
+            gap="3"
+          >
+            {cabins.map((cabin) => {
               const assignments =
                 assignmentsFor(
                   cabin.id,
@@ -539,157 +501,130 @@ export default function AdminCabinsPanel({
                 assignments[0] ??
                 null;
 
-              const slot =
-                cabinSlots.get(
-                  cabin.id,
-                );
-
               return (
                 <Box
                   key={cabin.id}
-                  px="4"
-                  py="3"
-                  borderBottomWidth="1px"
+                  minW="0"
+                  p="3"
+                  borderWidth="1px"
                   borderColor="gray.200"
+                  borderRadius="lg"
+                  bg="white"
                 >
-                  <Grid
-                    templateColumns={{
-                      base: "1fr",
-                      sm: "minmax(92px, .65fr) minmax(170px, 1.35fr)",
-                    }}
-                    alignItems="center"
-                    gap="3"
-                  >
-                    <Stack gap="0">
-                      <Text fontWeight="700">
-                        {cabin.name}
-                      </Text>
+                  <Stack gap="2">
+                    <Text
+                      fontWeight="700"
+                      lineClamp="1"
+                    >
+                      {cabin.name}
+                    </Text>
 
-                      <Text
-                        fontSize="xs"
-                        color="gray.500"
-                      >
-                        {slot
-                          ? "On map"
-                          : "Map location not set"}
-                      </Text>
-                    </Stack>
+                    <NativeSelect.Root>
+                      <NativeSelect.Field
+                        aria-label={`Household assigned to ${cabin.name}`}
+                        value={
+                          assignment?.id ??
+                          ""
+                        }
+                        onChange={(
+                          event,
+                        ) => {
+                          const registrationId =
+                            event.target
+                              .value;
 
-                    <Field.Root>
-                      <Field.Label
-                        fontSize="xs"
-                        color="gray.500"
-                      >
-                        Household
-                      </Field.Label>
-
-                      <NativeSelect.Root>
-                        <NativeSelect.Field
-                          aria-label={`Household assigned to ${cabin.name}`}
-                          value={
-                            assignment?.id ??
-                            ""
-                          }
-                          onChange={(
-                            event,
-                          ) => {
-                            const registrationId =
-                              event.target
-                                .value;
-
+                          if (
+                            !registrationId
+                          ) {
                             if (
-                              !registrationId
+                              assignment
                             ) {
-                              if (
-                                assignment
-                              ) {
-                                void run(
-                                  () =>
-                                    assignRegistrationCabin(
-                                      assignment.id,
-                                      null,
-                                    ),
-                                );
-                              }
-
-                              return;
+                              void run(
+                                () =>
+                                  assignRegistrationCabin(
+                                    assignment.id,
+                                    null,
+                                  ),
+                              );
                             }
 
-                            void run(() =>
-                              assignRegistrationCabin(
-                                registrationId,
-                                Number(
-                                  cabin.id,
-                                ),
+                            return;
+                          }
+
+                          void run(() =>
+                            assignRegistrationCabin(
+                              registrationId,
+                              Number(
+                                cabin.id,
                               ),
+                            ),
+                          );
+                        }}
+                      >
+                        <option value="">
+                          Available
+                        </option>
+
+                        {activeRegistrations.map(
+                          (
+                            registration,
+                          ) => {
+                            const currentCabin =
+                              registration.cabin_id
+                                ? cabinNameById.get(
+                                    registration.cabin_id,
+                                  )
+                                : null;
+
+                            const isCurrent =
+                              registration.id ===
+                              assignment?.id;
+
+                            return (
+                              <option
+                                key={
+                                  registration.id
+                                }
+                                value={
+                                  registration.id
+                                }
+                                disabled={
+                                  Boolean(
+                                    assignment,
+                                  ) &&
+                                  !isCurrent
+                                }
+                              >
+                                {registration.household_name ??
+                                  registration.username}
+                                {!isCurrent &&
+                                currentCabin
+                                  ? ` · move from ${currentCabin}`
+                                  : ""}
+                              </option>
                             );
-                          }}
-                        >
-                          <option value="">
-                            Available
-                          </option>
+                          },
+                        )}
+                      </NativeSelect.Field>
 
-                          {activeRegistrations.map(
-                            (
-                              registration,
-                            ) => {
-                              const currentCabin =
-                                registration.cabin_id
-                                  ? cabinNameById.get(
-                                      registration.cabin_id,
-                                    )
-                                  : null;
-
-                              const isCurrent =
-                                registration.id ===
-                                assignment?.id;
-
-                              return (
-                                <option
-                                  key={
-                                    registration.id
-                                  }
-                                  value={
-                                    registration.id
-                                  }
-                                  disabled={
-                                    Boolean(
-                                      assignment,
-                                    ) &&
-                                    !isCurrent
-                                  }
-                                >
-                                  {registration.household_name ??
-                                    registration.username}
-                                  {!isCurrent &&
-                                  currentCabin
-                                    ? ` · move from ${currentCabin}`
-                                    : ""}
-                                </option>
-                              );
-                            },
-                          )}
-                        </NativeSelect.Field>
-
-                        <NativeSelect.Indicator />
-                      </NativeSelect.Root>
-                    </Field.Root>
-                  </Grid>
+                      <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                  </Stack>
                 </Box>
               );
-            })
-          ) : (
-            <Box
-              p="8"
-              textAlign="center"
-            >
-              <Text color="gray.500">
-                No cabins yet.
-              </Text>
-            </Box>
-          )}
-        </Stack>
-      </Grid>
+            })}
+          </Grid>
+        ) : (
+          <Box
+            p="8"
+            textAlign="center"
+          >
+            <Text color="gray.500">
+              No cabins yet.
+            </Text>
+          </Box>
+        )}
+      </Box>
 
       <Box
         borderTopWidth="1px"
