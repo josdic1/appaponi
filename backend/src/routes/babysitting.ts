@@ -305,33 +305,59 @@ babysittingRouter.patch(
       return;
     }
 
-    try {
-      const result = await query<{ id: string }>(
-        `
-          UPDATE babysitting_requests
-          SET
-            sitter_staff_member_id =
-              CASE
-                WHEN $2 THEN $3
-                ELSE sitter_staff_member_id
-              END,
-            status =
-              COALESCE($4, status)
-          WHERE id = $1
-          RETURNING id
-        `,
-        [
-          params.data.id,
-          Object.prototype.hasOwnProperty.call(
-            body.data,
-            "sitter_staff_member_id",
-          ),
-          body.data.sitter_staff_member_id ?? null,
-          body.data.status ?? null,
-        ],
+    const hasSitterUpdate =
+      Object.prototype.hasOwnProperty.call(
+        body.data,
+        "sitter_staff_member_id",
       );
 
-      if (!result.rows[0]) {
+    if (
+      !hasSitterUpdate &&
+      body.data.status === undefined
+    ) {
+      res.status(400).json({
+        error:
+          "No babysitting change supplied",
+      });
+      return;
+    }
+
+    const client =
+      await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const currentResult =
+        await client.query<{
+          status:
+            | "pending"
+            | "confirmed"
+            | "completed"
+            | "cancelled";
+          sitter_staff_member_id:
+            | string
+            | null;
+        }>(
+          `
+            SELECT
+              status,
+              sitter_staff_member_id
+            FROM babysitting_requests
+            WHERE id = $1
+            FOR UPDATE
+          `,
+          [params.data.id],
+        );
+
+      const current =
+        currentResult.rows[0];
+
+      if (!current) {
+        await client.query(
+          "ROLLBACK",
+        );
+
         res.status(404).json({
           error:
             "Babysitting request does not exist",
@@ -339,8 +365,105 @@ babysittingRouter.patch(
         return;
       }
 
+      if (
+        current.status ===
+          "completed" ||
+        current.status ===
+          "cancelled"
+      ) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        res.status(409).json({
+          error:
+            "Completed and cancelled babysitting requests are locked",
+        });
+        return;
+      }
+
+      if (
+        body.data.status ===
+        "completed"
+      ) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        res.status(409).json({
+          error:
+            "Only the assigned staff member can mark babysitting completed",
+        });
+        return;
+      }
+
+      const nextStatus =
+        body.data.status ??
+        current.status;
+
+      if (
+        current.status ===
+          "confirmed" &&
+        nextStatus === "pending"
+      ) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        res.status(409).json({
+          error:
+            "A confirmed booking cannot be moved back to pending",
+        });
+        return;
+      }
+
+      const nextSitterId =
+        hasSitterUpdate
+          ? (
+              body.data
+                .sitter_staff_member_id ??
+              null
+            )
+          : current
+              .sitter_staff_member_id;
+
+      if (
+        nextStatus ===
+          "confirmed" &&
+        nextSitterId === null
+      ) {
+        await client.query(
+          "ROLLBACK",
+        );
+
+        res.status(409).json({
+          error:
+            "Choose an eligible sitter before confirming the booking",
+        });
+        return;
+      }
+
+      await client.query(
+        `
+          UPDATE babysitting_requests
+          SET
+            sitter_staff_member_id = $2,
+            status = $3
+          WHERE id = $1
+        `,
+        [
+          params.data.id,
+          nextSitterId,
+          nextStatus,
+        ],
+      );
+
+      await client.query("COMMIT");
+
       res.json({ ok: true });
     } catch (error: any) {
+      await client.query("ROLLBACK");
+
       const message =
         String(error?.message ?? "");
 
@@ -372,6 +495,8 @@ babysittingRouter.patch(
       }
 
       throw error;
+    } finally {
+      client.release();
     }
   },
 );

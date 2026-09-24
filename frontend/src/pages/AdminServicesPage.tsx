@@ -60,6 +60,11 @@ export default function AdminServicesPage({ activeEventId = "" }: Props) {
   const [orders, setOrders] = useState<FoodOrder[]>([]);
   const [babysitting, setBabysitting] = useState<BabysittingRequest[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [editingBabysittingId, setEditingBabysittingId] =
+    useState<string | null>(null);
+  const [draftSitterId, setDraftSitterId] = useState("");
+  const [babysittingBusyId, setBabysittingBusyId] =
+    useState<string | null>(null);
 
   const [notificationAudience, setNotificationAudience] = useState<"event" | "account">("event");
   const [notificationAccountId, setNotificationAccountId] = useState("");
@@ -108,6 +113,159 @@ export default function AdminServicesPage({ activeEventId = "" }: Props) {
   const visibleOrders = orders;
   const visibleBabysitting = babysitting;
   const babysittingStaff = staff.filter((person) => person.babysitting_eligible);
+
+  function beginBabysittingEdit(
+    request: BabysittingRequest,
+  ) {
+    setEditingBabysittingId(request.id);
+    setDraftSitterId(
+      request.sitter_staff_member_id ?? "",
+    );
+    setError(null);
+  }
+
+  function closeBabysittingEdit() {
+    setEditingBabysittingId(null);
+    setDraftSitterId("");
+  }
+
+  async function applyBabysittingUpdate(
+    request: BabysittingRequest,
+    input: {
+      sitter_staff_member_id?: number | null;
+      status?:
+        | "pending"
+        | "confirmed"
+        | "completed"
+        | "cancelled";
+    },
+  ) {
+    setBabysittingBusyId(request.id);
+    setError(null);
+
+    try {
+      await updateBabysittingRequest(
+        request.id,
+        input,
+      );
+      await refresh();
+      closeBabysittingEdit();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not update babysitting request",
+      );
+    } finally {
+      setBabysittingBusyId(null);
+    }
+  }
+
+  function confirmBabysitting(
+    request: BabysittingRequest,
+  ) {
+    if (!draftSitterId) {
+      setError(
+        "Choose an eligible sitter before confirming the booking.",
+      );
+      return;
+    }
+
+    void applyBabysittingUpdate(
+      request,
+      {
+        sitter_staff_member_id:
+          Number(draftSitterId),
+        status: "confirmed",
+      },
+    );
+  }
+
+  function saveConfirmedSitter(
+    request: BabysittingRequest,
+  ) {
+    if (!draftSitterId) {
+      setError(
+        "A confirmed booking must have a sitter.",
+      );
+      return;
+    }
+
+    if (
+      draftSitterId ===
+      (request.sitter_staff_member_id ?? "")
+    ) {
+      closeBabysittingEdit();
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `Change the sitter for ${request.username} · ${request.member_names.join(", ")}?`,
+      )
+    ) {
+      return;
+    }
+
+    void applyBabysittingUpdate(
+      request,
+      {
+        sitter_staff_member_id:
+          Number(draftSitterId),
+      },
+    );
+  }
+
+  function cancelBabysitting(
+    request: BabysittingRequest,
+  ) {
+    if (
+      !window.confirm(
+        `Cancel babysitting for ${request.username} · ${request.member_names.join(", ")}? This request will be locked as cancelled.`,
+      )
+    ) {
+      return;
+    }
+
+    void applyBabysittingUpdate(
+      request,
+      {
+        status: "cancelled",
+      },
+    );
+  }
+
+  function babysittingTimeLabel(
+    request: BabysittingRequest,
+  ) {
+    const start = new Date(
+      request.starts_at,
+    );
+    const end = new Date(
+      request.ends_at,
+    );
+
+    return `${start.toLocaleDateString(
+      [],
+      {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      },
+    )} · ${start.toLocaleTimeString(
+      [],
+      {
+        hour: "numeric",
+        minute: "2-digit",
+      },
+    )}–${end.toLocaleTimeString(
+      [],
+      {
+        hour: "numeric",
+        minute: "2-digit",
+      },
+    )}`;
+  }
 
   function submitNotification(event: FormEvent) {
     event.preventDefault();
@@ -460,172 +618,362 @@ export default function AdminServicesPage({ activeEventId = "" }: Props) {
               gap="3px"
             >
               <Text fontWeight="700">
-                Babysitting requests
+                Babysitting bookings
               </Text>
 
               <Text
                 fontSize="11px"
                 color="#6d7169"
               >
-                Assign eligible staff and confirm requests.
+                Review a request, choose an eligible sitter, then confirm it. Nothing changes just by opening a menu.
               </Text>
             </Stack>
           </Box>
 
-          <Stack gap="0">
-            {visibleBabysitting.length ? (
-              visibleBabysitting.map(
-                (request) => (
-                  <Grid
-                    key={request.id}
-                    templateColumns="minmax(0, 1fr) minmax(150px, 200px) minmax(120px, 160px)"
-                    alignItems="center"
-                    gap="2"
-                    minH="58px"
-                    px="14px"
-                    py="10px"
-                    borderBottomWidth="1px"
-                    borderColor="#dddcd5"
-                    css={{
-                      "@media (max-width: 760px)":
-                        {
-                          gridTemplateColumns:
-                            "1fr",
-                          alignItems:
-                            "stretch",
-                        },
-                    }}
-                  >
-                    <Stack
-                      minW="0"
-                      gap="3px"
+          {visibleBabysitting.length ? (
+            <Stack
+              gap="3"
+              p="3"
+            >
+              {visibleBabysitting.map(
+                (request) => {
+                  const editing =
+                    editingBabysittingId ===
+                    request.id;
+                  const busy =
+                    babysittingBusyId ===
+                    request.id;
+                  const locked =
+                    request.status ===
+                      "completed" ||
+                    request.status ===
+                      "cancelled";
+
+                  const statusLabel =
+                    request.status ===
+                    "confirmed"
+                      ? "Confirmed"
+                      : request.status ===
+                          "completed"
+                        ? "Completed"
+                        : request.status ===
+                            "cancelled"
+                          ? "Cancelled"
+                          : "Needs review";
+
+                  return (
+                    <Box
+                      key={request.id}
+                      overflow="hidden"
+                      borderWidth="1px"
+                      borderColor="#dddcd5"
+                      borderRadius="10px"
+                      bg="white"
                     >
-                      <Text fontWeight="700">
-                        {request.username} ·{" "}
-                        {request.member_names.join(
-                          ", ",
-                        )}
-                      </Text>
-
-                      <Text
-                        fontSize="11px"
-                        color="#6d7169"
+                      <Grid
+                        templateColumns={{
+                          base: "1fr",
+                          lg: "minmax(0, 1fr) auto",
+                        }}
+                        alignItems={{
+                          base: "stretch",
+                          lg: "center",
+                        }}
+                        gap="4"
+                        px="4"
+                        py="3"
                       >
-                        {new Date(
-                          request.starts_at,
-                        ).toLocaleString()}{" "}
-                        →{" "}
-                        {new Date(
-                          request.ends_at,
-                        ).toLocaleTimeString(
-                          [],
-                          {
-                            hour: "numeric",
-                            minute: "2-digit",
-                          },
-                        )}
-                      </Text>
-                    </Stack>
+                        <Stack
+                          minW="0"
+                          gap="3px"
+                        >
+                          <Text fontWeight="700">
+                            {request.username} ·{" "}
+                            {request.member_names.join(
+                              ", ",
+                            )}
+                          </Text>
 
-                    <NativeSelect.Root>
-                      <NativeSelect.Field
-                        aria-label={`Sitter for ${request.username}`}
-                        value={
-                          request.sitter_staff_member_id ??
-                          ""
-                        }
-                        onChange={(event) =>
-                          void run(() =>
-                            updateBabysittingRequest(
-                              request.id,
-                              {
-                                sitter_staff_member_id:
-                                  event.target
-                                    .value
-                                    ? Number(
-                                        event.target
-                                          .value,
-                                      )
-                                    : null,
-                              },
-                            ),
-                          )
-                        }
-                      >
-                        <option value="">
-                          No sitter
-                        </option>
+                          <Text
+                            fontSize="12px"
+                            color="#555b53"
+                          >
+                            {babysittingTimeLabel(
+                              request,
+                            )}
+                          </Text>
 
-                        {babysittingStaff.map(
-                          (person) => (
-                            <option
-                              key={person.id}
-                              value={person.id}
+                          {request.notes && (
+                            <Text
+                              fontSize="11px"
+                              color="#6d7169"
                             >
-                              {person.full_name}
-                            </option>
-                          ),
-                        )}
-                      </NativeSelect.Field>
+                              {request.notes}
+                            </Text>
+                          )}
+                        </Stack>
 
-                      <NativeSelect.Indicator />
-                    </NativeSelect.Root>
+                        <HStack
+                          gap="3"
+                          flexWrap="wrap"
+                          justifyContent={{
+                            base: "flex-start",
+                            lg: "flex-end",
+                          }}
+                        >
+                          <Box
+                            minW="118px"
+                            px="3"
+                            py="2"
+                            borderWidth="1px"
+                            borderColor="#dddcd5"
+                            borderRadius="8px"
+                            bg="#fafaf7"
+                          >
+                            <Text
+                              fontSize="10px"
+                              color="#6d7169"
+                              textTransform="uppercase"
+                              letterSpacing=".06em"
+                            >
+                              Status
+                            </Text>
 
-                    <NativeSelect.Root>
-                      <NativeSelect.Field
-                        aria-label={`Status for ${request.username} babysitting request`}
-                        value={request.status}
-                        onChange={(event) =>
-                          void run(() =>
-                            updateBabysittingRequest(
-                              request.id,
-                              {
-                                status:
-                                  event.target
-                                    .value as
-                                    | "pending"
-                                    | "confirmed"
-                                    | "completed"
-                                    | "cancelled",
-                              },
-                            ),
-                          )
-                        }
-                      >
-                        <option value="pending">
-                          Pending
-                        </option>
-                        <option value="confirmed">
-                          Confirmed
-                        </option>
-                        <option value="completed">
-                          Completed
-                        </option>
-                        <option value="cancelled">
-                          Cancelled
-                        </option>
-                      </NativeSelect.Field>
+                            <Text
+                              fontSize="13px"
+                              fontWeight="700"
+                              color={
+                                request.status ===
+                                "cancelled"
+                                  ? "red.700"
+                                  : request.status ===
+                                        "confirmed"
+                                    ? "green.700"
+                                    : "#20231f"
+                              }
+                            >
+                              {statusLabel}
+                            </Text>
+                          </Box>
 
-                      <NativeSelect.Indicator />
-                    </NativeSelect.Root>
-                  </Grid>
-                ),
-              )
-            ) : (
-              <Box
-                px="5"
-                py="8"
-                textAlign="center"
+                          <Box
+                            minW="150px"
+                            px="3"
+                            py="2"
+                            borderWidth="1px"
+                            borderColor="#dddcd5"
+                            borderRadius="8px"
+                            bg="#fafaf7"
+                          >
+                            <Text
+                              fontSize="10px"
+                              color="#6d7169"
+                              textTransform="uppercase"
+                              letterSpacing=".06em"
+                            >
+                              Sitter
+                            </Text>
+
+                            <Text
+                              fontSize="13px"
+                              fontWeight="700"
+                            >
+                              {request.sitter_name ??
+                                "Not assigned"}
+                            </Text>
+                          </Box>
+
+                          {!locked && (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                editing
+                                  ? closeBabysittingEdit()
+                                  : beginBabysittingEdit(
+                                      request,
+                                    )
+                              }
+                            >
+                              {editing
+                                ? "Close"
+                                : request.status ===
+                                    "confirmed"
+                                  ? "Manage"
+                                  : "Review"}
+                            </Button>
+                          )}
+                        </HStack>
+                      </Grid>
+
+                      {editing && !locked && (
+                        <Box
+                          px="4"
+                          py="4"
+                          bg="#f8f7f2"
+                          borderTopWidth="1px"
+                          borderColor="#dddcd5"
+                        >
+                          <Grid
+                            templateColumns={{
+                              base: "1fr",
+                              md: "minmax(220px, 320px) minmax(0, 1fr)",
+                            }}
+                            gap="4"
+                            alignItems="end"
+                          >
+                            <Field.Root>
+                              <Field.Label>
+                                Eligible sitter
+                              </Field.Label>
+
+                              <NativeSelect.Root
+                                disabled={busy}
+                              >
+                                <NativeSelect.Field
+                                  value={
+                                    draftSitterId
+                                  }
+                                  onChange={(
+                                    event,
+                                  ) =>
+                                    setDraftSitterId(
+                                      event.target
+                                        .value,
+                                    )
+                                  }
+                                >
+                                  {request.status ===
+                                    "pending" && (
+                                    <option value="">
+                                      Choose sitter
+                                    </option>
+                                  )}
+
+                                  {babysittingStaff.map(
+                                    (person) => (
+                                      <option
+                                        key={
+                                          person.id
+                                        }
+                                        value={
+                                          person.id
+                                        }
+                                      >
+                                        {
+                                          person.full_name
+                                        }
+                                      </option>
+                                    ),
+                                  )}
+                                </NativeSelect.Field>
+
+                                <NativeSelect.Indicator />
+                              </NativeSelect.Root>
+                            </Field.Root>
+
+                            <HStack
+                              gap="2"
+                              flexWrap="wrap"
+                            >
+                              {request.status ===
+                              "pending" ? (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  colorPalette="green"
+                                  disabled={
+                                    busy ||
+                                    !draftSitterId
+                                  }
+                                  onClick={() =>
+                                    confirmBabysitting(
+                                      request,
+                                    )
+                                  }
+                                >
+                                  Confirm booking
+                                </Button>
+                              ) : (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  colorPalette="green"
+                                  disabled={
+                                    busy ||
+                                    !draftSitterId ||
+                                    draftSitterId ===
+                                      (request.sitter_staff_member_id ??
+                                        "")
+                                  }
+                                  onClick={() =>
+                                    saveConfirmedSitter(
+                                      request,
+                                    )
+                                  }
+                                >
+                                  Save sitter
+                                </Button>
+                              )}
+
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                colorPalette="red"
+                                disabled={busy}
+                                onClick={() =>
+                                  cancelBabysitting(
+                                    request,
+                                  )
+                                }
+                              >
+                                Cancel request
+                              </Button>
+
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                disabled={busy}
+                                onClick={
+                                  closeBabysittingEdit
+                                }
+                              >
+                                Keep unchanged
+                              </Button>
+                            </HStack>
+                          </Grid>
+
+                          <Text
+                            mt="3"
+                            fontSize="11px"
+                            color="#6d7169"
+                          >
+                            Selecting a sitter does not save anything. Confirmation and cancellation require an explicit action.
+                          </Text>
+                        </Box>
+                      )}
+                    </Box>
+                  );
+                },
+              )}
+            </Stack>
+          ) : (
+            <Box
+              px="5"
+              py="8"
+              textAlign="center"
+            >
+              <Text
+                fontSize="12px"
+                color="#6d7169"
               >
-                <Text
-                  fontSize="12px"
-                  color="#6d7169"
-                >
-                  No babysitting requests.
-                </Text>
-              </Box>
-            )}
-          </Stack>
+                No babysitting requests.
+              </Text>
+            </Box>
+          )}
         </Box>
       )}
 
