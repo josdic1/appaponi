@@ -506,7 +506,7 @@ async function ensureCabin(
   client: PoolClient,
   input: {
     name: string;
-    mapSlotId: string;
+    mapSlotId: string | null;
   },
 ) {
   const areaId = await ensureArea(
