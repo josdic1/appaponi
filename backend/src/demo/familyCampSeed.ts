@@ -38,21 +38,9 @@ const familyCampSeedTemplate = {
       "spots_paid_for": 3,
       "cabin": "Cabin 14",
       "people": [
-        {
-          "full_name": "Josh Dicker",
-          "role": "primary",
-          "email": "josh@demo.com"
-        },
-        {
-          "full_name": "Dorrie Dicker",
-          "role": "adult",
-          "email": "dorrie@demo.com"
-        },
-        {
-          "full_name": "Demi Dicker",
-          "role": "child",
-          "dietary_restrictions": "No peanuts"
-        }
+        { "full_name": "Josh Dicker", "role": "primary", "email": "josh@demo.com" },
+        { "full_name": "Dorrie Dicker", "role": "adult", "email": "dorrie@demo.com" },
+        { "full_name": "Demi Dicker", "role": "child", "dietary_restrictions": "No peanuts" }
       ],
       "display_name": "Dicker Family"
     },
@@ -61,26 +49,102 @@ const familyCampSeedTemplate = {
       "spots_paid_for": 4,
       "cabin": "Cabin 15",
       "people": [
-        {
-          "full_name": "Jake Muskat",
-          "role": "primary",
-          "email": "jake@demo.com"
-        },
-        {
-          "full_name": "Kim Kaufman",
-          "role": "adult",
-          "email": "kime@demo.com"
-        },
-        {
-          "full_name": "Serena Muskat",
-          "role": "child"
-        },
-        {
-          "full_name": "Reed Muskat",
-          "role": "child"
-        }
+        { "full_name": "Jake Muskat", "role": "primary", "email": "jake@demo.com" },
+        { "full_name": "Kim Kaufman", "role": "adult", "email": "kim@demo.com" },
+        { "full_name": "Serena Muskat", "role": "child" },
+        { "full_name": "Reed Muskat", "role": "child" }
       ],
       "display_name": "Muskat Family"
+    },
+    {
+      "username": "rosen",
+      "spots_paid_for": 4,
+      "cabin": "Cabin 13",
+      "people": [
+        { "full_name": "Maya Rosen", "role": "primary", "email": "maya@demo.com" },
+        { "full_name": "Eli Rosen", "role": "adult", "email": "eli@demo.com" },
+        { "full_name": "Noah Rosen", "role": "child" },
+        { "full_name": "Sophie Rosen", "role": "child", "dietary_restrictions": "Vegetarian" }
+      ],
+      "display_name": "Rosen Family"
+    },
+    {
+      "username": "levine",
+      "spots_paid_for": 3,
+      "cabin": "Cabin 16",
+      "people": [
+        { "full_name": "Rachel Levine", "role": "primary", "email": "rachel@demo.com" },
+        { "full_name": "Sam Levine", "role": "adult", "email": "sam@demo.com" },
+        { "full_name": "Ari Levine", "role": "child" }
+      ],
+      "display_name": "Levine Family"
+    },
+    {
+      "username": "kaplan",
+      "spots_paid_for": 4,
+      "cabin": "Cabin 17",
+      "people": [
+        { "full_name": "Lauren Kaplan", "role": "primary", "email": "lauren@demo.com" },
+        { "full_name": "Ben Kaplan", "role": "adult", "email": "ben@demo.com" },
+        { "full_name": "Mia Kaplan", "role": "child" },
+        { "full_name": "Theo Kaplan", "role": "child", "dietary_restrictions": "Gluten free" }
+      ],
+      "display_name": "Kaplan Family"
+    },
+    {
+      "username": "goldberg",
+      "spots_paid_for": 2,
+      "cabin": "Cabin 18",
+      "people": [
+        { "full_name": "Jamie Goldberg", "role": "primary", "email": "jamie@demo.com" },
+        { "full_name": "Alex Goldberg", "role": "adult", "email": "alexg@demo.com" }
+      ],
+      "display_name": "Goldberg Family"
+    },
+    {
+      "username": "friedman",
+      "spots_paid_for": 4,
+      "cabin": "Cabin 19",
+      "people": [
+        { "full_name": "Dana Friedman", "role": "primary", "email": "dana@demo.com" },
+        { "full_name": "Chris Friedman", "role": "adult", "email": "chris@demo.com" },
+        { "full_name": "Lila Friedman", "role": "child" },
+        { "full_name": "Max Friedman", "role": "child" }
+      ],
+      "display_name": "Friedman Family"
+    },
+    {
+      "username": "cohen",
+      "spots_paid_for": 3,
+      "cabin": "Cabin 20",
+      "people": [
+        { "full_name": "Erin Cohen", "role": "primary", "email": "erin@demo.com" },
+        { "full_name": "David Cohen", "role": "adult", "email": "david@demo.com" },
+        { "full_name": "Lucy Cohen", "role": "child", "dietary_restrictions": "Dairy free" }
+      ],
+      "display_name": "Cohen Family"
+    },
+    {
+      "username": "stein",
+      "spots_paid_for": 2,
+      "cabin": "Cabin 21",
+      "people": [
+        { "full_name": "Rebecca Stein", "role": "primary", "email": "rebecca@demo.com" },
+        { "full_name": "Jon Stein", "role": "adult", "email": "jon@demo.com" }
+      ],
+      "display_name": "Stein Family"
+    },
+    {
+      "username": "weiss",
+      "spots_paid_for": 4,
+      "cabin": "Cabin 22",
+      "people": [
+        { "full_name": "Nina Weiss", "role": "primary", "email": "nina@demo.com" },
+        { "full_name": "Adam Weiss", "role": "adult", "email": "adam@demo.com" },
+        { "full_name": "Zoe Weiss", "role": "child" },
+        { "full_name": "Evan Weiss", "role": "child" }
+      ],
+      "display_name": "Weiss Family"
     }
   ],
   "cabins": [

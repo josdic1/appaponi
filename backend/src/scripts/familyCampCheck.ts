@@ -2690,17 +2690,26 @@ async function main() {
 
   assert.equal(
     demoRegistrations.length,
-    2,
+    10,
   );
 
   assert.ok(
     demoRegistrations.every(
       (item) =>
-        Boolean(item.cabin_id) &&
+        Boolean(item.cabin_id),
+    ),
+    "Every demo household should have a real cabin assigned",
+  );
+
+  assert.equal(
+    demoRegistrations.filter(
+      (item) =>
         Boolean(
           item.cabin_map_slot_id,
         ),
-    ),
+    ).length,
+    3,
+    "Only the three verified cabin map placements should be seeded until the remaining physical buildings are mapped",
   );
 
   const demoLibraryItems = arrayFrom(
