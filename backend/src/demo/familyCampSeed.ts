@@ -1,4 +1,4 @@
-export const familyCampSeed = {
+const familyCampSeedTemplate = {
   "seed_name": "Family Camp 2026 demo",
   "event": {
     "name": "Family Camp 2026",
@@ -481,3 +481,256 @@ export const familyCampSeed = {
     }
   ]
 } as const;
+
+const FAMILY_CAMP_BASE_DATE = "2026-08-19";
+const FAMILY_CAMP_TIME_ZONE = "America/New_York";
+
+type DateParts = {
+  year: number;
+  month: number;
+  day: number;
+};
+
+function datePartsInZone(
+  date: Date,
+  timeZone: string,
+): DateParts {
+  const parts =
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(date);
+
+  const value = (type: string) =>
+    Number(
+      parts.find(
+        (part) => part.type === type,
+      )?.value,
+    );
+
+  return {
+    year: value("year"),
+    month: value("month"),
+    day: value("day"),
+  };
+}
+
+function addDays(
+  date: DateParts,
+  days: number,
+): DateParts {
+  const shifted = new Date(
+    Date.UTC(
+      date.year,
+      date.month - 1,
+      date.day + days,
+    ),
+  );
+
+  return {
+    year: shifted.getUTCFullYear(),
+    month: shifted.getUTCMonth() + 1,
+    day: shifted.getUTCDate(),
+  };
+}
+
+function zonedDateTimeParts(
+  date: Date,
+  timeZone: string,
+) {
+  const parts =
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23",
+    }).formatToParts(date);
+
+  const value = (type: string) =>
+    Number(
+      parts.find(
+        (part) => part.type === type,
+      )?.value,
+    );
+
+  return {
+    year: value("year"),
+    month: value("month"),
+    day: value("day"),
+    hour: value("hour"),
+    minute: value("minute"),
+    second: value("second"),
+  };
+}
+
+function zoneOffsetMilliseconds(
+  date: Date,
+  timeZone: string,
+) {
+  const parts =
+    zonedDateTimeParts(
+      date,
+      timeZone,
+    );
+
+  const localAsUtc = Date.UTC(
+    parts.year,
+    parts.month - 1,
+    parts.day,
+    parts.hour,
+    parts.minute,
+    parts.second,
+  );
+
+  return (
+    localAsUtc -
+    Math.floor(date.getTime() / 1000) * 1000
+  );
+}
+
+function localDateTimeToIso(
+  date: DateParts,
+  time: string,
+) {
+  const [hour, minute, second] =
+    time.split(":").map(Number);
+
+  const nominalUtc = Date.UTC(
+    date.year,
+    date.month - 1,
+    date.day,
+    hour,
+    minute,
+    second,
+  );
+
+  const firstGuess =
+    new Date(nominalUtc);
+  const firstOffset =
+    zoneOffsetMilliseconds(
+      firstGuess,
+      FAMILY_CAMP_TIME_ZONE,
+    );
+
+  let actual = new Date(
+    nominalUtc - firstOffset,
+  );
+
+  const correctedOffset =
+    zoneOffsetMilliseconds(
+      actual,
+      FAMILY_CAMP_TIME_ZONE,
+    );
+
+  if (correctedOffset !== firstOffset) {
+    actual = new Date(
+      nominalUtc - correctedOffset,
+    );
+  }
+
+  return actual.toISOString();
+}
+
+function shiftTimestamp(
+  timestamp: string,
+  launchDate: DateParts,
+) {
+  const match = timestamp.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}:\d{2})(?:Z|[+-]\d{2}:\d{2})$/,
+  );
+
+  if (!match) {
+    return timestamp;
+  }
+
+  const [, year, month, day, time] =
+    match;
+
+  const base = FAMILY_CAMP_BASE_DATE
+    .split("-")
+    .map(Number);
+
+  const dayOffset = Math.round(
+    (
+      Date.UTC(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+      ) -
+      Date.UTC(
+        base[0],
+        base[1] - 1,
+        base[2],
+      )
+    ) /
+      86_400_000,
+  );
+
+  return localDateTimeToIso(
+    addDays(
+      launchDate,
+      dayOffset,
+    ),
+    time,
+  );
+}
+
+function shiftSeedDates<T>(
+  value: T,
+  launchDate: DateParts,
+): T {
+  if (typeof value === "string") {
+    return shiftTimestamp(
+      value,
+      launchDate,
+    ) as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) =>
+      shiftSeedDates(
+        item,
+        launchDate,
+      ),
+    ) as unknown as T;
+  }
+
+  if (
+    value !== null &&
+    typeof value === "object"
+  ) {
+    return Object.fromEntries(
+      Object.entries(value).map(
+        ([key, item]) => [
+          key,
+          shiftSeedDates(
+            item,
+            launchDate,
+          ),
+        ],
+      ),
+    ) as unknown as T;
+  }
+
+  return value;
+}
+
+export function createFamilyCampSeed(
+  now = new Date(),
+) {
+  const launchDate = datePartsInZone(
+    now,
+    FAMILY_CAMP_TIME_ZONE,
+  );
+
+  return shiftSeedDates(
+    familyCampSeedTemplate,
+    launchDate,
+  );
+}

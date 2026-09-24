@@ -24,6 +24,29 @@ type Json =
   | Json[]
   | { [key: string]: Json };
 
+function newYorkDateKey(
+  value: string | Date,
+) {
+  const parts =
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(
+      value instanceof Date
+        ? value
+        : new Date(value),
+    );
+
+  const part = (type: string) =>
+    parts.find(
+      (item) => item.type === type,
+    )?.value ?? "";
+
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
 type ApiResult = {
   status: number;
   body: any;
@@ -2549,6 +2572,17 @@ async function main() {
 
   assert.ok(demoEvent);
 
+  const demoStartDate =
+    newYorkDateKey(
+      String(demoEvent.starts_at),
+    );
+
+  assert.equal(
+    demoStartDate,
+    newYorkDateKey(new Date()),
+    "Family Camp demo should start on the day it is seeded",
+  );
+
   const demoActivities =
     arrayFrom(
       (
@@ -2616,17 +2650,18 @@ async function main() {
     "Family Camp should assign one reusable Family Camp Menu at the event level",
   );
 
-  const wednesdayDinner = demoMeals.find(
+  const dayOneDinner = demoMeals.find(
     (item) =>
       item.meal_type_name === "Dinner" &&
-      String(item.starts_at).startsWith("2026-08-19"),
+      newYorkDateKey(
+        String(item.starts_at),
+      ) === demoStartDate,
   );
 
   assert.ok(
-    wednesdayDinner?.items?.some(
-      (item: { name: string }) => item.name === "Beef stir fry",
-    ),
-    "Kitchen meal service should resolve food from the event menu automatically",
+    Array.isArray(dayOneDinner?.items) &&
+      dayOneDinner.items.length > 0,
+    "Day 1 dinner should resolve food from the event menu automatically",
   );
 
   assert.ok(

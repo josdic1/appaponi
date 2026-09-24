@@ -25,7 +25,7 @@ import {
 } from "../services/auth.js";
 
 import {
-  familyCampSeed,
+  createFamilyCampSeed,
 } from "../demo/familyCampSeed.js";
 import {
   familyCampMenuSeed,
@@ -187,15 +187,6 @@ const mealTypeNames = [
   "Cocktail",
   "Special",
 ];
-
-const familyCampActivities =
-  familyCampSeed.activities;
-
-const familyCampSchedule =
-  familyCampSeed.schedule;
-
-const familyCampMeals =
-  familyCampSeed.meals;
 
 async function inTransaction<T>(
   work: (
@@ -763,6 +754,15 @@ async function ensureMemberHousehold(
 async function seedFamilyCamp(
   client: PoolClient,
 ) {
+  const familyCampSeed =
+    createFamilyCampSeed();
+  const familyCampActivities =
+    familyCampSeed.activities;
+  const familyCampSchedule =
+    familyCampSeed.schedule;
+  const familyCampMeals =
+    familyCampSeed.meals;
+
   await clearPeopleAndEvents(
     client,
   );
