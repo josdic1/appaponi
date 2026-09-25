@@ -1001,7 +1001,7 @@ export default function AdminPage() {
                 minW="0"
               >
                 <Text fontWeight="800">
-                  Appoponi
+                  Appaponi
                 </Text>
 
                 <Text
