@@ -297,6 +297,73 @@ async function checkAdmin(browser: Browser) {
       .getByRole(
         "button",
         {
+          name: "Moves",
+          exact: true,
+        },
+      )
+      .click();
+
+    const movesView =
+      page.locator(
+        '[data-testid="cabin-moves-view"]',
+      );
+
+    await movesView.waitFor({
+      state: "visible",
+      timeout: 10_000,
+    });
+
+    await movesView
+      .getByText(
+        "Cabin moves",
+        { exact: true },
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    const dickerDestination =
+      movesView.getByLabel(
+        "Destination for Dicker Family",
+        { exact: true },
+      );
+
+    await dickerDestination.selectOption({
+      label: "Cabin 1",
+    });
+
+    await movesView
+      .getByRole(
+        "button",
+        {
+          name: "Apply 1 change",
+          exact: true,
+        },
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    await movesView
+      .getByRole(
+        "button",
+        {
+          name: "Reset",
+          exact: true,
+        },
+      )
+      .click();
+
+    console.log(
+      "PASS  bulk cabin moves workspace",
+    );
+
+    await guestSections
+      .getByRole(
+        "button",
+        {
           name: "Cabins",
           exact: true,
         },

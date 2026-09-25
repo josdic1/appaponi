@@ -913,10 +913,45 @@ async function main() {
 
   await admin.request(
     "PATCH",
-    `/api/registrations/${registrationId}/cabin`,
+    "/api/registrations/cabins/bulk",
     {
-      cabin_id: Number(cabinId),
+      assignments: [
+        {
+          registration_id:
+            Number(
+              registrationId,
+            ),
+          cabin_id:
+            Number(cabinId),
+        },
+      ],
     },
+  );
+
+  const bulkMovedRegistration =
+    arrayFrom(
+      (
+        await admin.request(
+          "GET",
+          "/api/registrations",
+        )
+      ).body,
+      "registrations",
+    ).find(
+      (item) =>
+        String(item.id) ===
+        registrationId,
+    );
+
+  assert.equal(
+    String(
+      bulkMovedRegistration?.cabin_id,
+    ),
+    cabinId,
+  );
+
+  pass(
+    "bulk cabin relocation endpoint",
   );
 
   pass(

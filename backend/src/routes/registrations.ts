@@ -291,6 +291,332 @@ registrationsRouter.patch(
 
 
 registrationsRouter.patch(
+  "/cabins/bulk",
+  requireAuth,
+  requirePasswordChanged,
+  requireAccountType("admin"),
+  async (req, res) => {
+    const rawAssignments =
+      Array.isArray(req.body?.assignments)
+        ? req.body.assignments
+        : null;
+
+    if (
+      !rawAssignments ||
+      rawAssignments.length < 1 ||
+      rawAssignments.length > 100
+    ) {
+      res.status(400).json({
+        error:
+          "Invalid bulk cabin assignments",
+      });
+      return;
+    }
+
+    const assignments: Array<{
+      registration_id: number;
+      cabin_id: number | null;
+    }> =
+      rawAssignments.map(
+        (item: any) => ({
+          registration_id:
+            Number(
+              item?.registration_id,
+            ),
+          cabin_id:
+            item?.cabin_id === null
+              ? null
+              : Number(
+                  item?.cabin_id,
+                ),
+        }),
+      );
+
+    if (
+      assignments.some(
+        (item) =>
+          !Number.isInteger(
+            item.registration_id,
+          ) ||
+          item.registration_id <= 0 ||
+          (
+            item.cabin_id !== null &&
+            (
+              !Number.isInteger(
+                item.cabin_id,
+              ) ||
+              item.cabin_id <= 0
+            )
+          ),
+      )
+    ) {
+      res.status(400).json({
+        error:
+          "Invalid bulk cabin assignments",
+      });
+      return;
+    }
+
+    const registrationIds =
+      assignments.map(
+        (item) =>
+          item.registration_id,
+      );
+
+    if (
+      new Set(
+        registrationIds,
+      ).size !==
+      registrationIds.length
+    ) {
+      res.status(400).json({
+        error:
+          "Each household can appear only once in a bulk cabin update",
+      });
+      return;
+    }
+
+    const targetCabinIds =
+      assignments
+        .map(
+          (item) =>
+            item.cabin_id,
+        )
+        .filter(
+          (
+            id,
+          ): id is number =>
+            id !== null,
+        );
+
+    if (
+      new Set(
+        targetCabinIds,
+      ).size !==
+      targetCabinIds.length
+    ) {
+      res.status(409).json({
+        error:
+          "Two households cannot be moved into the same cabin",
+      });
+      return;
+    }
+
+    try {
+      const registrations =
+        await query<{
+          id: string;
+        }>(
+          `
+            SELECT id
+            FROM event_registrations
+            WHERE id = ANY(
+              $1::bigint[]
+            )
+          `,
+          [
+            registrationIds,
+          ],
+        );
+
+      if (
+        registrations.rows.length !==
+        assignments.length
+      ) {
+        res.status(404).json({
+          error:
+            "One or more registrations do not exist",
+        });
+        return;
+      }
+
+      if (
+        targetCabinIds.length
+      ) {
+        const targetCabins =
+          await query<{
+            id: string;
+          }>(
+            `
+              SELECT id
+              FROM cabins
+              WHERE id = ANY(
+                $1::bigint[]
+              )
+            `,
+            [
+              targetCabinIds,
+            ],
+          );
+
+        if (
+          targetCabins.rows.length !==
+          targetCabinIds.length
+        ) {
+          res.status(404).json({
+            error:
+              "One or more cabins do not exist",
+          });
+          return;
+        }
+
+        const conflict =
+          await query<{
+            household_name: string;
+            cabin_name: string;
+            event_name: string;
+          }>(
+            `
+              WITH input AS (
+                SELECT
+                  (
+                    item ->>
+                    'registration_id'
+                  )::bigint
+                    AS registration_id,
+                  (
+                    item ->>
+                    'cabin_id'
+                  )::bigint
+                    AS cabin_id
+                FROM jsonb_array_elements(
+                  $1::jsonb
+                ) AS item
+                WHERE
+                  item ->>
+                  'cabin_id'
+                  IS NOT NULL
+              )
+              SELECT
+                COALESCE(
+                  other_account.display_name,
+                  other_account.username
+                ) AS household_name,
+                cabin.name
+                  AS cabin_name,
+                other_event.name
+                  AS event_name
+              FROM input
+              JOIN event_registrations target
+                ON target.id =
+                  input.registration_id
+              JOIN events target_event
+                ON target_event.id =
+                  target.event_id
+              JOIN cabins cabin
+                ON cabin.id =
+                  input.cabin_id
+              JOIN event_registrations other
+                ON other.cabin_id =
+                  input.cabin_id
+               AND other.id <>
+                  target.id
+              JOIN events other_event
+                ON other_event.id =
+                  other.event_id
+              JOIN accounts other_account
+                ON other_account.id =
+                  other.account_id
+              WHERE
+                target_event.starts_at <
+                  other_event.ends_at
+                AND
+                other_event.starts_at <
+                  target_event.ends_at
+              LIMIT 1
+            `,
+            [
+              JSON.stringify(
+                assignments,
+              ),
+            ],
+          );
+
+        if (conflict.rows[0]) {
+          res.status(409).json({
+            error:
+              `${conflict.rows[0].cabin_name} is occupied by ${conflict.rows[0].household_name} during ${conflict.rows[0].event_name}`,
+          });
+          return;
+        }
+      }
+
+      const values: unknown[] = [];
+      const valueRows =
+        assignments.map(
+          (item, index) => {
+            const offset =
+              index * 2;
+
+            values.push(
+              item.registration_id,
+              item.cabin_id,
+            );
+
+            return `(
+              $${offset + 1}::bigint,
+              $${offset + 2}::bigint
+            )`;
+          },
+        );
+
+      const result =
+        await query<{
+          id: string;
+        }>(
+          `
+            UPDATE event_registrations
+            SET cabin_id =
+              input.cabin_id
+            FROM (
+              VALUES
+                ${valueRows.join(",")}
+            ) AS input(
+              registration_id,
+              cabin_id
+            )
+            WHERE
+              event_registrations.id =
+                input.registration_id
+            RETURNING
+              event_registrations.id
+          `,
+          values,
+        );
+
+      res.json({
+        updated_count:
+          result.rows.length,
+      });
+    } catch (error: any) {
+      if (
+        error?.code ===
+          "P0001" &&
+        String(
+          error?.message ?? "",
+        ).includes(
+          "CABIN_OCCUPIED",
+        )
+      ) {
+        res.status(409).json({
+          error:
+            "A selected cabin became occupied before the changes were applied",
+        });
+        return;
+      }
+
+      console.error(error);
+
+      res.status(500).json({
+        error:
+          "Could not apply cabin changes",
+      });
+    }
+  },
+);
+
+
+registrationsRouter.patch(
   "/:id/cabin",
   requireAuth,
   requirePasswordChanged,

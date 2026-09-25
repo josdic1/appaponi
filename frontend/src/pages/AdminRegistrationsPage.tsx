@@ -19,6 +19,7 @@ import {
 } from "react";
 
 import {
+  ArrowRightLeft,
   BedDouble,
   UsersRound,
 } from "lucide-react";
@@ -36,6 +37,7 @@ import type {
 } from "@appoponi/shared/schemas/registration";
 
 import AdminCabinsPanel from "./AdminCabinsPanel";
+import AdminCabinMovesPanel from "./AdminCabinMovesPanel";
 
 import {
   createRegistration,
@@ -86,7 +88,7 @@ export default function AdminRegistrationsPage({
 
   const [view, setView] =
     useState<
-      "households" | "cabins"
+      "households" | "moves" | "cabins"
     >("households");
 
   async function refresh() {
@@ -141,6 +143,15 @@ export default function AdminRegistrationsPage({
         view === "households",
       onClick: () =>
         setView("households"),
+    },
+    {
+      id: "registrations-moves",
+      label: "Moves",
+      icon: ArrowRightLeft,
+      active:
+        view === "moves",
+      onClick: () =>
+        setView("moves"),
     },
     {
       id: "registrations-cabins",
@@ -523,6 +534,23 @@ export default function AdminRegistrationsPage({
               </Text>
             </Box>
           )}
+        </Box>
+
+        <Box
+          id="registrations-moves"
+          data-testid="cabin-moves-view"
+          display={
+            view === "moves"
+              ? "block"
+              : "none"
+          }
+        >
+          <AdminCabinMovesPanel
+            registrations={
+              visibleRegistrations
+            }
+            onChanged={refresh}
+          />
         </Box>
 
         <Box

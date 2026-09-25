@@ -372,6 +372,32 @@ export async function deleteCabin(
   return json(response);
 }
 
+export async function assignRegistrationCabinsBulk(
+  assignments: Array<{
+    registration_id: number;
+    cabin_id: number | null;
+  }>,
+) {
+  const response = await fetch(
+    `${API_URL}/api/registrations/cabins/bulk`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        assignments,
+      }),
+    },
+  );
+
+  return json<{
+    updated_count: number;
+  }>(response);
+}
+
 export async function assignRegistrationCabin(
   registrationId: string,
   cabinId: number | null,
