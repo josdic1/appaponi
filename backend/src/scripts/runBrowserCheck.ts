@@ -252,6 +252,55 @@ async function checkAdmin(browser: Browser) {
       await assertHeading(page, heading, `admin ${section}`);
     }
 
+    await clickSection(
+      page,
+      "Admin sections",
+      "Guests + cabins",
+    );
+
+    await page
+      .locator(
+        '[data-cabin-slot-id="cabin-14"]',
+      )
+      .click();
+
+    const cabinPanel =
+      page.locator(
+        '[data-testid="cabin-command-panel"]',
+      );
+
+    await cabinPanel.waitFor({
+      state: "visible",
+      timeout: 10_000,
+    });
+
+    await cabinPanel
+      .getByText(
+        "Dicker Family",
+        { exact: true },
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    await cabinPanel
+      .getByRole(
+        "button",
+        {
+          name: "Send message",
+          exact: true,
+        },
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    console.log(
+      "PASS  admin clickable cabin command panel",
+    );
+
     assertNoPageErrors();
   } finally {
     await context.close();

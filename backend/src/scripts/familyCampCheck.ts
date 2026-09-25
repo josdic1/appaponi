@@ -1268,6 +1268,36 @@ async function main() {
       "notification",
     );
 
+  const initialAdminHistory =
+    arrayFrom(
+      (
+        await admin.request(
+          "GET",
+          `/api/notifications/admin/history?account_id=${memberAccountId}&event_id=${eventId}`,
+        )
+      ).body,
+      "notifications",
+    );
+
+  const initialHistoryNotice =
+    initialAdminHistory.find(
+      (item) =>
+        String(item.id) ===
+        notificationId,
+    );
+
+  assert.ok(
+    initialHistoryNotice,
+  );
+  assert.equal(
+    initialHistoryNotice.read_at,
+    null,
+  );
+
+  pass(
+    "admin household notification history",
+  );
+
   pass("member notification");
 
   const broadcastTitle =
@@ -1909,6 +1939,37 @@ async function main() {
         item.source_type === "event_meal",
     ),
     false,
+  );
+
+  await member.request(
+    "PATCH",
+    `/api/notifications/${notificationId}/read`,
+  );
+
+  const readAdminHistory =
+    arrayFrom(
+      (
+        await admin.request(
+          "GET",
+          `/api/notifications/admin/history?account_id=${memberAccountId}&event_id=${eventId}`,
+        )
+      ).body,
+      "notifications",
+    );
+
+  const readHistoryNotice =
+    readAdminHistory.find(
+      (item) =>
+        String(item.id) ===
+        notificationId,
+    );
+
+  assert.ok(
+    readHistoryNotice?.read_at,
+  );
+
+  pass(
+    "admin sees household notification read status",
   );
 
   const prefs =

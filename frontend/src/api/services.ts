@@ -864,6 +864,37 @@ export async function loadNotifications() {
   ).notifications;
 }
 
+export async function loadAdminNotificationHistory(
+  accountId: string,
+  eventId?: string,
+) {
+  const params =
+    new URLSearchParams({
+      account_id: accountId,
+    });
+
+  if (eventId) {
+    params.set(
+      "event_id",
+      eventId,
+    );
+  }
+
+  const response = await fetch(
+    `${API_URL}/api/notifications/admin/history?${params.toString()}`,
+    {
+      credentials: "include",
+    },
+  );
+
+  return (
+    await json<{
+      notifications:
+        NotificationRecord[];
+    }>(response)
+  ).notifications;
+}
+
 export async function createEventNotificationBroadcast(
   input: {
     event_id: number;

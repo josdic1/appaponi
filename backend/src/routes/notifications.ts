@@ -472,6 +472,77 @@ notificationsRouter.get(
   },
 );
 
+notificationsRouter.get(
+  "/admin/history",
+  requireAccountType("admin"),
+  async (req, res) => {
+    const accountId =
+      typeof req.query.account_id === "string"
+        ? Number(req.query.account_id)
+        : NaN;
+
+    const eventId =
+      typeof req.query.event_id === "string" &&
+      req.query.event_id
+        ? Number(req.query.event_id)
+        : null;
+
+    if (
+      !Number.isInteger(accountId) ||
+      accountId <= 0 ||
+      (
+        eventId !== null &&
+        (
+          !Number.isInteger(eventId) ||
+          eventId <= 0
+        )
+      )
+    ) {
+      res.status(400).json({
+        error:
+          "Invalid notification history query",
+      });
+      return;
+    }
+
+    const result =
+      await query<NotificationRecord>(
+        `
+          SELECT
+            id,
+            account_id,
+            event_id,
+            kind,
+            title,
+            body,
+            scheduled_for,
+            read_at,
+            created_at,
+            source_type,
+            source_id
+          FROM notifications
+          WHERE account_id = $1
+            AND (
+              $2::bigint IS NULL
+              OR event_id = $2
+            )
+            AND source_type IS NULL
+          ORDER BY
+            created_at DESC,
+            id DESC
+        `,
+        [
+          accountId,
+          eventId,
+        ],
+      );
+
+    res.json({
+      notifications: result.rows,
+    });
+  },
+);
+
 notificationsRouter.post(
   "/broadcast",
   requireAccountType("admin"),
