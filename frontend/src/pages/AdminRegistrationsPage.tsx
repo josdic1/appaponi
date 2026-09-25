@@ -20,7 +20,6 @@ import {
 
 import {
   BedDouble,
-  UserPlus,
   UsersRound,
 } from "lucide-react";
 
@@ -85,6 +84,11 @@ export default function AdminRegistrationsPage({
   const [showRegister, setShowRegister] =
     useState(false);
 
+  const [view, setView] =
+    useState<
+      "households" | "cabins"
+    >("households");
+
   async function refresh() {
     const [
       nextAccounts,
@@ -129,27 +133,23 @@ export default function AdminRegistrationsPage({
   const visibleRegistrations = registrations;
 
   const pageSections = [
-    ...(showRegister
-      ? [
-          {
-            id: "registrations-create",
-            label: "Register",
-            icon: UserPlus,
-            targetId: "registrations-create",
-          },
-        ]
-      : []),
     {
       id: "registrations-households",
       label: "Households",
       icon: UsersRound,
-      targetId: "registrations-households",
+      active:
+        view === "households",
+      onClick: () =>
+        setView("households"),
     },
     {
       id: "registrations-cabins",
       label: "Cabins",
       icon: BedDouble,
-      targetId: "registrations-cabins",
+      active:
+        view === "cabins",
+      onClick: () =>
+        setView("cabins"),
     },
   ];
 
@@ -379,7 +379,12 @@ export default function AdminRegistrationsPage({
 
         <Box
           id="registrations-households"
-          scrollMarginTop="96px"
+          data-testid="registered-households-panel"
+          display={
+            view === "households"
+              ? "block"
+              : "none"
+          }
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="xl"
@@ -522,7 +527,12 @@ export default function AdminRegistrationsPage({
 
         <Box
           id="registrations-cabins"
-          scrollMarginTop="96px"
+          data-testid="cabins-view"
+          display={
+            view === "cabins"
+              ? "block"
+              : "none"
+          }
         >
           <AdminCabinsPanel
             activeEventId={activeEventId}

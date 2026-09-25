@@ -562,11 +562,188 @@ export default function AdminPage() {
     void run(() => transferHouseholdPrimary(currentPrimary.id, member.id));
   }
 
+  const desktopSidebarFooter = (
+    <Stack gap="3">
+      <Box position="relative">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          w="full"
+          onClick={() =>
+            setShowDevTools(
+              (current) => !current,
+            )
+          }
+        >
+          DEV
+        </Button>
+
+        {showDevTools && (
+          <Box
+            position="absolute"
+            bottom="0"
+            left="calc(100% + 8px)"
+            zIndex="dropdown"
+            w="320px"
+            bg="white"
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="lg"
+            boxShadow="lg"
+            p="3"
+          >
+            <Stack gap="3">
+              <Box>
+                <Text fontWeight="700">
+                  Demo data
+                </Text>
+
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                >
+                  {demoBusy
+                    ? "Working…"
+                    : demoMessage || "Ready"}
+                </Text>
+              </Box>
+
+              <Button
+                type="button"
+                variant="outline"
+                colorPalette="red"
+                h="auto"
+                py="3"
+                justifyContent="flex-start"
+                disabled={demoBusy !== null}
+                onClick={() =>
+                  void runDemo(
+                    "clear-people-events",
+                  )
+                }
+              >
+                <Stack
+                  gap="0"
+                  alignItems="flex-start"
+                >
+                  <Text fontWeight="700">
+                    Clear people + events
+                  </Text>
+
+                  <Text
+                    fontSize="xs"
+                    fontWeight="400"
+                  >
+                    Keep admin + reusable setup
+                  </Text>
+                </Stack>
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                h="auto"
+                py="3"
+                justifyContent="flex-start"
+                disabled={demoBusy !== null}
+                onClick={() =>
+                  void runDemo(
+                    "clear-guests-events",
+                  )
+                }
+              >
+                <Stack
+                  gap="0"
+                  alignItems="flex-start"
+                >
+                  <Text fontWeight="700">
+                    Clear guests + events
+                  </Text>
+
+                  <Text
+                    fontSize="xs"
+                    fontWeight="400"
+                  >
+                    Keep admin + staff + reusable setup
+                  </Text>
+                </Stack>
+              </Button>
+
+              <Button
+                type="button"
+                colorPalette="green"
+                h="auto"
+                py="3"
+                justifyContent="flex-start"
+                disabled={demoBusy !== null}
+                onClick={() =>
+                  void runDemo(
+                    "seed-alumni-weekend",
+                  )
+                }
+              >
+                <Stack
+                  gap="0"
+                  alignItems="flex-start"
+                >
+                  <Text fontWeight="700">
+                    Alumni Weekend
+                  </Text>
+
+                  <Text
+                    fontSize="xs"
+                    fontWeight="400"
+                  >
+                    Keep reusable setup; today becomes Day 1
+                  </Text>
+                </Stack>
+              </Button>
+            </Stack>
+          </Box>
+        )}
+      </Box>
+
+      <Box>
+        <Text
+          fontSize="xs"
+          color="gray.500"
+          fontWeight="700"
+          textTransform="uppercase"
+          letterSpacing="wide"
+        >
+          Signed in
+        </Text>
+
+        <Text
+          mt="1"
+          fontSize="sm"
+          fontWeight="700"
+        >
+          @{account?.username}
+        </Text>
+      </Box>
+
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        w="full"
+        onClick={() => void logout()}
+      >
+        Sign out
+      </Button>
+    </Stack>
+  );
+
   return (
     <div>
       <Box
         as="header"
-        display="flex"
+        display={{
+          base: "flex",
+          lg: "none",
+        }}
         alignItems="center"
         justifyContent="space-between"
         gap="4"
@@ -783,6 +960,60 @@ export default function AdminPage() {
       </Box>
 
       <AdminWorkspace
+        brand={
+          <Button
+            type="button"
+            variant="ghost"
+            h="auto"
+            w="full"
+            p="1"
+            justifyContent="flex-start"
+            aria-label="Appoponi home"
+            onClick={() => {
+              setSection("event");
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+            }}
+          >
+            <HStack gap="3">
+              <Box
+                w="9"
+                h="9"
+                display="grid"
+                placeItems="center"
+                borderRadius="md"
+                bg="green.700"
+                color="white"
+                fontWeight="700"
+                flexShrink="0"
+              >
+                A
+              </Box>
+
+              <Stack
+                gap="0"
+                alignItems="flex-start"
+                minW="0"
+              >
+                <Text fontWeight="800">
+                  Appoponi
+                </Text>
+
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                >
+                  Admin
+                </Text>
+              </Stack>
+            </HStack>
+          </Button>
+        }
+        footer={
+          desktopSidebarFooter
+        }
         sections={[
           {
             id: "event",

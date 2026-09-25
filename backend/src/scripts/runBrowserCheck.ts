@@ -233,6 +233,36 @@ async function checkAdmin(browser: Browser) {
   try {
     await login(page, ADMIN_USERNAME, ADMIN_PASSWORD);
     await assertVisible(page, 'aside[aria-label="Admin sections"]', "admin shell");
+    await assertVisible(page, 'aside[aria-label="Admin navigation"]', "admin navigation rail");
+
+    const adminNavigation =
+      page.locator(
+        'aside[aria-label="Admin navigation"]',
+      );
+
+    await adminNavigation
+      .getByText(
+        "Appoponi",
+        { exact: true },
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    await adminNavigation
+      .getByText(
+        `@${ADMIN_USERNAME}`,
+        { exact: true },
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    console.log(
+      "PASS  admin rail brand + account",
+    );
 
     await clickSection(page, "Admin sections", "Event HQ");
     await assertVisible(page, ".event-hq", "admin Event HQ");
@@ -256,6 +286,46 @@ async function checkAdmin(browser: Browser) {
       page,
       "Admin sections",
       "Guests + cabins",
+    );
+
+    const guestSections =
+      page.locator(
+        'aside[aria-label="Guests and cabins sections"]',
+      );
+
+    await guestSections
+      .getByRole(
+        "button",
+        {
+          name: "Cabins",
+          exact: true,
+        },
+      )
+      .click();
+
+    await page
+      .locator(
+        '[data-testid="cabins-view"]',
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    if (
+      await page
+        .locator(
+          '[data-testid="registered-households-panel"]',
+        )
+        .isVisible()
+    ) {
+      throw new Error(
+        "Registered households remained visible in Cabins view",
+      );
+    }
+
+    console.log(
+      "PASS  guests + cabins rail switches views",
     );
 
     await page
