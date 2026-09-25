@@ -812,8 +812,6 @@ async function main() {
           `Test Cabin ${stamp}`,
         area_id:
           Number(areaId),
-        map_slot_id:
-          "cabin-d4",
       },
     );
 
@@ -853,21 +851,10 @@ async function main() {
         item.name ===
           renamedCabin &&
         item.map_slot_id ===
-          "cabin-d4",
+          null,
     ),
   );
 
-  await admin.request(
-    "POST",
-    "/api/cabins",
-    {
-      name:
-        `Duplicate Map Cabin ${stamp}`,
-      map_slot_id:
-        "cabin-d4",
-    },
-    409,
-  );
 
   await admin.request(
     "PATCH",
@@ -885,7 +872,6 @@ async function main() {
       {
         name: `Move Target Cabin ${stamp}`,
         area_id: Number(areaId),
-        map_slot_id: "cabin-d3",
       },
     );
 
@@ -1424,7 +1410,7 @@ async function main() {
 
   assert.equal(
     memberRegistration.cabin_map_slot_id,
-    "cabin-d4",
+    null,
   );
 
   assert.equal(
@@ -2701,15 +2687,64 @@ async function main() {
     "Every demo household should have a real cabin assigned",
   );
 
-  assert.equal(
-    demoRegistrations.filter(
+  assert.ok(
+    demoRegistrations.every(
       (item) =>
         Boolean(
           item.cabin_map_slot_id,
         ),
-    ).length,
-    3,
-    "Only the three verified cabin map placements should be seeded until the remaining physical buildings are mapped",
+    ),
+    "Every demo household cabin should resolve to its permanent reusable map structure",
+  );
+
+  const demoCabins =
+    arrayFrom(
+      (
+        await admin.request(
+          "GET",
+          "/api/cabins",
+        )
+      ).body,
+      "cabins",
+    );
+
+  const expectedReusableCabins = [
+    ...Array.from(
+      { length: 32 },
+      (_, index) => [
+        `Cabin ${index + 1}`,
+        `cabin-${index + 1}`,
+      ] as const,
+    ),
+    ["The Hilton", "the-hilton"] as const,
+    ["The Hyatt", "the-hyatt"] as const,
+    ["The Beehive", "the-beehive"] as const,
+  ];
+
+  for (const [
+    cabinName,
+    mapSlotId,
+  ] of expectedReusableCabins) {
+    const cabin =
+      demoCabins.find(
+        (item) =>
+          item.name === cabinName,
+      );
+
+    assert.ok(
+      cabin,
+      `${cabinName} should exist in reusable setup`,
+    );
+
+    assert.equal(
+      cabin.map_slot_id,
+      mapSlotId,
+      `${cabinName} should keep its permanent map structure`,
+    );
+  }
+
+  pass(
+    "reusable cabin map preset",
   );
 
   const demoLibraryItems = arrayFrom(

@@ -34,7 +34,18 @@ cabinsRouter.get("/", async (_req, res) => {
         created_at,
         updated_at
       FROM cabins
-      ORDER BY name, id
+      ORDER BY
+        CASE
+          WHEN name ~ '^Cabin [0-9]+$' THEN 0
+          ELSE 1
+        END,
+        CASE
+          WHEN name ~ '^Cabin [0-9]+$'
+            THEN substring(name FROM '[0-9]+')::INTEGER
+          ELSE NULL
+        END,
+        name,
+        id
     `);
 
     res.json({

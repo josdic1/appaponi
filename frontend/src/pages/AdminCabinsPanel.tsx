@@ -231,11 +231,17 @@ export default function AdminCabinsPanel({
                   /^Cabin\s+(\d+)$/i,
                 );
 
+              const specialLabel =
+                numberMatch
+                  ? null
+                  : owner.name.replace(
+                      /^The\s+/i,
+                      "",
+                    );
+
               const label =
                 numberMatch?.[1] ??
-                owner.name
-                  .slice(0, 2)
-                  .toUpperCase();
+                specialLabel;
 
               return (
                 <chakra.g
@@ -252,10 +258,26 @@ export default function AdminCabinsPanel({
                   />
 
                   <chakra.text
-                    x={centerX}
-                    y={centerY + 3}
-                    textAnchor="middle"
-                    fontSize="9px"
+                    x={
+                      numberMatch
+                        ? centerX
+                        : slot.x - 4
+                    }
+                    y={
+                      numberMatch
+                        ? centerY + 3
+                        : centerY + 2
+                    }
+                    textAnchor={
+                      numberMatch
+                        ? "middle"
+                        : "end"
+                    }
+                    fontSize={
+                      numberMatch
+                        ? "9px"
+                        : "7px"
+                    }
                     fontWeight="800"
                     fill="#174a32"
                     paintOrder="stroke"

@@ -1891,7 +1891,7 @@ devRouter.post(
             return {
               mode,
               message:
-                "Family Camp demo loaded. Today is Day 1; reusable setup retained.",
+                "Camp Weekend loaded. Today is Day 1; reusable setup retained.",
               ...seeded,
             };
           },
