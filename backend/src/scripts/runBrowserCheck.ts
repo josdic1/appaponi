@@ -275,12 +275,42 @@ async function checkAdmin(browser: Browser) {
       ["Guests + cabins", "Guests + cabins"],
       ["Meal planning", "Meal planning"],
       ["Services", "Services"],
+      ["Walkthrough", "Walkthrough"],
     ];
 
     for (const [section, heading] of checks) {
       await clickSection(page, "Admin sections", section);
       await assertHeading(page, heading, `admin ${section}`);
     }
+
+    const walkthrough =
+      page.locator(
+        '[data-testid="admin-walkthrough-page"]',
+      );
+
+    await walkthrough
+      .getByText(
+        "DEV → Alumni Weekend",
+        { exact: true },
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    await walkthrough
+      .getByText(
+        "Meal planning → Menu → Change",
+        { exact: true },
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    console.log(
+      "PASS  admin walkthrough starter documentation",
+    );
 
     await clickSection(
       page,

@@ -18,6 +18,7 @@ import {
   ArrowUp,
   BedDouble,
   BellRing,
+  BookOpenText,
   CalendarDays,
   CalendarRange,
   ClipboardList,
@@ -37,6 +38,7 @@ import AdminSchedulingPage from "./AdminSchedulingPage";
 import AdminRegistrationsPage from "./AdminRegistrationsPage";
 import AdminServicesPage from "./AdminServicesPage";
 import AdminMealPlanningPage from "./AdminMealPlanningPage";
+import AdminWalkthroughPage from "./AdminWalkthroughPage";
 
 import type { AccountRecord } from "@appoponi/shared/schemas/accounts";
 
@@ -78,7 +80,8 @@ type Section =
   | "scheduling"
   | "registrations"
   | "meals"
-  | "services";
+  | "services"
+  | "walkthrough";
 
 type MemberEdit = {
   full_name: string;
@@ -1071,6 +1074,13 @@ export default function AdminPage() {
             active: section === "services",
             onClick: () => setSection("services"),
           },
+          {
+            id: "walkthrough",
+            label: "Walkthrough",
+            icon: BookOpenText,
+            active: section === "walkthrough",
+            onClick: () => setSection("walkthrough"),
+          },
         ]}
       >
         {activeEvent &&
@@ -1173,6 +1183,8 @@ export default function AdminPage() {
           />
         ) : section === "services" ? (
           <AdminServicesPage activeEventId={activeEventId} />
+        ) : section === "walkthrough" ? (
+          <AdminWalkthroughPage />
         ) : (
           <Box
             id="accounts-page-top"
