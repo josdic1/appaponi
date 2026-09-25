@@ -181,7 +181,7 @@ async function seedDemo() {
     username: ADMIN_USERNAME,
     password: ADMIN_PASSWORD,
   });
-  await session.request("POST", "/api/dev/demo/seed-family-camp");
+  await session.request("POST", "/api/dev/demo/seed-alumni-weekend");
 }
 
 function attachPageFailureChecks(page: Page, role: string) {

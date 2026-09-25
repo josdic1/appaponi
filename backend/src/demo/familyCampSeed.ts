@@ -1,7 +1,7 @@
 const familyCampSeedTemplate = {
-  "seed_name": "Family Camp 2026 demo",
+  "seed_name": "Alumni Weekend demo",
   "event": {
-    "name": "Family Camp 2026",
+    "name": "Alumni Weekend",
     "event_type": "Family Camp",
     "starts_at": "2026-08-19T11:00:00-04:00",
     "ends_at": "2026-08-22T11:15:00-04:00"
@@ -664,14 +664,14 @@ const familyCampSeedTemplate = {
     {
       "targets": ["dicker", "muskat", "rosen", "levine", "kaplan", "goldberg", "friedman", "cohen", "stein", "weiss"],
       "kind": "general",
-      "title": "Family Camp is ready",
-      "body": "Your Family Camp weekend schedule is available."
+      "title": "Alumni Weekend is ready",
+      "body": "Your Alumni Weekend schedule is available."
     },
     {
       "targets": ["dicker", "muskat", "rosen", "friedman", "weiss"],
       "kind": "general",
       "title": "Waterfront sign-ups are open",
-      "body": "Waterskiing and tubing sign-ups are available from your Family Camp schedule."
+      "body": "Waterskiing and tubing sign-ups are available from your Alumni Weekend schedule."
     },
     {
       "targets": ["dicker", "muskat", "rosen", "levine", "kaplan", "goldberg", "friedman", "cohen", "stein", "weiss"],

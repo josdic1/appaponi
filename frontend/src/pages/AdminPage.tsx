@@ -520,8 +520,10 @@ export default function AdminPage() {
         "CLEAR STAFF + MEMBERS + EVENTS? Admin accounts stay. Activities, areas, qualifications, activity requirements, cabins, food, menus, event categories, and meal types all stay.",
       "clear-guests-events":
         "CLEAR MEMBERS + EVENTS? Admin and staff stay. Activities, areas, qualifications, activity requirements, cabins, food, menus, event categories, and meal types all stay.",
+      "seed-alumni-weekend":
+        "LOAD ALUMNI WEEKEND? Existing staff, members, and event instances are cleared first. Reusable setup—including cabins and their permanent map locations—stays. Today becomes Day 1.",
       "seed-family-camp":
-        "LOAD CAMP WEEKEND? Existing staff, members, and event instances are cleared first. Reusable setup—including cabins and their permanent map locations—stays. Today becomes Day 1.",
+        "LOAD ALUMNI WEEKEND? Existing staff, members, and event instances are cleared first. Reusable setup—including cabins and their permanent map locations—stays. Today becomes Day 1.",
     };
 
     if (!window.confirm(prompts[action])) {
@@ -736,7 +738,7 @@ export default function AdminPage() {
                     disabled={demoBusy !== null}
                     onClick={() =>
                       void runDemo(
-                        "seed-family-camp",
+                        "seed-alumni-weekend",
                       )
                     }
                   >
@@ -745,7 +747,7 @@ export default function AdminPage() {
                       alignItems="flex-start"
                     >
                       <Text fontWeight="700">
-                        Camp Weekend
+                        Alumni Weekend
                       </Text>
 
                       <Text

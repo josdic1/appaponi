@@ -170,6 +170,7 @@ devRouter.post(
 type DemoMode =
   | "clear-people-events"
   | "clear-guests-events"
+  | "seed-alumni-weekend"
   | "seed-family-camp";
 
 const eventTypeNames = [
@@ -745,6 +746,7 @@ async function ensureMemberHousehold(
 
 async function seedFamilyCamp(
   client: PoolClient,
+  mode: "seed-alumni-weekend" | "seed-family-camp",
 ) {
   const familyCampSeed =
     createFamilyCampSeed();
@@ -1784,7 +1786,7 @@ async function seedFamilyCamp(
 
   await recordDemoAction(
     client,
-    "seed-family-camp",
+    mode,
     {
       event:
         familyCampSeed.event.name,
@@ -1839,6 +1841,7 @@ devRouter.post(
       ![
         "clear-people-events",
         "clear-guests-events",
+        "seed-alumni-weekend",
         "seed-family-camp",
       ].includes(mode)
     ) {
@@ -1886,12 +1889,15 @@ devRouter.post(
             const seeded =
               await seedFamilyCamp(
                 client,
+                mode === "seed-family-camp"
+                  ? "seed-family-camp"
+                  : "seed-alumni-weekend",
               );
 
             return {
               mode,
               message:
-                "Camp Weekend loaded. Today is Day 1; reusable setup retained.",
+                "Alumni Weekend loaded. Today is Day 1; reusable setup retained.",
               ...seeded,
             };
           },

@@ -2525,17 +2525,17 @@ async function main() {
 
   pass("strict event-id scoped reads");
 
-  /* DEVELOPMENT FAMILY CAMP DEMO */
+  /* DEVELOPMENT ALUMNI WEEKEND DEMO */
 
   const demoResult =
     await admin.request(
       "POST",
-      "/api/dev/demo/seed-family-camp",
+      "/api/dev/demo/seed-alumni-weekend",
     );
 
   assert.equal(
     demoResult.body.mode,
-    "seed-family-camp",
+    "seed-alumni-weekend",
   );
 
   const demoEvents =
@@ -2553,7 +2553,7 @@ async function main() {
     demoEvents.find(
       (item) =>
         item.name ===
-        "Family Camp 2026",
+        "Alumni Weekend",
     );
 
   assert.ok(demoEvent);
@@ -2566,7 +2566,7 @@ async function main() {
   assert.equal(
     demoStartDate,
     newYorkDateKey(new Date()),
-    "Family Camp demo should start on the day it is seeded",
+    "Alumni Weekend should start on the day it is seeded",
   );
 
   const demoActivities =
@@ -2928,7 +2928,7 @@ async function main() {
     "POST",
     `/api/events/${demoEvent.id}/clone`,
     {
-      name: "Family Camp 2027",
+      name: "Alumni Weekend 2027",
       starts_at: cloneStart.toISOString(),
     },
   );
@@ -2939,7 +2939,7 @@ async function main() {
 
   assert.equal(
     cloneResult.body.event.name,
-    "Family Camp 2027",
+    "Alumni Weekend 2027",
   );
   assert.equal(
     cloneResult.body.copied.activities,
@@ -3079,7 +3079,7 @@ async function main() {
 
   await admin.request(
     "POST",
-    "/api/dev/demo/seed-family-camp",
+    "/api/dev/demo/seed-alumni-weekend",
   );
 
   const reusableActivitiesBeforePeopleClear = arrayFrom(
@@ -3120,7 +3120,7 @@ async function main() {
   pass("demo clear people keeps admin + reusable setup");
 
   pass(
-    "Family Camp demo load",
+    "Alumni Weekend demo load",
   );
 
   console.log("");

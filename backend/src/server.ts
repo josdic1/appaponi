@@ -21,6 +21,9 @@ import { mealsRouter } from "./routes/meals.js";
 import { foodRouter } from "./routes/food.js";
 import { babysittingRouter } from "./routes/babysitting.js";
 import { notificationsRouter } from "./routes/notifications.js";
+import { runMigrations } from "./db/migrate.js";
+
+await runMigrations();
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);

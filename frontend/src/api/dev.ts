@@ -74,6 +74,7 @@ export async function devLogin(
 export type DemoAction =
   | "clear-people-events"
   | "clear-guests-events"
+  | "seed-alumni-weekend"
   | "seed-family-camp";
 
 export async function runDemoAction(
