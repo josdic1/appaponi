@@ -1908,6 +1908,44 @@ async function main() {
     "activity capacity enforced",
   );
 
+  const adminHouseholdOverview =
+    (
+      await admin.request(
+        "GET",
+        `/api/registrations/${registrationId}/overview`,
+      )
+    ).body.overview;
+
+  assert.equal(
+    String(
+      adminHouseholdOverview.registration.id,
+    ),
+    registrationId,
+  );
+
+  assert.ok(
+    adminHouseholdOverview.members.some(
+      (item: any) =>
+        item.full_name ===
+          "Test Parent" &&
+        item.attending === true,
+    ),
+  );
+
+  assert.ok(
+    adminHouseholdOverview.signups.some(
+      (item: any) =>
+        String(item.id) ===
+          signupId &&
+        item.activity_name ===
+          `Test Canoeing ${stamp}`,
+    ),
+  );
+
+  pass(
+    "admin household overview members + activity signups",
+  );
+
   /* MEMBER MEALS */
 
   const visibleMeals =

@@ -220,6 +220,59 @@ export async function loadRegistrations(eventId?: string) {
   ).registrations;
 }
 
+export type AdminRegistrationOverview = {
+  registration: EventRegistration;
+  members: Array<{
+    id: string;
+    full_name: string;
+    member_role:
+      | "primary"
+      | "adult"
+      | "child";
+    email: string | null;
+    phone: string | null;
+    dietary_restrictions:
+      | string
+      | null;
+    attendee_id:
+      | string
+      | null;
+    attending: boolean;
+  }>;
+  signups: Array<{
+    id: string;
+    event_activity_id: string;
+    member_attendee_id: string;
+    member_id: string;
+    member_name: string;
+    activity_name: string;
+    area_name: string;
+    starts_at: string;
+    ends_at: string;
+    checked_in_at:
+      | string
+      | null;
+  }>;
+};
+
+export async function loadRegistrationOverview(
+  registrationId: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/registrations/${registrationId}/overview`,
+    {
+      credentials: "include",
+    },
+  );
+
+  return (
+    await json<{
+      overview:
+        AdminRegistrationOverview;
+    }>(response)
+  ).overview;
+}
+
 export async function createRegistration(
   input: {
     account_id: number;

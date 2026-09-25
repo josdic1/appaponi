@@ -38,6 +38,7 @@ import type {
 
 import AdminCabinsPanel from "./AdminCabinsPanel";
 import AdminCabinMovesPanel from "./AdminCabinMovesPanel";
+import AdminHouseholdOverviewPanel from "./AdminHouseholdOverviewPanel";
 
 import {
   createRegistration,
@@ -85,6 +86,11 @@ export default function AdminRegistrationsPage({
 
   const [showRegister, setShowRegister] =
     useState(false);
+
+  const [
+    selectedRegistrationId,
+    setSelectedRegistrationId,
+  ] = useState<string | null>(null);
 
   const [view, setView] =
     useState<
@@ -388,14 +394,24 @@ export default function AdminRegistrationsPage({
           </Box>
         )}
 
+        <Grid
+          display={
+            view === "households"
+              ? "grid"
+              : "none"
+          }
+          templateColumns={{
+            base: "1fr",
+            xl: selectedRegistrationId
+              ? "minmax(0, 1fr) 390px"
+              : "1fr",
+          }}
+          gap="4"
+          alignItems="start"
+        >
         <Box
           id="registrations-households"
           data-testid="registered-households-panel"
-          display={
-            view === "households"
-              ? "block"
-              : "none"
-          }
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="xl"
@@ -426,10 +442,46 @@ export default function AdminRegistrationsPage({
                 (item) => (
                   <Box
                     key={item.id}
+                    data-registration-id={
+                      item.id
+                    }
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Open ${item.household_name ?? item.username}`}
+                    cursor="pointer"
                     px="5"
                     py="4"
                     borderBottomWidth="1px"
                     borderColor="gray.100"
+                    bg={
+                      selectedRegistrationId ===
+                      item.id
+                        ? "green.50"
+                        : "white"
+                    }
+                    _hover={{
+                      bg:
+                        selectedRegistrationId ===
+                        item.id
+                          ? "green.50"
+                          : "gray.50",
+                    }}
+                    onClick={() =>
+                      setSelectedRegistrationId(
+                        item.id,
+                      )
+                    }
+                    onKeyDown={(event) => {
+                      if (
+                        event.key === "Enter" ||
+                        event.key === " "
+                      ) {
+                        event.preventDefault();
+                        setSelectedRegistrationId(
+                          item.id,
+                        );
+                      }
+                    }}
                   >
                     <Grid
                       templateColumns={{
@@ -467,6 +519,12 @@ export default function AdminRegistrationsPage({
                         <Input
                           type="number"
                           min="1"
+                          onClick={(event) =>
+                            event.stopPropagation()
+                          }
+                          onKeyDown={(event) =>
+                            event.stopPropagation()
+                          }
                           value={
                             item.spots_paid_for
                           }
@@ -535,6 +593,20 @@ export default function AdminRegistrationsPage({
             </Box>
           )}
         </Box>
+
+        {selectedRegistrationId && (
+          <AdminHouseholdOverviewPanel
+            registrationId={
+              selectedRegistrationId
+            }
+            onClose={() =>
+              setSelectedRegistrationId(
+                null,
+              )
+            }
+          />
+        )}
+        </Grid>
 
         <Box
           id="registrations-moves"

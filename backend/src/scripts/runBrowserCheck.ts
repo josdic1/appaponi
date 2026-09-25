@@ -293,6 +293,62 @@ async function checkAdmin(browser: Browser) {
         'aside[aria-label="Guests and cabins sections"]',
       );
 
+    await page
+      .getByRole(
+        "button",
+        {
+          name: "Open Dicker Family",
+          exact: true,
+        },
+      )
+      .click();
+
+    const householdPanel =
+      page.locator(
+        '[data-testid="household-overview-panel"]',
+      );
+
+    await householdPanel.waitFor({
+      state: "visible",
+      timeout: 10_000,
+    });
+
+    await householdPanel
+      .getByText(
+        "Dorrie Dicker",
+        { exact: true },
+      )
+      .first()
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    await householdPanel
+      .getByText(
+        "Demi Dicker",
+        { exact: true },
+      )
+      .first()
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    await householdPanel
+      .getByText(
+        "Color War!",
+        { exact: true },
+      )
+      .waitFor({
+        state: "visible",
+        timeout: 10_000,
+      });
+
+    console.log(
+      "PASS  clickable household overview panel",
+    );
+
     await guestSections
       .getByRole(
         "button",

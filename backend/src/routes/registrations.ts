@@ -114,6 +114,196 @@ registrationsRouter.get(
   },
 );
 
+registrationsRouter.get(
+  "/:id/overview",
+  requireAuth,
+  requirePasswordChanged,
+  requireAccountType("admin"),
+  async (req, res) => {
+    const params =
+      registrationIdParamsSchema.safeParse(
+        req.params,
+      );
+
+    if (!params.success) {
+      res.status(400).json({
+        error:
+          "Invalid registration id",
+      });
+      return;
+    }
+
+    try {
+      const registrationResult =
+        await query<EventRegistration>(
+          `
+            SELECT
+              er.id,
+              er.account_id,
+              a.username,
+              a.display_name AS household_name,
+              er.event_id,
+              e.name AS event_name,
+              e.starts_at AS event_starts_at,
+              e.ends_at AS event_ends_at,
+              er.spots_paid_for,
+              (
+                SELECT COUNT(*)::int
+                FROM member_attendees ma
+                JOIN household_members hm
+                  ON hm.id = ma.member_id
+                WHERE hm.account_id = er.account_id
+                  AND ma.event_id = er.event_id
+              ) AS selected_attendees,
+              er.cabin_id,
+              c.name AS cabin_name,
+              c.map_slot_id AS cabin_map_slot_id,
+              er.share_cabin_publicly,
+              lead_member.id AS household_lead_member_id,
+              lead_member.full_name AS household_lead_name
+            FROM event_registrations er
+            JOIN accounts a
+              ON a.id = er.account_id
+            JOIN events e
+              ON e.id = er.event_id
+            LEFT JOIN cabins c
+              ON c.id = er.cabin_id
+            LEFT JOIN member_attendees lead_attendee
+              ON lead_attendee.id = er.household_lead_attendee_id
+            LEFT JOIN household_members lead_member
+              ON lead_member.id = lead_attendee.member_id
+            WHERE er.id = $1
+          `,
+          [params.data.id],
+        );
+
+      const registration =
+        registrationResult.rows[0];
+
+      if (!registration) {
+        res.status(404).json({
+          error:
+            "Registration does not exist",
+        });
+        return;
+      }
+
+      const members =
+        await query<{
+          id: string;
+          full_name: string;
+          member_role:
+            | "primary"
+            | "adult"
+            | "child";
+          email: string | null;
+          phone: string | null;
+          dietary_restrictions:
+            | string
+            | null;
+          attendee_id:
+            | string
+            | null;
+          attending: boolean;
+        }>(
+          `
+            SELECT
+              hm.id,
+              hm.full_name,
+              hm.member_role,
+              hm.email,
+              hm.phone,
+              hm.dietary_restrictions,
+              ma.id AS attendee_id,
+              (ma.id IS NOT NULL) AS attending
+            FROM event_registrations er
+            JOIN household_members hm
+              ON hm.account_id = er.account_id
+            LEFT JOIN member_attendees ma
+              ON ma.member_id = hm.id
+             AND ma.event_id = er.event_id
+            WHERE er.id = $1
+            ORDER BY
+              CASE hm.member_role
+                WHEN 'primary' THEN 0
+                WHEN 'adult' THEN 1
+                ELSE 2
+              END,
+              hm.full_name,
+              hm.id
+          `,
+          [params.data.id],
+        );
+
+      const signups =
+        await query<{
+          id: string;
+          event_activity_id: string;
+          member_attendee_id: string;
+          member_id: string;
+          member_name: string;
+          activity_name: string;
+          area_name: string;
+          starts_at: string;
+          ends_at: string;
+          checked_in_at:
+            | string
+            | null;
+        }>(
+          `
+            SELECT
+              eas.id,
+              eas.event_activity_id,
+              eas.member_attendee_id,
+              ma.member_id,
+              hm.full_name AS member_name,
+              activity.name AS activity_name,
+              area.name AS area_name,
+              ea.starts_at,
+              ea.ends_at,
+              eas.checked_in_at
+            FROM event_registrations er
+            JOIN household_members hm
+              ON hm.account_id = er.account_id
+            JOIN member_attendees ma
+              ON ma.member_id = hm.id
+             AND ma.event_id = er.event_id
+            JOIN event_activity_signups eas
+              ON eas.member_attendee_id = ma.id
+            JOIN event_activities ea
+              ON ea.id = eas.event_activity_id
+             AND ea.event_id = er.event_id
+            JOIN activities activity
+              ON activity.id = ea.activity_id
+            JOIN areas area
+              ON area.id = activity.area_id
+            WHERE er.id = $1
+            ORDER BY
+              ea.starts_at,
+              activity.name,
+              hm.full_name
+          `,
+          [params.data.id],
+        );
+
+      res.json({
+        overview: {
+          registration,
+          members: members.rows,
+          signups: signups.rows,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error:
+          "Could not load household overview",
+      });
+    }
+  },
+);
+
 registrationsRouter.post(
   "/",
   requireAuth,
